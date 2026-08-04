@@ -1,0 +1,884 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lotus Cup 2k25 - Telemetria & Setup</title>
+  <style>
+    :root {
+      --bg-dark: #121212;
+      --card-bg: #1e1e1e;
+      --accent: #f39c12;
+      --text: #ffffff;
+      --border: #333333;
+      --green: #2ecc71;
+      --red: #e74c3c;
+      --cell-bg: #ffffff;
+      --cell-text: #000000;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background-color: var(--bg-dark);
+      color: var(--text);
+      margin: 0;
+      padding: 10px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .app-container {
+      width: 100%;
+      max-width: 950px;
+      background-color: var(--card-bg);
+      border: 2px solid var(--accent);
+      border-radius: 12px;
+      padding: 15px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+    }
+
+    .screen { display: none; }
+    .screen.active { display: block; }
+
+    h1, h2, h3 { text-align: center; color: var(--accent); margin-top: 5px; }
+    
+    .btn {
+      background-color: var(--accent);
+      color: #000;
+      border: none;
+      padding: 12px 20px;
+      font-size: 1rem;
+      font-weight: bold;
+      border-radius: 6px;
+      cursor: pointer;
+      width: 100%;
+      margin: 8px 0;
+      transition: all 0.2s;
+    }
+    .btn:hover:not(:disabled) { opacity: 0.9; }
+    .btn:disabled { background-color: #555 !important; color: #888 !important; cursor: not-allowed; opacity: 0.6; }
+    .btn-secondary { background-color: #444; color: #fff; }
+    .btn-danger { background-color: var(--red); color: #fff; }
+    .btn-success { background-color: var(--green); color: #fff; }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      margin: 8px 0;
+      background-color: #2a2a2a;
+      border: 1px solid var(--border);
+      color: #fff;
+      border-radius: 6px;
+      font-size: 1rem;
+    }
+
+    /* HEADER & MESCOLE GOMME */
+    .sheet-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 2px solid var(--accent);
+      padding-bottom: 10px;
+      margin-bottom: 15px;
+      flex-wrap: wrap;
+    }
+
+    .tyres-deck {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 10px;
+      margin-bottom: 15px;
+      background-color: #252525;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #333;
+    }
+
+    .tyre-card {
+      background-color: #1a1a1a;
+      border: 1px solid #444;
+      border-radius: 6px;
+      padding: 8px;
+      text-align: center;
+    }
+    .tyre-card.active { border-color: var(--accent); background-color: #2d2613; }
+
+    .tyre-title-btn {
+      width: 100%;
+      padding: 6px;
+      background: #333;
+      color: #fff;
+      border: none;
+      font-weight: bold;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-bottom: 6px;
+    }
+    .tyre-card.active .tyre-title-btn { background: var(--accent); color: #000; }
+
+    .laps-container {
+      display: flex;
+      justify-content: center;
+      gap: 6px;
+    }
+    .lap-box {
+      width: 28px;
+      height: 28px;
+      background-color: #fff;
+      color: #000;
+      border-radius: 3px;
+      font-size: 0.9rem;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      user-select: none;
+      opacity: 0.3;
+    }
+    .lap-box.marked { 
+      background-color: #f1c40f !important; 
+      color: #000000 !important; 
+      font-weight: 900 !important; 
+      opacity: 1 !important; 
+      border: 1px solid #000;
+    }
+    .lap-box.clickable { cursor: pointer; opacity: 1; border: 1px solid var(--accent); }
+    .lap-box.disabled { cursor: not-allowed; opacity: 0.2; }
+
+    /* GRID STRUTTURA A 2 COLONNE */
+    .grid-board {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+    }
+    @media (max-width: 650px) {
+      .grid-board { grid-template-columns: 1fr; }
+    }
+
+    .row-item {
+      background-color: #252525;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #333;
+    }
+
+    .row-title {
+      font-weight: bold;
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .boxes-container {
+      display: flex;
+      gap: 4px;
+      flex-wrap: wrap;
+    }
+    .boxes-container.align-right {
+      justify-content: flex-end;
+    }
+
+    .box {
+      width: 32px;
+      height: 32px;
+      background-color: var(--cell-bg);
+      color: var(--cell-text);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 1.1rem;
+      border: 1px solid #000;
+      user-select: none;
+      border-radius: 3px;
+    }
+
+    .box.clickable { cursor: pointer; border: 2px solid var(--accent); }
+    .box.clickable:hover { background-color: #f1c40f; }
+    .box.x-black { color: #000; font-weight: 900; background-color: #95a5a6; }
+    .box.x-red { color: var(--red); font-weight: 900; }
+    .box.circle-green { color: var(--green); font-size: 1.3rem; }
+    .box.circle-kers { color: #3498db; font-size: 1.3rem; }
+
+    .budget-bar {
+      background-color: #2a2a2a;
+      border: 1px solid var(--accent);
+      padding: 10px;
+      text-align: center;
+      border-radius: 6px;
+      margin-bottom: 15px;
+      font-weight: bold;
+      font-size: 1.1rem;
+    }
+
+    .opponents-list {
+      margin-top: 15px;
+      border-top: 1px solid var(--border);
+      padding-top: 10px;
+    }
+    .opp-item {
+      background: #2a2a2a;
+      padding: 8px 12px;
+      border-radius: 4px;
+      margin-bottom: 5px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.8);
+      justify-content: center;
+      align-items: center;
+    }
+    .modal-content {
+      background: var(--card-bg);
+      padding: 20px;
+      border-radius: 8px;
+      max-width: 400px;
+      width: 90%;
+      text-align: center;
+      border: 1px solid var(--accent);
+    }
+  </style>
+</head>
+<body>
+
+<div class="app-container">
+
+  <!-- 1. HOME MENU -->
+  <div id="screen-home" class="screen active">
+    <h1>LOTUS CUP 2K25</h1>
+    <p style="text-align: center; color: #888;">Gestore Scheda Telemetria Formula Dé</p>
+    <hr style="border-color: var(--border); margin: 20px 0;">
+    
+    <button class="btn" onclick="showScreen('screen-new-game')">Crea Nuova Partita</button>
+    <button class="btn btn-secondary" onclick="showScreen('screen-join-game')">Unisciti a Partita</button>
+    <button class="btn btn-secondary" onclick="alert('Funzione ripresa sessione attiva!')">Riprendi Partita</button>
+    <button class="btn btn-secondary" onclick="showScreen('screen-tutorial')">Tutorial & Regole</button>
+  </div>
+
+  <!-- 2. CREA PARTITA -->
+  <div id="screen-new-game" class="screen">
+    <h2>Crea Nuova Partita</h2>
+    <label>Nome Circuito:</label>
+    <input type="text" id="input-circuit" placeholder="es. Monza, Spa, Monaco...">
+    <label>Nome Creatore / Host:</label>
+    <input type="text" id="input-host" placeholder="Il tuo nome...">
+    
+    <button class="btn btn-success" onclick="createGame()">Genera Partita & Stanza</button>
+    <button class="btn btn-secondary" onclick="showScreen('screen-home')">Indietro</button>
+  </div>
+
+  <!-- 3. UNISCITI A PARTITA -->
+  <div id="screen-join-game" class="screen">
+    <h2>Unisciti a Partita</h2>
+    <label>Codice Gara (Numerico):</label>
+    <input type="number" id="input-code" placeholder="es. 4821">
+    <label>Nome Pilota:</label>
+    <input type="text" id="input-player-name" placeholder="Il tuo nome...">
+    
+    <button class="btn btn-success" onclick="joinGame()">Entra nella Gara</button>
+    <button class="btn btn-secondary" onclick="showScreen('screen-home')">Indietro</button>
+  </div>
+
+  <!-- 4. DASHBOARD SETUP & GARA -->
+  <div id="screen-setup" class="screen">
+    <div class="sheet-header">
+      <div>
+        <h3 id="display-circuit" style="margin:0; text-align:left;">CIRCUITO</h3>
+        <small id="display-meta" style="color: #aaa;">Data: - | Host: -</small>
+      </div>
+      <div>
+        <strong>Codice Stanza: <span id="display-code" style="color: var(--accent);">0000</span></strong>
+      </div>
+    </div>
+
+    <!-- MESCOLE GOMME CON CASELLE GIRI (1, 2, 3) -->
+    <div class="tyres-deck" id="tyres-deck-container"></div>
+
+    <!-- BUDGET BAR -->
+    <div id="budget-bar" class="budget-bar" style="display: none;">
+      Punti Disponibili per Setup: <span id="budget-count" style="color: var(--accent);">13</span> / 13
+    </div>
+
+    <button id="btn-start-config" class="btn" onclick="startConfiguration()">Inizia Configurazione (13 Punti)</button>
+
+    <!-- SCHEDA COMPONENTI AUTO -->
+    <div class="grid-board">
+      
+      <!-- SINISTRA: PNEUMATICI -->
+      <div class="row-item">
+        <div class="row-title">🛞 Pneumatici (10 WP)</div>
+        <div class="boxes-container" id="row-tyres"></div>
+      </div>
+
+      <!-- DESTRA: PUNTI OFFICINA / BOX + TELAIO -->
+      <div class="row-item">
+        <div class="row-title">🔧 Punti Officina (3 WP Max Riparazione)</div>
+        <div class="boxes-container align-right" id="row-workshop" style="margin-bottom: 12px;"></div>
+
+        <div class="row-title">🛡️ Telaio (6 WP)</div>
+        <div class="boxes-container align-right" id="row-body"></div>
+      </div>
+
+      <!-- SINISTRA: FRENI -->
+      <div class="row-item">
+        <div class="row-title">🛑 Freni (6 WP)</div>
+        <div class="boxes-container" id="row-brakes"></div>
+      </div>
+
+      <!-- DESTRA: MOTORE -->
+      <div class="row-item">
+        <div class="row-title">⚙️ Motore (6 WP)</div>
+        <div class="boxes-container align-right" id="row-engine"></div>
+      </div>
+
+      <!-- SINISTRA: CARBURANTE -->
+      <div class="row-item">
+        <div class="row-title">⛽ Carburante (6 WP)</div>
+        <div class="boxes-container" id="row-fuel"></div>
+      </div>
+
+      <!-- DESTRA: SOSPENSIONI -->
+      <div class="row-item">
+        <div class="row-title">🏁 Sospensioni (6 WP)</div>
+        <div class="boxes-container align-right" id="row-suspension"></div>
+      </div>
+
+      <!-- SOTTO A SINISTRA: ALETTONE -->
+      <div class="row-item">
+        <div class="row-title">🏎️ Alettone</div>
+        <div class="boxes-container">
+          <div id="box-wing" class="box" onclick="toggleWing()"></div>
+        </div>
+      </div>
+
+      <!-- SOTTO A DESTRA: KERS -->
+      <div class="row-item">
+        <div class="row-title">⚡ KERS</div>
+        <div class="boxes-container align-right">
+          <div id="box-kers" class="box" onclick="interactKers()"></div>
+        </div>
+      </div>
+
+    </div>
+
+    <div style="margin-top: 20px;">
+      <button id="btn-lock-setup" class="btn btn-success" onclick="officializeSetup()" style="display: none;" disabled>Ufficializza Scheda / Inizio Gara (Assegna tutti i 13 Punti)</button>
+      <button id="btn-toggle-edit" class="btn btn-secondary" onclick="toggleRaceEdit()" style="display: none;">🔒 Modalità Lettura (Clicca per Sbloccare Edit)</button>
+    </div>
+
+    <!-- VISTA AVVERSARI -->
+    <div class="opponents-list" id="opponents-container">
+      <h3>Piloti in Gara</h3>
+      <div id="opponents-list-items"></div>
+    </div>
+  </div>
+
+  <!-- TUTORIAL -->
+  <div id="screen-tutorial" class="screen">
+    <h2>Tutorial & Regolamento</h2>
+    <p>1. <strong>Setup</strong>: Seleziona la mescola di partenza e distribuisci i 13 punti. Se ti dimentichi di spuntare il giro 1, l'app lo assegnerà in automatico alla mescola attiva all'ufficializzazione.</p>
+    <p>2. <strong>Giri & Pit Stop</strong>: Puoi spuntare qualsiasi giro (1, 2, 3) sulla mescola attiva. Se prolunghi uno stint fino al Giro 3, potrai spuntare direttamente il Giro 3 quando rientri ai box.</p>
+    <p>3. <strong>Consumo e Danni</strong>: Gomme, Freni e Carburante si barrono andando da destra verso sinistra. Telaio, Motore e Sospensioni da sinistra verso destra.</p>
+    <p>4. <strong>Riparazioni Officina</strong>: Cliccando su un punto barrato di Freni, Telaio, Motore o Sospensioni, la barra si toglie e viene automaticamente barrata la prima casella libera da sinistra nei Punti Officina.</p>
+    <button class="btn btn-secondary" onclick="showScreen('screen-home')">Torna al Menu</button>
+  </div>
+
+</div>
+
+<!-- MODALE KERS -->
+<div id="modal-kers" class="modal">
+  <div class="modal-content">
+    <h3>Gestione Uso KERS</h3>
+    <p>Hai utilizzato il KERS! Qual è stato l'esito del tiro?</p>
+    <button class="btn btn-success" onclick="resolveKers(false)">Esito OK (Svuota KERS)</button>
+    <button class="btn btn-danger" onclick="resolveKers(true)">Danneggiato (X Rossa)</button>
+    <button class="btn btn-secondary" onclick="closeModal()">Annulla</button>
+  </div>
+</div>
+
+<script>
+  let gameState = {
+    code: null,
+    circuit: '',
+    host: '',
+    date: '',
+    playerName: '',
+    isSetupMode: false,
+    isRaceMode: false,
+    isEditingAllowed: false,
+    budget: 13,
+    selectedTyre: 'Option',
+    tyreLaps: {
+      Option: [],
+      Prime: [],
+      Standard: [],
+      Pioggia: []
+    },
+    wingActive: false,
+    kersState: 'empty',
+    baseValues: { tyres: 4, brakes: 2, fuel: 2, body: 2, engine: 2, suspension: 1 },
+    allocations: { tyres: 0, brakes: 0, fuel: 0, body: 0, engine: 0, suspension: 0 },
+    markedUsages: { tyres: [], brakes: [], fuel: [], body: [], engine: [], suspension: [] },
+    workshopUsages: []
+  };
+
+  let opponents = [
+    { name: 'Hamilton', status: 'Pronto' },
+    { name: 'Verstappen', status: 'In Compilazione' }
+  ];
+
+  function showScreen(screenId) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(screenId).classList.add('active');
+  }
+
+  function createGame() {
+    const circuit = document.getElementById('input-circuit').value || 'Monza';
+    const host = document.getElementById('input-host').value || 'Pilota 1';
+    
+    gameState.circuit = circuit;
+    gameState.host = host;
+    gameState.playerName = host;
+    gameState.code = Math.floor(1000 + Math.random() * 9000);
+    gameState.date = new Date().toLocaleDateString('it-IT');
+
+    initSetupScreen();
+  }
+
+  function joinGame() {
+    const code = document.getElementById('input-code').value;
+    const name = document.getElementById('input-player-name').value || 'Pilota Guest';
+    
+    if(!code) { alert('Inserisci un codice valido'); return; }
+
+    gameState.circuit = "Circuito di Gara";
+    gameState.host = "Host Stanza";
+    gameState.playerName = name;
+    gameState.code = code;
+    gameState.date = new Date().toLocaleDateString('it-IT');
+
+    initSetupScreen();
+  }
+
+  function initSetupScreen() {
+    document.getElementById('display-circuit').innerText = gameState.circuit;
+    document.getElementById('display-meta').innerText = `Data: ${gameState.date} | Host: ${gameState.host}`;
+    document.getElementById('display-code').innerText = gameState.code;
+
+    renderOpponents();
+    renderTyreDeck();
+    renderBoard();
+    showScreen('screen-setup');
+  }
+
+  function renderOpponents() {
+    const list = document.getElementById('opponents-list-items');
+    list.innerHTML = '';
+    opponents.forEach(op => {
+      list.innerHTML += `<div class="opp-item" onclick="alert('Visualizzazione scheda di: ${op.name}')">
+        <span>👤 <strong>${op.name}</strong></span>
+        <small style="color:${op.status === 'Pronto' ? 'var(--green)' : 'var(--accent)'}">${op.status}</small>
+      </div>`;
+    });
+  }
+
+  function isLapMarkedAnywhere(lap) {
+    return Object.keys(gameState.tyreLaps).some(t => gameState.tyreLaps[t].includes(lap));
+  }
+
+  function renderTyreDeck() {
+    const container = document.getElementById('tyres-deck-container');
+    container.innerHTML = '';
+    const tyres = ['Option', 'Prime', 'Standard', 'Pioggia'];
+
+    tyres.forEach(t => {
+      const isSelected = gameState.selectedTyre === t;
+      const card = document.createElement('div');
+      card.className = `tyre-card ${isSelected ? 'active' : ''}`;
+
+      let lapsHtml = '';
+      [1, 2, 3].forEach(lap => {
+        const isMarked = gameState.tyreLaps[t].includes(lap);
+        const lapUsedAnywhere = isLapMarkedAnywhere(lap);
+        let isClickable = false;
+
+        if (gameState.isSetupMode) {
+          if (lap === 1 && isSelected) {
+            if (!lapUsedAnywhere || isMarked) isClickable = true;
+          }
+        } else if (gameState.isRaceMode && gameState.isEditingAllowed) {
+          if (isSelected) {
+            if (lap !== 1) {
+              if (!lapUsedAnywhere || isMarked) isClickable = true;
+            }
+          }
+        }
+
+        lapsHtml += `<div class="lap-box ${isMarked ? 'marked' : ''} ${isClickable ? 'clickable' : 'disabled'}" 
+                          ${isClickable ? `onclick="toggleTyreLap('${t}', ${lap})"` : ''}>
+                      ${lap}
+                     </div>`;
+      });
+
+      card.innerHTML = `
+        <button class="tyre-title-btn" onclick="selectTyre('${t}')">${t}</button>
+        <div class="laps-container">${lapsHtml}</div>
+      `;
+      container.appendChild(card);
+    });
+  }
+
+  function selectTyre(type) {
+    gameState.selectedTyre = type;
+    renderTyreDeck();
+  }
+
+  function toggleTyreLap(type, lap) {
+    if (gameState.isSetupMode) {
+      if (type !== gameState.selectedTyre || lap !== 1) return;
+    } else if (gameState.isRaceMode && gameState.isEditingAllowed) {
+      if (type !== gameState.selectedTyre || lap === 1) return;
+    } else {
+      return;
+    }
+
+    const list = gameState.tyreLaps[type];
+    const pos = list.indexOf(lap);
+    if (pos > -1) {
+      list.splice(pos, 1);
+    } else {
+      list.push(lap);
+    }
+    renderTyreDeck();
+  }
+
+  function startConfiguration() {
+    gameState.isSetupMode = true;
+    document.getElementById('btn-start-config').style.display = 'none';
+    document.getElementById('budget-bar').style.display = 'block';
+    document.getElementById('btn-lock-setup').style.display = 'block';
+    renderTyreDeck();
+    renderBoard();
+  }
+
+  function renderBoard() {
+    const components = ['tyres', 'brakes', 'fuel', 'body', 'engine', 'suspension'];
+    const rightAligned = ['body', 'engine', 'suspension'];
+    
+    components.forEach(comp => {
+      const container = document.getElementById(`row-${comp}`);
+      container.innerHTML = '';
+      
+      const totalBoxes = (comp === 'tyres') ? 10 : 6;
+      const baseVal = gameState.baseValues[comp];
+      const addedVal = gameState.allocations[comp];
+      const totalPoints = baseVal + addedVal;
+      const isRight = rightAligned.includes(comp);
+
+      const wingBoxIndex = totalBoxes - totalPoints;
+
+      for (let i = 0; i < totalBoxes; i++) {
+        const box = document.createElement('div');
+        box.className = 'box';
+
+        if (!isRight) {
+          if (i < baseVal) {
+            box.innerText = '1';
+          } else if (i < totalPoints) {
+            box.innerText = '1';
+            if (gameState.isSetupMode) {
+              box.classList.add('clickable');
+              box.onclick = () => removeBudgetPoint(comp);
+            }
+          } else {
+            box.innerText = '';
+            if (gameState.isSetupMode && gameState.budget > 0) {
+              box.classList.add('clickable');
+              box.onclick = () => addBudgetPoint(comp);
+            }
+          }
+        } else {
+          const fromRight = totalBoxes - 1 - i;
+
+          if (comp === 'body' && gameState.wingActive && i === wingBoxIndex) {
+            box.innerText = 'X';
+            box.classList.add('x-black');
+          } 
+          else if (fromRight < baseVal) {
+            box.innerText = '1';
+          } 
+          else if (fromRight < totalPoints) {
+            box.innerText = '1';
+            if (gameState.isSetupMode) {
+              box.classList.add('clickable');
+              box.onclick = () => removeBudgetPoint(comp);
+            }
+          } 
+          else {
+            box.innerText = '';
+            if (gameState.isSetupMode && gameState.budget > 0) {
+              box.classList.add('clickable');
+              box.onclick = () => addBudgetPoint(comp);
+            }
+          }
+        }
+
+        if (gameState.isRaceMode) {
+          if (gameState.markedUsages[comp].includes(i)) {
+            box.innerText = 'X';
+            box.classList.add('x-red');
+          }
+          if (gameState.isEditingAllowed) {
+            box.classList.add('clickable');
+            box.onclick = () => handleComponentClick(comp, i);
+          }
+        }
+
+        container.appendChild(box);
+      }
+    });
+
+    // Render Punti Officina (🔧 1 1 1)
+    const workshopContainer = document.getElementById('row-workshop');
+    workshopContainer.innerHTML = '';
+    for (let i = 0; i < 3; i++) {
+      const box = document.createElement('div');
+      box.className = 'box';
+      if (gameState.workshopUsages.includes(i)) {
+        box.innerText = 'X';
+        box.classList.add('x-red');
+      } else {
+        box.innerText = '1';
+      }
+      if (gameState.isRaceMode && gameState.isEditingAllowed) {
+        box.classList.add('clickable');
+        box.onclick = () => toggleWorkshopPoint(i);
+      }
+      workshopContainer.appendChild(box);
+    }
+
+    // Render Alettone
+    const wingBox = document.getElementById('box-wing');
+    wingBox.className = 'box';
+    if (gameState.wingActive) {
+      if (isBodyCompletelyDestroyed()) {
+        wingBox.innerText = 'X';
+        wingBox.classList.add('x-red');
+      } else {
+        wingBox.innerText = '⭕';
+        wingBox.classList.add('circle-green');
+      }
+    } else {
+      wingBox.innerText = '';
+    }
+    if (gameState.isSetupMode) wingBox.classList.add('clickable');
+
+    // Render KERS
+    const kersBox = document.getElementById('box-kers');
+    kersBox.className = 'box';
+    if (gameState.kersState === 'charged') {
+      kersBox.innerText = '⭕';
+      kersBox.classList.add('circle-kers');
+      if (gameState.isRaceMode && gameState.isEditingAllowed) kersBox.classList.add('clickable');
+    } else if (gameState.kersState === 'damaged') {
+      kersBox.innerText = 'X';
+      kersBox.classList.add('x-red');
+    } else {
+      kersBox.innerText = '';
+    }
+
+    document.getElementById('budget-count').innerText = gameState.budget;
+    const lockBtn = document.getElementById('btn-lock-setup');
+    if (gameState.budget === 0) {
+      lockBtn.disabled = false;
+      lockBtn.innerText = "Ufficializza Scheda / Inizio Gara";
+    } else {
+      lockBtn.disabled = true;
+      lockBtn.innerText = `Assegna tutti i 13 Punti per Iniziare (${gameState.budget} rimanenti)`;
+    }
+  }
+
+  function addBudgetPoint(comp) {
+    if (gameState.budget > 0) {
+      gameState.allocations[comp]++;
+      gameState.budget--;
+      renderBoard();
+    }
+  }
+
+  function removeBudgetPoint(comp) {
+    if (gameState.allocations[comp] > 0) {
+      gameState.allocations[comp]--;
+      gameState.budget++;
+      renderBoard();
+    }
+  }
+
+  function toggleWing() {
+    if (!gameState.isSetupMode) return;
+    gameState.wingActive = !gameState.wingActive;
+    renderBoard();
+  }
+
+  function officializeSetup() {
+    if (gameState.budget > 0) return;
+
+    if (!isLapMarkedAnywhere(1)) {
+      gameState.tyreLaps[gameState.selectedTyre].push(1);
+    }
+
+    gameState.isSetupMode = false;
+    gameState.isRaceMode = true;
+    gameState.isEditingAllowed = false;
+
+    document.getElementById('budget-bar').style.display = 'none';
+    document.getElementById('btn-lock-setup').style.display = 'none';
+    document.getElementById('btn-toggle-edit').style.display = 'block';
+
+    renderBoard();
+    renderTyreDeck();
+    alert("Scheda Ufficializzata! Buona Gara!");
+  }
+
+  function toggleRaceEdit() {
+    gameState.isEditingAllowed = !gameState.isEditingAllowed;
+    const btn = document.getElementById('btn-toggle-edit');
+    if (gameState.isEditingAllowed) {
+      btn.innerText = "🔓 Modalità Edit Attiva (Clicca per Bloccare)";
+      btn.classList.replace('btn-secondary', 'btn-success');
+    } else {
+      btn.innerText = "🔒 Modalità Lettura (Clicca per Sbloccare Edit)";
+      btn.classList.replace('btn-success', 'btn-secondary');
+    }
+    renderBoard();
+    renderTyreDeck();
+  }
+
+  /* GESTIONE COMPLETA RIPARAZIONI ED CONSUMI/DANNI */
+  function handleComponentClick(comp, clickedIndex) {
+    const rightAligned = ['body', 'engine', 'suspension'];
+    const repairable = ['brakes', 'body', 'engine', 'suspension'];
+    const isRight = rightAligned.includes(comp);
+    
+    const totalBoxes = (comp === 'tyres') ? 10 : 6;
+    const totalPoints = gameState.baseValues[comp] + gameState.allocations[comp];
+    const wingBoxIndex = totalBoxes - totalPoints;
+
+    // Blocca l'interazione sul punto occupato dall'Alettone sul Telaio
+    if (comp === 'body' && gameState.wingActive && clickedIndex === wingBoxIndex) return;
+
+    const markedList = gameState.markedUsages[comp];
+    const isAlreadyMarked = markedList.includes(clickedIndex);
+
+    if (isAlreadyMarked) {
+      // LOGICA DI RIPARAZIONE (cliccando su una casella precedentemente barrata)
+      if (repairable.includes(comp)) {
+        // Cerca la prima casella disponibile più a SINISTRA nei Punti Officina (indici 0, 1, 2)
+        let availableWorkshopIndex = -1;
+        for (let w = 0; w < 3; w++) {
+          if (!gameState.workshopUsages.includes(w)) {
+            availableWorkshopIndex = w;
+            break;
+          }
+        }
+
+        if (availableWorkshopIndex === -1) {
+          alert("Nessun Punto Officina disponibile per la riparazione!");
+          return;
+        }
+
+        // 1. Sbarra tolta (Punto ripristinato sul componente)
+        const pos = markedList.indexOf(clickedIndex);
+        markedList.splice(pos, 1);
+
+        // 2. Viene barrata la casella più a sinistra dei Punti Officina
+        gameState.workshopUsages.push(availableWorkshopIndex);
+      } else {
+        // Per Gomme e Carburante la barra si rimuove semplicemente
+        const pos = markedList.indexOf(clickedIndex);
+        markedList.splice(pos, 1);
+      }
+    } else {
+      // LOGICA DI CONSUMO / DANNO (cliccando su una casella libera)
+      let targetIndex = -1;
+
+      if (!isRight) {
+        // SEZIONI A SINISTRA (Gomme, Freni, Benzina):
+        // Si barra la prima casella disponibilità/valorizzata partendo da destra verso sinistra
+        for (let i = totalPoints - 1; i >= 0; i--) {
+          if (!markedList.includes(i)) {
+            targetIndex = i;
+            break;
+          }
+        }
+      } else {
+        // SEZIONI A DESTRA (Telaio, Motore, Sospensioni):
+        // Si barra la prima casella disponibilità/valorizzata partendo da sinistra verso destra
+        for (let i = totalBoxes - totalPoints; i < totalBoxes; i++) {
+          if (comp === 'body' && gameState.wingActive && i === wingBoxIndex) continue;
+          if (!markedList.includes(i)) {
+            targetIndex = i;
+            break;
+          }
+        }
+      }
+
+      if (targetIndex !== -1) {
+        markedList.push(targetIndex);
+
+        if (comp === 'brakes' && gameState.kersState === 'empty') {
+          gameState.kersState = 'charged';
+        }
+      }
+    }
+
+    renderBoard();
+  }
+
+  function toggleWorkshopPoint(index) {
+    const pos = gameState.workshopUsages.indexOf(index);
+    if (pos > -1) {
+      gameState.workshopUsages.splice(pos, 1);
+    } else {
+      gameState.workshopUsages.push(index);
+    }
+    renderBoard();
+  }
+
+  function isBodyCompletelyDestroyed() {
+    const totalAvailable = gameState.baseValues.body + gameState.allocations.body;
+    const userMarked = gameState.markedUsages.body.length;
+    return userMarked >= (totalAvailable - 1);
+  }
+
+  function interactKers() {
+    if (gameState.isRaceMode && gameState.isEditingAllowed && gameState.kersState === 'charged') {
+      document.getElementById('modal-kers').style.display = 'flex';
+    }
+  }
+
+  function resolveKers(isDamaged) {
+    if (isDamaged) {
+      gameState.kersState = 'damaged';
+    } else {
+      gameState.kersState = 'empty';
+    }
+    closeModal();
+    renderBoard();
+  }
+
+  function closeModal() {
+    document.getElementById('modal-kers').style.display = 'none';
+  }
+</script>
+
+</body>
+</html>
