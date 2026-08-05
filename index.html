@@ -3,10 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <!-- META TAG PER IPHONE / PWA -->
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Lotus Cup">
+  <meta class="apple-mobile-web-app-capable" content="yes">
+  <meta class="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta class="apple-mobile-web-app-title" content="Lotus Cup">
   <link rel="apple-touch-icon" href="https://via.placeholder.com/180/000000/ffffff?text=LOTUS">
 
   <title>Lotus Cup 2k25 - Telemetria & Setup</title>
@@ -100,6 +99,7 @@
       font-size: 1rem;
     }
 
+    /* HEADER & MESCOLE GOMME */
     .sheet-header {
       display: flex;
       justify-content: space-between;
@@ -172,6 +172,7 @@
     .lap-box.clickable { cursor: pointer; opacity: 1; border: 2px solid #000; }
     .lap-box.disabled { cursor: not-allowed; opacity: 0.2; }
 
+    /* SEZIONE OFFICINA */
     .workshop-block {
       background-color: #ffffff;
       padding: 6px 10px;
@@ -199,6 +200,7 @@
       letter-spacing: 0.5px;
     }
 
+    /* GRID A SCHEDA CARTACEA SANI RISOLTI */
     .board-row {
       display: flex;
       align-items: flex-end;
@@ -209,12 +211,18 @@
       padding: 8px;
       border: 2px solid #000000;
       border-radius: 6px;
+      flex-wrap: nowrap; /* IMPEDISCE DI ANDARE A CAPO SU SCHERMI PICCOLI */
+      overflow-x: auto;
     }
 
     .board-side {
       display: flex;
       align-items: flex-end;
       gap: 6px;
+      flex-shrink: 0;
+    }
+    .board-side.right-side {
+      justify-content: flex-end; /* FORZA L'ALLINEAMENTO A DESTRA */
     }
 
     .fuel-container-wrapper {
@@ -240,10 +248,14 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      font-weight: bold;
       position: relative;
       flex-shrink: 0;
       border-radius: 4px;
+    }
+
+    .icon-box-center svg {
+      width: 22px;
+      height: 22px;
     }
 
     .icon-box-center.arrow-left::before {
@@ -271,7 +283,7 @@
     .boxes-container {
       display: flex;
       gap: 4px;
-      flex-wrap: wrap;
+      flex-wrap: nowrap;
     }
 
     .box {
@@ -288,6 +300,7 @@
       user-select: none;
       border-radius: 2px;
       position: relative;
+      flex-shrink: 0;
     }
 
     .box.box-setup-highlight {
@@ -404,16 +417,18 @@
     <div style="margin-bottom: 15px;">
       <button id="btn-start-config" class="btn" onclick="startConfiguration()">Inizia Configurazione (13 Punti)</button>
       <button id="btn-lock-setup" class="btn btn-success" onclick="officializeSetup()" style="display: none;" disabled>Ufficializza Scheda / Inizio Gara (Assegna tutti i 13 Punti)</button>
-      <button id="btn-toggle-edit" class="btn btn-read-mode" onclick="toggleRaceEdit()" style="display: none;">ðŸ”’ ModalitÃ  Lettura (Clicca per Sbloccare Edit)</button>
+      <button id="btn-toggle-edit" class="btn btn-read-mode" onclick="toggleRaceEdit()" style="display: none;">Modalita Lettura (Clicca per Sbloccare Edit)</button>
     </div>
 
-    <!-- MESCOLE GOMME CON CASELLE GIRI (1, 2, 3) -->
+    <!-- MESCOLE GOMME -->
     <div class="tyres-deck" id="tyres-deck-container"></div>
 
-    <!-- OFFICINA IN ALTO A DESTRA CON ICONA IN QUADRATO E -2 MOV SOLO SOPRA LE CASELLE -->
+    <!-- OFFICINA IN ALTO A DESTRA -->
     <div style="display: flex; justify-content: flex-end; margin-bottom: 10px;">
       <div class="workshop-block">
-        <div class="icon-box-center" title="Punti Officina" style="font-size: 1.1rem;">ðŸ”§</div>
+        <div class="icon-box-center" title="Punti Officina">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+        </div>
         <div class="workshop-boxes-wrapper">
           <div class="workshop-label">__ -2 MOV __</div>
           <div class="boxes-container" id="row-workshop"></div>
@@ -433,11 +448,15 @@
       <div class="board-row">
         <div class="board-side">
           <div class="boxes-container" id="row-tyres"></div>
-          <div class="icon-box-center arrow-left" title="Pneumatici">ðŸ›ž</div>
+          <div class="icon-box-center arrow-left" title="Pneumatici">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/></svg>
+          </div>
         </div>
 
-        <div class="board-side">
-          <div class="icon-box-center arrow-right" title="Telaio">ðŸŽï¸</div>
+        <div class="board-side right-side">
+          <div class="icon-box-center arrow-right" title="Telaio">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2"><path d="M5 17h14M3 12h18M7 7h10"/></svg>
+          </div>
           <div class="boxes-container" id="row-body"></div>
         </div>
       </div>
@@ -446,7 +465,9 @@
       <div class="board-row">
         <div class="board-side">
           <div class="boxes-container" id="row-brakes"></div>
-          <div class="icon-box-center arrow-left" title="Freni">ðŸ›‘</div>
+          <div class="icon-box-center arrow-left" title="Freni">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v10M7 12h10"/></svg>
+          </div>
         </div>
         
         <!-- KERS CENTRALE -->
@@ -455,20 +476,24 @@
           <div id="box-kers" class="box" onclick="interactKers()"></div>
         </div>
 
-        <div class="board-side">
-          <div class="icon-box-center arrow-right" title="Motore">âš™ï¸</div>
+        <div class="board-side right-side">
+          <div class="icon-box-center arrow-right" title="Motore">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          </div>
           <div class="boxes-container" id="row-engine"></div>
         </div>
       </div>
 
-      <!-- RIGA 3: CARBURANTE (CON MOV +1) / ALETTONE / SOSPENSIONI -->
+      <!-- RIGA 3: CARBURANTE / ALETTONE / SOSPENSIONI -->
       <div class="board-row">
         <div class="board-side">
           <div class="fuel-container-wrapper">
             <div class="fuel-mov-label">__ MOV +1 __</div>
             <div class="boxes-container" id="row-fuel"></div>
           </div>
-          <div class="icon-box-center arrow-left" title="Carburante">â›½</div>
+          <div class="icon-box-center arrow-left" title="Carburante">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2"><path d="M3 22V4a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v18M3 22h14M17 10h2a2 2 0 0 1 2 2v5a2 2 0 0 0 2 2h0"/></svg>
+          </div>
         </div>
 
         <!-- ALETTONE CENTRALE -->
@@ -477,8 +502,10 @@
           <div id="box-wing" class="box" onclick="toggleWing()"></div>
         </div>
 
-        <div class="board-side">
-          <div class="icon-box-center arrow-right" title="Sospensioni">ðŸ</div>
+        <div class="board-side right-side">
+          <div class="icon-box-center arrow-right" title="Sospensioni">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1zM4 22v-7"/></svg>
+          </div>
           <div class="boxes-container" id="row-suspension"></div>
         </div>
       </div>
@@ -495,10 +522,9 @@
   <!-- TUTORIAL -->
   <div id="screen-tutorial" class="screen">
     <h2>Tutorial & Regolamento</h2>
-    <p>1. <strong>Setup</strong>: Seleziona la mescola di partenza e distribuisci i 13 punti. Se ti dimentichi di spuntare il giro 1, l'app lo assegnerÃ  in automatico alla mescola attiva all'ufficializzazione.</p>
-    <p>2. <strong>Giri & Pit Stop</strong>: Puoi spuntare qualsiasi giro (1, 2, 3) sulla mescola attiva. Se prolunghi uno stint fino al Giro 3, potrai spuntare direttamente il Giro 3 quando rientri ai box.</p>
-    <p>3. <strong>Consumo e Danni</strong>: Gomme, Freni e Carburante si barrono andando da destra verso sinistra. Telaio, Motore e Sospensioni da sinistra verso destra.</p>
-    <p>4. <strong>Riparazioni Officina</strong>: Cliccando su un punto barrato di Freni, Telaio, Motore o Sospensioni, la barra si toglie e viene automaticamente barrata la prima casella libera da sinistra nei Punti Officina.</p>
+    <p>1. <strong>Setup</strong>: Seleziona la mescola di partenza e distribuisci i 13 punti.</p>
+    <p>2. <strong>Giri & Pit Stop</strong>: Spunta i giri 1, 2, 3 in base ai tuoi stint.</p>
+    <p>3. <strong>Consumo e Danni</strong>: Barra le caselle utilizzate durante la corsa.</p>
     <button class="btn btn-secondary" onclick="showScreen('screen-home')">Torna al Menu</button>
   </div>
 
@@ -508,7 +534,7 @@
 <div id="modal-kers" class="modal">
   <div class="modal-content">
     <h3>Gestione Uso KERS</h3>
-    <p>Hai utilizzato il KERS! Qual Ã¨ stato l'esito del tiro?</p>
+    <p>Hai utilizzato il KERS! Qual e stato l'esito del tiro?</p>
     <button class="btn btn-success" onclick="resolveKers(false)">Esito OK (Svuota KERS)</button>
     <button class="btn btn-danger" onclick="resolveKers(true)">Danneggiato (X Rossa)</button>
     <button class="btn btn-secondary" onclick="closeModal()">Annulla</button>
@@ -527,12 +553,7 @@
     isEditingAllowed: false,
     budget: 13,
     selectedTyre: 'Option',
-    tyreLaps: {
-      Option: [],
-      Prime: [],
-      Standard: [],
-      Pioggia: []
-    },
+    tyreLaps: { Option: [], Prime: [], Standard: [], Pioggia: [] },
     wingActive: false,
     kersState: 'empty',
     baseValues: { tyres: 4, brakes: 2, fuel: 2, body: 2, engine: 2, suspension: 1 },
@@ -556,28 +577,23 @@
   function createGame() {
     const circuit = document.getElementById('input-circuit').value || 'Monza';
     const host = document.getElementById('input-host').value || 'Pilota 1';
-    
     gameState.circuit = circuit;
     gameState.host = host;
     gameState.playerName = host;
     gameState.code = Math.floor(1000 + Math.random() * 9000);
     gameState.date = new Date().toLocaleDateString('it-IT');
-
     initSetupScreen();
   }
 
   function joinGame() {
     const code = document.getElementById('input-code').value;
     const name = document.getElementById('input-player-name').value || 'Pilota Guest';
-    
     if(!code) { alert('Inserisci un codice valido'); return; }
-
     gameState.circuit = "Circuito di Gara";
     gameState.host = "Host Stanza";
     gameState.playerName = name;
     gameState.code = code;
     gameState.date = new Date().toLocaleDateString('it-IT');
-
     initSetupScreen();
   }
 
@@ -585,7 +601,6 @@
     document.getElementById('display-circuit').innerText = gameState.circuit;
     document.getElementById('display-meta').innerText = `Data: ${gameState.date} | Host: ${gameState.host}`;
     document.getElementById('display-code').innerText = gameState.code;
-
     renderOpponents();
     renderTyreDeck();
     renderBoard();
@@ -596,8 +611,8 @@
     const list = document.getElementById('opponents-list-items');
     list.innerHTML = '';
     opponents.forEach(op => {
-      list.innerHTML += `<div class="opp-item" onclick="alert('Visualizzazione scheda di: ${op.name}')">
-        <span>ðŸ‘¤ <strong>${op.name}</strong></span>
+      list.innerHTML += `<div class="opp-item">
+        <span><strong>${op.name}</strong></span>
         <small style="color:${op.status === 'Pronto' ? 'var(--green)' : '#000'}">${op.status}</small>
       </div>`;
     });
@@ -767,7 +782,6 @@
       }
     });
 
-    // Render Punti Officina (ðŸ”§ 1 1 1)
     const workshopContainer = document.getElementById('row-workshop');
     workshopContainer.innerHTML = '';
     for (let i = 0; i < 3; i++) {
@@ -786,7 +800,6 @@
       workshopContainer.appendChild(box);
     }
 
-    // Render Alettone
     const wingBox = document.getElementById('box-wing');
     wingBox.className = 'box';
     if (gameState.wingActive) {
@@ -794,7 +807,7 @@
         wingBox.innerText = 'X';
         wingBox.classList.add('x-red');
       } else {
-        wingBox.innerText = 'â­•';
+        wingBox.innerText = 'O';
         wingBox.classList.add('circle-green');
       }
     } else {
@@ -802,11 +815,10 @@
     }
     if (gameState.isSetupMode) wingBox.classList.add('clickable');
 
-    // Render KERS
     const kersBox = document.getElementById('box-kers');
     kersBox.className = 'box';
     if (gameState.kersState === 'charged') {
-      kersBox.innerText = 'â­•';
+      kersBox.innerText = 'O';
       kersBox.classList.add('circle-kers');
       if (gameState.isRaceMode && gameState.isEditingAllowed) kersBox.classList.add('clickable');
     } else if (gameState.kersState === 'damaged') {
@@ -851,11 +863,9 @@
 
   function officializeSetup() {
     if (gameState.budget > 0) return;
-
     if (!isLapMarkedAnywhere(1)) {
       gameState.tyreLaps[gameState.selectedTyre].push(1);
     }
-
     gameState.isSetupMode = false;
     gameState.isRaceMode = true;
     gameState.isEditingAllowed = false;
@@ -866,7 +876,7 @@
     const editBtn = document.getElementById('btn-toggle-edit');
     editBtn.style.display = 'block';
     editBtn.className = 'btn btn-read-mode';
-    editBtn.innerText = 'ðŸ”’ ModalitÃ  Lettura (Clicca per Sbloccare Edit)';
+    editBtn.innerText = 'Modalita Lettura (Clicca per Sbloccare Edit)';
 
     renderBoard();
     renderTyreDeck();
@@ -877,10 +887,10 @@
     gameState.isEditingAllowed = !gameState.isEditingAllowed;
     const btn = document.getElementById('btn-toggle-edit');
     if (gameState.isEditingAllowed) {
-      btn.innerText = "ðŸ”“ ModalitÃ  Edit Attiva (Clicca per Bloccare)";
+      btn.innerText = "Modalita Edit Attiva (Clicca per Bloccare)";
       btn.className = 'btn btn-edit-mode';
     } else {
-      btn.innerText = "ðŸ”’ ModalitÃ  Lettura (Clicca per Sbloccare Edit)";
+      btn.innerText = "Modalita Lettura (Clicca per Sbloccare Edit)";
       btn.className = 'btn btn-read-mode';
     }
     renderBoard();
