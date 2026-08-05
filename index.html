@@ -29,7 +29,7 @@
       background-color: var(--bg-dark);
       color: var(--text);
       margin: 0;
-      padding: 10px;
+      padding: 5px;
       display: flex;
       justify-content: center;
     }
@@ -40,7 +40,7 @@
       background-color: var(--card-bg);
       border: 3px solid var(--accent);
       border-radius: 8px;
-      padding: 15px;
+      padding: 10px;
       box-shadow: 0 4px 15px rgba(0,0,0,0.2);
     }
 
@@ -112,11 +112,11 @@
 
     .tyres-deck {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 10px;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 8px;
       margin-bottom: 15px;
       background-color: #f5f5f5;
-      padding: 10px;
+      padding: 8px;
       border-radius: 6px;
       border: 2px solid #000;
     }
@@ -125,7 +125,7 @@
       background-color: #ffffff;
       border: 2px solid #000;
       border-radius: 4px;
-      padding: 8px;
+      padding: 6px;
       text-align: center;
     }
     .tyre-card.active { border-color: #000000; background-color: #e6e6e6; }
@@ -175,12 +175,12 @@
     /* SEZIONE OFFICINA */
     .workshop-block {
       background-color: #ffffff;
-      padding: 6px 10px;
+      padding: 4px 6px;
       border-radius: 6px;
       border: 2px solid #000;
       display: flex;
       align-items: flex-end;
-      gap: 8px;
+      gap: 6px;
     }
     
     .workshop-boxes-wrapper {
@@ -190,39 +190,39 @@
     }
 
     .workshop-label {
-      font-size: 0.75rem;
+      font-size: 0.7rem;
       font-weight: 900;
       text-transform: uppercase;
       margin-bottom: 2px;
       border-bottom: 2px solid #000;
-      width: 110px;
+      width: 98px;
       text-align: center;
       letter-spacing: 0.5px;
     }
 
-    /* GRID A SCHEDA CARTACEA SANI RISOLTI */
+    /* GRID A SCHEDA CARTACEA CON SPAGHI PROPORZIONATI */
     .board-row {
       display: flex;
       align-items: flex-end;
       justify-content: space-between;
-      gap: 8px;
-      margin-bottom: 12px;
+      gap: 2px;
+      margin-bottom: 10px;
       background: #ffffff;
-      padding: 8px;
+      padding: 6px 4px;
       border: 2px solid #000000;
       border-radius: 6px;
-      flex-wrap: nowrap; /* IMPEDISCE DI ANDARE A CAPO SU SCHERMI PICCOLI */
-      overflow-x: auto;
+      flex-wrap: nowrap;
+      width: 100%;
     }
 
     .board-side {
       display: flex;
       align-items: flex-end;
-      gap: 6px;
+      gap: 2px;
       flex-shrink: 0;
     }
     .board-side.right-side {
-      justify-content: flex-end; /* FORZA L'ALLINEAMENTO A DESTRA */
+      justify-content: flex-end;
     }
 
     .fuel-container-wrapper {
@@ -231,71 +231,72 @@
       position: relative;
     }
     .fuel-mov-label {
-      font-size: 0.7rem;
+      font-size: 0.65rem;
       font-weight: 900;
       text-align: left;
       padding-left: 2px;
       margin-bottom: 2px;
       border-bottom: 2px solid #000;
-      width: 110px;
+      width: 98px;
     }
 
     .icon-box-center {
-      width: 38px;
-      height: 38px;
+      width: 30px;
+      height: 34px;
       border: 2px solid #000;
-      background: #f0f0f0;
+      background: #ffffff;
       display: flex;
       align-items: center;
       justify-content: center;
       position: relative;
       flex-shrink: 0;
       border-radius: 4px;
+      padding: 2px;
     }
 
     .icon-box-center svg {
-      width: 22px;
-      height: 22px;
+      width: 100%;
+      height: 100%;
     }
 
     .icon-box-center.arrow-left::before {
       content: '';
       position: absolute;
-      left: -10px;
+      left: -7px;
       top: 50%;
       transform: translateY(-50%);
-      border-top: 6px solid transparent;
-      border-bottom: 6px solid transparent;
-      border-right: 8px solid #000;
+      border-top: 4px solid transparent;
+      border-bottom: 4px solid transparent;
+      border-right: 6px solid #000;
     }
 
     .icon-box-center.arrow-right::after {
       content: '';
       position: absolute;
-      right: -10px;
+      right: -7px;
       top: 50%;
       transform: translateY(-50%);
-      border-top: 6px solid transparent;
-      border-bottom: 6px solid transparent;
-      border-left: 8px solid #000;
+      border-top: 4px solid transparent;
+      border-bottom: 4px solid transparent;
+      border-left: 6px solid #000;
     }
 
     .boxes-container {
       display: flex;
-      gap: 4px;
+      gap: 2px;
       flex-wrap: nowrap;
     }
 
     .box {
-      width: 34px;
-      height: 38px;
+      width: 30px;
+      height: 34px;
       background-color: var(--cell-bg);
       color: var(--cell-text);
       display: flex;
       align-items: center;
       justify-content: center;
       font-weight: 900;
-      font-size: 1.2rem;
+      font-size: 1rem;
       border: 2px solid #000;
       user-select: none;
       border-radius: 2px;
@@ -311,8 +312,8 @@
     .box.clickable:hover { background-color: #e0e0e0; }
     .box.x-black { color: #fff; font-weight: 900; background-color: #000; }
     .box.x-red { color: var(--red); font-weight: 900; }
-    .box.circle-green { color: var(--green); font-size: 1.3rem; }
-    .box.circle-kers { color: #2980b9; font-size: 1.3rem; }
+    .box.circle-green { color: var(--green); font-size: 1.1rem; }
+    .box.circle-kers { color: #2980b9; font-size: 1.1rem; }
 
     .budget-bar {
       background-color: #f5f5f5;
@@ -322,7 +323,7 @@
       border-radius: 6px;
       margin-bottom: 15px;
       font-weight: bold;
-      font-size: 1.1rem;
+      font-size: 1rem;
     }
 
     .opponents-list {
@@ -417,7 +418,7 @@
     <div style="margin-bottom: 15px;">
       <button id="btn-start-config" class="btn" onclick="startConfiguration()">Inizia Configurazione (13 Punti)</button>
       <button id="btn-lock-setup" class="btn btn-success" onclick="officializeSetup()" style="display: none;" disabled>Ufficializza Scheda / Inizio Gara (Assegna tutti i 13 Punti)</button>
-      <button id="btn-toggle-edit" class="btn btn-read-mode" onclick="toggleRaceEdit()" style="display: none;">Modalita Lettura (Clicca per Sbloccare Edit)</button>
+      <button id="btn-toggle-edit" class="btn btn-read-mode" onclick="toggleRaceEdit()" style="display: none;">ModalitÃ  Lettura (Clicca per Sbloccare Edit)</button>
     </div>
 
     <!-- MESCOLE GOMME -->
@@ -427,7 +428,7 @@
     <div style="display: flex; justify-content: flex-end; margin-bottom: 10px;">
       <div class="workshop-block">
         <div class="icon-box-center" title="Punti Officina">
-          <svg viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2.2" stroke-linecap="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
         </div>
         <div class="workshop-boxes-wrapper">
           <div class="workshop-label">__ -2 MOV __</div>
@@ -448,14 +449,43 @@
       <div class="board-row">
         <div class="board-side">
           <div class="boxes-container" id="row-tyres"></div>
+          <!-- ICONA PNEUMATICI -->
           <div class="icon-box-center arrow-left" title="Pneumatici">
-            <svg viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/></svg>
+            <svg viewBox="0 0 100 100" fill="none" stroke="#000">
+              <path d="M 45 12 Q 22 18 18 50 Q 22 82 45 88 Q 85 88 85 50 Q 85 12 45 12 Z" fill="#000"/>
+              <ellipse cx="62" cy="50" rx="20" ry="32" fill="#fff" stroke="#000" stroke-width="3"/>
+              <ellipse cx="62" cy="50" rx="8" ry="12" fill="#000"/>
+              <line x1="62" y1="38" x2="62" y2="20" stroke="#000" stroke-width="3"/>
+              <line x1="62" y1="62" x2="62" y2="80" stroke="#000" stroke-width="3"/>
+              <line x1="54" y1="50" x2="44" y2="50" stroke="#000" stroke-width="3"/>
+              <line x1="70" y1="50" x2="80" y2="50" stroke="#000" stroke-width="3"/>
+              <line x1="56" y1="42" x2="48" y2="30" stroke="#000" stroke-width="3"/>
+              <line x1="68" y1="58" x2="76" y2="70" stroke="#000" stroke-width="3"/>
+              <path d="M 22 25 L 35 22 M 20 38 L 35 34 M 19 50 L 35 48 M 20 62 L 35 64 M 22 75 L 35 78" stroke="#fff" stroke-width="3"/>
+            </svg>
           </div>
         </div>
 
         <div class="board-side right-side">
+          <!-- ICONA TELAIO -->
           <div class="icon-box-center arrow-right" title="Telaio">
-            <svg viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2"><path d="M5 17h14M3 12h18M7 7h10"/></svg>
+            <svg viewBox="0 0 100 100" fill="#000">
+              <rect x="5" y="32" width="18" height="42" rx="3"/>
+              <rect x="77" y="32" width="18" height="42" rx="3"/>
+              <rect x="8" y="70" width="84" height="6" rx="1"/>
+              <path d="M 12 63 L 40 68 L 40 70 L 12 68 Z"/>
+              <path d="M 88 63 L 60 68 L 60 70 L 88 68 Z"/>
+              <path d="M 40 70 L 43 35 L 57 35 L 60 70 Z"/>
+              <circle cx="50" cy="30" r="5"/>
+              <path d="M 42 26 C 42 18, 58 18, 58 26 L 55 33 L 45 33 Z" fill="none" stroke="#000" stroke-width="2"/>
+              <rect x="30" y="12" width="40" height="5"/>
+              <line x1="33" y1="17" x2="33" y2="28" stroke="#000" stroke-width="3"/>
+              <line x1="67" y1="17" x2="67" y2="28" stroke="#000" stroke-width="3"/>
+              <line x1="23" y1="42" x2="42" y2="48" stroke="#000" stroke-width="2"/>
+              <line x1="23" y1="58" x2="42" y2="52" stroke="#000" stroke-width="2"/>
+              <line x1="77" y1="42" x2="58" y2="48" stroke="#000" stroke-width="2"/>
+              <line x1="77" y1="58" x2="58" y2="52" stroke="#000" stroke-width="2"/>
+            </svg>
           </div>
           <div class="boxes-container" id="row-body"></div>
         </div>
@@ -465,8 +495,24 @@
       <div class="board-row">
         <div class="board-side">
           <div class="boxes-container" id="row-brakes"></div>
+          <!-- NUOVA ICONA FRENO (PIEDE CON SCARPA LACCATA SUL PEDALE) -->
           <div class="icon-box-center arrow-left" title="Freni">
-            <svg viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v10M7 12h10"/></svg>
+            <svg viewBox="0 0 100 100" fill="#000">
+              <!-- Linea del pavimento / base -->
+              <rect x="15" y="80" width="70" height="6" rx="2"/>
+              <!-- Asta del pedale inclinata -->
+              <path d="M 24 80 L 42 55 L 49 59 L 30 84 Z"/>
+              <!-- Piastra inclinata del pedale -->
+              <rect x="33" y="47" width="28" height="10" transform="rotate(-32 47 52)" rx="3"/>
+              <!-- Piede con scarpa e lacci -->
+              <path d="M 33 46 C 30 38 42 34 56 42 C 64 47 70 57 65 67 C 60 74 52 74 52 74 L 80 52 C 86 47 78 35 72 26 L 60 34 L 75 12 L 56 2 Z"/>
+              <!-- Lacci bianchi sulla scarpa -->
+              <line x1="44" y1="43" x2="47" y2="40" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/>
+              <line x1="48" y1="45" x2="51" y2="42" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/>
+              <line x1="52" y1="48" x2="55" y2="45" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/>
+              <!-- Risvolto pantalone -->
+              <line x1="60" y1="34" x2="72" y2="26" stroke="#fff" stroke-width="2"/>
+            </svg>
           </div>
         </div>
         
@@ -477,8 +523,29 @@
         </div>
 
         <div class="board-side right-side">
+          <!-- ICONA MOTORE -->
           <div class="icon-box-center arrow-right" title="Motore">
-            <svg viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+            <svg viewBox="0 0 100 100" fill="#000">
+              <g transform="rotate(-25 32 38)">
+                <rect x="18" y="15" width="28" height="12" rx="3"/>
+                <rect x="20" y="29" width="24" height="22"/>
+                <line x1="16" y1="33" x2="48" y2="33" stroke="#fff" stroke-width="2"/>
+                <line x1="16" y1="39" x2="48" y2="39" stroke="#fff" stroke-width="2"/>
+                <line x1="16" y1="45" x2="48" y2="45" stroke="#fff" stroke-width="2"/>
+              </g>
+              <g transform="rotate(25 68 38)">
+                <rect x="54" y="15" width="28" height="12" rx="3"/>
+                <rect x="56" y="29" width="24" height="22"/>
+                <line x1="52" y1="33" x2="84" y2="33" stroke="#fff" stroke-width="2"/>
+                <line x1="52" y1="39" x2="84" y2="39" stroke="#fff" stroke-width="2"/>
+                <line x1="52" y1="45" x2="84" y2="45" stroke="#fff" stroke-width="2"/>
+              </g>
+              <circle cx="50" cy="35" r="14" fill="#000" stroke="#fff" stroke-width="2"/>
+              <circle cx="50" cy="35" r="6" fill="#fff"/>
+              <path d="M 22 62 L 78 62 L 72 88 L 28 88 Z"/>
+              <line x1="32" y1="70" x2="68" y2="70" stroke="#fff" stroke-width="3"/>
+              <line x1="32" y1="78" x2="68" y2="78" stroke="#fff" stroke-width="3"/>
+            </svg>
           </div>
           <div class="boxes-container" id="row-engine"></div>
         </div>
@@ -491,8 +558,14 @@
             <div class="fuel-mov-label">__ MOV +1 __</div>
             <div class="boxes-container" id="row-fuel"></div>
           </div>
+          <!-- ICONA POMPA BENZINA -->
           <div class="icon-box-center arrow-left" title="Carburante">
-            <svg viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2"><path d="M3 22V4a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v18M3 22h14M17 10h2a2 2 0 0 1 2 2v5a2 2 0 0 0 2 2h0"/></svg>
+            <svg viewBox="0 0 100 100" fill="#000">
+              <rect x="30" y="12" width="48" height="76" rx="6"/>
+              <rect x="38" y="22" width="32" height="24" fill="#fff" rx="2"/>
+              <path d="M 30 35 C 10 35, 8 60, 20 80" fill="none" stroke="#000" stroke-width="6" stroke-linecap="round"/>
+              <rect x="14" y="70" width="10" height="14" rx="2"/>
+            </svg>
           </div>
         </div>
 
@@ -503,8 +576,19 @@
         </div>
 
         <div class="board-side right-side">
+          <!-- ICONA SOSPENSIONI -->
           <div class="icon-box-center arrow-right" title="Sospensioni">
-            <svg viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1zM4 22v-7"/></svg>
+            <svg viewBox="0 0 100 100" fill="#000">
+              <rect x="12" y="25" width="26" height="62" rx="8"/>
+              <path d="M 18 35 L 32 32 M 18 45 L 32 42 M 18 55 L 32 52 M 18 65 L 32 62 M 18 75 L 32 72" stroke="#fff" stroke-width="3"/>
+              <g transform="rotate(30 60 45)">
+                <rect x="52" y="12" width="12" height="10" rx="2"/>
+                <path d="M 52 24 Q 68 28 52 32 Q 68 36 52 40 Q 68 44 52 48 Q 68 52 52 56 L 64 56 L 64 24 Z"/>
+                <rect x="54" y="58" width="8" height="18"/>
+              </g>
+              <rect x="38" y="48" width="16" height="12"/>
+              <line x1="38" y1="68" x2="68" y2="75" stroke="#000" stroke-width="4"/>
+            </svg>
           </div>
           <div class="boxes-container" id="row-suspension"></div>
         </div>
@@ -534,7 +618,7 @@
 <div id="modal-kers" class="modal">
   <div class="modal-content">
     <h3>Gestione Uso KERS</h3>
-    <p>Hai utilizzato il KERS! Qual e stato l'esito del tiro?</p>
+    <p>Hai utilizzato il KERS! Qual Ã¨ stato l'esito del tiro?</p>
     <button class="btn btn-success" onclick="resolveKers(false)">Esito OK (Svuota KERS)</button>
     <button class="btn btn-danger" onclick="resolveKers(true)">Danneggiato (X Rossa)</button>
     <button class="btn btn-secondary" onclick="closeModal()">Annulla</button>
@@ -567,7 +651,7 @@
     { name: 'Verstappen', status: 'In Compilazione' }
   ];
 
-  const spinSvgIcon = `<svg viewBox="0 0 100 100" style="width:24px;height:24px;"><path d="M 50 15 A 35 35 0 1 1 20 60" fill="none" stroke="#000" stroke-width="8" stroke-dasharray="6,4"/><polygon points="12,50 25,65 30,45" fill="#000"/><text x="50" y="62" font-size="34" font-weight="bold" text-anchor="middle" fill="#000">1</text></svg>`;
+  const spinSvgIcon = `<svg viewBox="0 0 100 100" style="width:20px;height:20px;"><path d="M 50 15 A 35 35 0 1 1 20 60" fill="none" stroke="#000" stroke-width="8" stroke-dasharray="6,4"/><polygon points="12,50 25,65 30,45" fill="#000"/><text x="50" y="62" font-size="34" font-weight="bold" text-anchor="middle" fill="#000">1</text></svg>`;
 
   function showScreen(screenId) {
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
@@ -876,7 +960,7 @@
     const editBtn = document.getElementById('btn-toggle-edit');
     editBtn.style.display = 'block';
     editBtn.className = 'btn btn-read-mode';
-    editBtn.innerText = 'Modalita Lettura (Clicca per Sbloccare Edit)';
+    editBtn.innerText = 'ModalitÃ  Lettura (Clicca per Sbloccare Edit)';
 
     renderBoard();
     renderTyreDeck();
@@ -887,10 +971,10 @@
     gameState.isEditingAllowed = !gameState.isEditingAllowed;
     const btn = document.getElementById('btn-toggle-edit');
     if (gameState.isEditingAllowed) {
-      btn.innerText = "Modalita Edit Attiva (Clicca per Bloccare)";
+      btn.innerText = "ModalitÃ  Edit Attiva (Clicca per Bloccare)";
       btn.className = 'btn btn-edit-mode';
     } else {
-      btn.innerText = "Modalita Lettura (Clicca per Sbloccare Edit)";
+      btn.innerText = "ModalitÃ  Lettura (Clicca per Sbloccare Edit)";
       btn.className = 'btn btn-read-mode';
     }
     renderBoard();
