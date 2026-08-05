@@ -3,23 +3,30 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- META TAG PER IPHONE / PWA -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Lotus Cup">
+  <link rel="apple-touch-icon" href="https://via.placeholder.com/180/000000/ffffff?text=LOTUS">
+
   <title>Lotus Cup 2k25 - Telemetria & Setup</title>
   <style>
     :root {
-      --bg-dark: #121212;
-      --card-bg: #1e1e1e;
-      --accent: #f39c12;
-      --text: #ffffff;
-      --border: #333333;
-      --green: #2ecc71;
-      --red: #e74c3c;
+      --bg-dark: #e0e0e0;
+      --card-bg: #ffffff;
+      --accent: #000000;
+      --text: #000000;
+      --border: #000000;
+      --green: #27ae60;
+      --red: #c0392b;
+      --orange-highlight: #f39c12;
       --cell-bg: #ffffff;
       --cell-text: #000000;
     }
 
     * { box-sizing: border-box; }
     body {
-      font-family: 'Segoe UI', Arial, sans-serif;
+      font-family: 'Arial Black', 'Segoe UI', sans-serif;
       background-color: var(--bg-dark);
       color: var(--text);
       margin: 0;
@@ -32,53 +39,72 @@
       width: 100%;
       max-width: 950px;
       background-color: var(--card-bg);
-      border: 2px solid var(--accent);
-      border-radius: 12px;
+      border: 3px solid var(--accent);
+      border-radius: 8px;
       padding: 15px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
     }
 
     .screen { display: none; }
     .screen.active { display: block; }
 
-    h1, h2, h3 { text-align: center; color: var(--accent); margin-top: 5px; }
+    h1, h2, h3 { text-align: center; color: var(--accent); margin-top: 5px; text-transform: uppercase; }
     
     .btn {
-      background-color: var(--accent);
-      color: #000;
-      border: none;
+      background-color: #000000;
+      color: #ffffff;
+      border: 2px solid #000000;
       padding: 12px 20px;
       font-size: 1rem;
       font-weight: bold;
-      border-radius: 6px;
+      border-radius: 4px;
       cursor: pointer;
       width: 100%;
       margin: 8px 0;
       transition: all 0.2s;
     }
-    .btn:hover:not(:disabled) { opacity: 0.9; }
-    .btn:disabled { background-color: #555 !important; color: #888 !important; cursor: not-allowed; opacity: 0.6; }
-    .btn-secondary { background-color: #444; color: #fff; }
+    .btn:hover:not(:disabled) { background-color: #333333; }
+    .btn:disabled { background-color: #888888 !important; border-color: #888888 !important; cursor: not-allowed; opacity: 0.6; }
+    .btn-secondary { background-color: #e0e0e0; color: #000000; border: 2px solid #000; }
     .btn-danger { background-color: var(--red); color: #fff; }
     .btn-success { background-color: var(--green); color: #fff; }
+
+    .btn-read-mode {
+      background-color: var(--green) !important;
+      color: #ffffff !important;
+      border: 2px solid #000000 !important;
+    }
+    .btn-read-mode:hover {
+      background-color: #000000 !important;
+      color: #ffffff !important;
+    }
+
+    .btn-edit-mode {
+      background-color: #e0e0e0 !important;
+      color: #000000 !important;
+      border: 2px solid #000000 !important;
+    }
+    .btn-edit-mode:hover {
+      background-color: #000000 !important;
+      color: #ffffff !important;
+    }
 
     input {
       width: 100%;
       padding: 10px;
       margin: 8px 0;
-      background-color: #2a2a2a;
-      border: 1px solid var(--border);
-      color: #fff;
-      border-radius: 6px;
+      background-color: #fff;
+      border: 2px solid var(--border);
+      color: #000;
+      border-radius: 4px;
       font-size: 1rem;
     }
 
-    /* HEADER & MESCOLE GOMME */
     .sheet-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      border-bottom: 2px solid var(--accent);
+      border-bottom: 3px solid var(--accent);
       padding-bottom: 10px;
       margin-bottom: 15px;
       flex-wrap: wrap;
@@ -89,33 +115,33 @@
       grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
       gap: 10px;
       margin-bottom: 15px;
-      background-color: #252525;
+      background-color: #f5f5f5;
       padding: 10px;
-      border-radius: 8px;
-      border: 1px solid #333;
+      border-radius: 6px;
+      border: 2px solid #000;
     }
 
     .tyre-card {
-      background-color: #1a1a1a;
-      border: 1px solid #444;
-      border-radius: 6px;
+      background-color: #ffffff;
+      border: 2px solid #000;
+      border-radius: 4px;
       padding: 8px;
       text-align: center;
     }
-    .tyre-card.active { border-color: var(--accent); background-color: #2d2613; }
+    .tyre-card.active { border-color: #000000; background-color: #e6e6e6; }
 
     .tyre-title-btn {
       width: 100%;
       padding: 6px;
-      background: #333;
-      color: #fff;
-      border: none;
+      background: #e0e0e0;
+      color: #000;
+      border: 1px solid #000;
       font-weight: bold;
       border-radius: 4px;
       cursor: pointer;
       margin-bottom: 6px;
     }
-    .tyre-card.active .tyre-title-btn { background: var(--accent); color: #000; }
+    .tyre-card.active .tyre-title-btn { background: #000000; color: #ffffff; }
 
     .laps-container {
       display: flex;
@@ -127,6 +153,7 @@
       height: 28px;
       background-color: #fff;
       color: #000;
+      border: 1px solid #000;
       border-radius: 3px;
       font-size: 0.9rem;
       font-weight: bold;
@@ -134,40 +161,111 @@
       align-items: center;
       justify-content: center;
       user-select: none;
-      opacity: 0.3;
+      opacity: 0.4;
     }
     .lap-box.marked { 
-      background-color: #f1c40f !important; 
-      color: #000000 !important; 
+      background-color: #000000 !important; 
+      color: #ffffff !important; 
       font-weight: 900 !important; 
       opacity: 1 !important; 
-      border: 1px solid #000;
     }
-    .lap-box.clickable { cursor: pointer; opacity: 1; border: 1px solid var(--accent); }
+    .lap-box.clickable { cursor: pointer; opacity: 1; border: 2px solid #000; }
     .lap-box.disabled { cursor: not-allowed; opacity: 0.2; }
 
-    /* GRID STRUTTURA A 2 COLONNE */
-    .grid-board {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 15px;
-    }
-    @media (max-width: 650px) {
-      .grid-board { grid-template-columns: 1fr; }
-    }
-
-    .row-item {
-      background-color: #252525;
-      padding: 10px;
-      border-radius: 8px;
-      border: 1px solid #333;
-    }
-
-    .row-title {
-      font-weight: bold;
-      margin-bottom: 8px;
+    .workshop-block {
+      background-color: #ffffff;
+      padding: 6px 10px;
+      border-radius: 6px;
+      border: 2px solid #000;
       display: flex;
+      align-items: flex-end;
+      gap: 8px;
+    }
+    
+    .workshop-boxes-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .workshop-label {
+      font-size: 0.75rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      margin-bottom: 2px;
+      border-bottom: 2px solid #000;
+      width: 110px;
+      text-align: center;
+      letter-spacing: 0.5px;
+    }
+
+    .board-row {
+      display: flex;
+      align-items: flex-end;
       justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 12px;
+      background: #ffffff;
+      padding: 8px;
+      border: 2px solid #000000;
+      border-radius: 6px;
+    }
+
+    .board-side {
+      display: flex;
+      align-items: flex-end;
+      gap: 6px;
+    }
+
+    .fuel-container-wrapper {
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+    .fuel-mov-label {
+      font-size: 0.7rem;
+      font-weight: 900;
+      text-align: left;
+      padding-left: 2px;
+      margin-bottom: 2px;
+      border-bottom: 2px solid #000;
+      width: 110px;
+    }
+
+    .icon-box-center {
+      width: 38px;
+      height: 38px;
+      border: 2px solid #000;
+      background: #f0f0f0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      position: relative;
+      flex-shrink: 0;
+      border-radius: 4px;
+    }
+
+    .icon-box-center.arrow-left::before {
+      content: '';
+      position: absolute;
+      left: -10px;
+      top: 50%;
+      transform: translateY(-50%);
+      border-top: 6px solid transparent;
+      border-bottom: 6px solid transparent;
+      border-right: 8px solid #000;
+    }
+
+    .icon-box-center.arrow-right::after {
+      content: '';
+      position: absolute;
+      right: -10px;
+      top: 50%;
+      transform: translateY(-50%);
+      border-top: 6px solid transparent;
+      border-bottom: 6px solid transparent;
+      border-left: 8px solid #000;
     }
 
     .boxes-container {
@@ -175,35 +273,37 @@
       gap: 4px;
       flex-wrap: wrap;
     }
-    .boxes-container.align-right {
-      justify-content: flex-end;
-    }
 
     .box {
-      width: 32px;
-      height: 32px;
+      width: 34px;
+      height: 38px;
       background-color: var(--cell-bg);
       color: var(--cell-text);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-weight: bold;
-      font-size: 1.1rem;
-      border: 1px solid #000;
+      font-weight: 900;
+      font-size: 1.2rem;
+      border: 2px solid #000;
       user-select: none;
-      border-radius: 3px;
+      border-radius: 2px;
+      position: relative;
     }
 
-    .box.clickable { cursor: pointer; border: 2px solid var(--accent); }
-    .box.clickable:hover { background-color: #f1c40f; }
-    .box.x-black { color: #000; font-weight: 900; background-color: #95a5a6; }
+    .box.box-setup-highlight {
+      box-shadow: inset 0 0 0 2px var(--orange-highlight);
+    }
+
+    .box.clickable { cursor: pointer; border: 2px solid #000; }
+    .box.clickable:hover { background-color: #e0e0e0; }
+    .box.x-black { color: #fff; font-weight: 900; background-color: #000; }
     .box.x-red { color: var(--red); font-weight: 900; }
     .box.circle-green { color: var(--green); font-size: 1.3rem; }
-    .box.circle-kers { color: #3498db; font-size: 1.3rem; }
+    .box.circle-kers { color: #2980b9; font-size: 1.3rem; }
 
     .budget-bar {
-      background-color: #2a2a2a;
-      border: 1px solid var(--accent);
+      background-color: #f5f5f5;
+      border: 2px solid #000;
       padding: 10px;
       text-align: center;
       border-radius: 6px;
@@ -214,11 +314,12 @@
 
     .opponents-list {
       margin-top: 15px;
-      border-top: 1px solid var(--border);
+      border-top: 2px solid var(--border);
       padding-top: 10px;
     }
     .opp-item {
-      background: #2a2a2a;
+      background: #f5f5f5;
+      border: 1px solid #000;
       padding: 8px 12px;
       border-radius: 4px;
       margin-bottom: 5px;
@@ -243,7 +344,7 @@
       max-width: 400px;
       width: 90%;
       text-align: center;
-      border: 1px solid var(--accent);
+      border: 2px solid #000;
     }
   </style>
 </head>
@@ -254,7 +355,7 @@
   <!-- 1. HOME MENU -->
   <div id="screen-home" class="screen active">
     <h1>LOTUS CUP 2K25</h1>
-    <p style="text-align: center; color: #888;">Gestore Scheda Telemetria Formula Dé</p>
+    <p style="text-align: center; color: #555;">Gestore Scheda Telemetria Formula DÃ©</p>
     <hr style="border-color: var(--border); margin: 20px 0;">
     
     <button class="btn" onclick="showScreen('screen-new-game')">Crea Nuova Partita</button>
@@ -292,86 +393,96 @@
     <div class="sheet-header">
       <div>
         <h3 id="display-circuit" style="margin:0; text-align:left;">CIRCUITO</h3>
-        <small id="display-meta" style="color: #aaa;">Data: - | Host: -</small>
+        <small id="display-meta" style="color: #444;">Data: - | Host: -</small>
       </div>
       <div>
-        <strong>Codice Stanza: <span id="display-code" style="color: var(--accent);">0000</span></strong>
+        <strong>Codice Stanza: <span id="display-code" style="color: #000;">0000</span></strong>
       </div>
+    </div>
+
+    <!-- BOTTONE CONFIGURAZIONE -->
+    <div style="margin-bottom: 15px;">
+      <button id="btn-start-config" class="btn" onclick="startConfiguration()">Inizia Configurazione (13 Punti)</button>
+      <button id="btn-lock-setup" class="btn btn-success" onclick="officializeSetup()" style="display: none;" disabled>Ufficializza Scheda / Inizio Gara (Assegna tutti i 13 Punti)</button>
+      <button id="btn-toggle-edit" class="btn btn-read-mode" onclick="toggleRaceEdit()" style="display: none;">ðŸ”’ ModalitÃ  Lettura (Clicca per Sbloccare Edit)</button>
     </div>
 
     <!-- MESCOLE GOMME CON CASELLE GIRI (1, 2, 3) -->
     <div class="tyres-deck" id="tyres-deck-container"></div>
 
+    <!-- OFFICINA IN ALTO A DESTRA CON ICONA IN QUADRATO E -2 MOV SOLO SOPRA LE CASELLE -->
+    <div style="display: flex; justify-content: flex-end; margin-bottom: 10px;">
+      <div class="workshop-block">
+        <div class="icon-box-center" title="Punti Officina" style="font-size: 1.1rem;">ðŸ”§</div>
+        <div class="workshop-boxes-wrapper">
+          <div class="workshop-label">__ -2 MOV __</div>
+          <div class="boxes-container" id="row-workshop"></div>
+        </div>
+      </div>
+    </div>
+
     <!-- BUDGET BAR -->
     <div id="budget-bar" class="budget-bar" style="display: none;">
-      Punti Disponibili per Setup: <span id="budget-count" style="color: var(--accent);">13</span> / 13
+      Punti Disponibili per Setup: <span id="budget-count" style="color: #000;">13</span> / 13
     </div>
 
-    <button id="btn-start-config" class="btn" onclick="startConfiguration()">Inizia Configurazione (13 Punti)</button>
-
-    <!-- SCHEDA COMPONENTI AUTO -->
-    <div class="grid-board">
+    <!-- SCHEDA COMPONENTI AUTO STILE CARTACEO -->
+    <div>
       
-      <!-- SINISTRA: PNEUMATICI -->
-      <div class="row-item">
-        <div class="row-title">🛞 Pneumatici (10 WP)</div>
-        <div class="boxes-container" id="row-tyres"></div>
-      </div>
+      <!-- RIGA 1: PNEUMATICI / TELAIO -->
+      <div class="board-row">
+        <div class="board-side">
+          <div class="boxes-container" id="row-tyres"></div>
+          <div class="icon-box-center arrow-left" title="Pneumatici">ðŸ›ž</div>
+        </div>
 
-      <!-- DESTRA: PUNTI OFFICINA / BOX + TELAIO -->
-      <div class="row-item">
-        <div class="row-title">🔧 Punti Officina (3 WP Max Riparazione)</div>
-        <div class="boxes-container align-right" id="row-workshop" style="margin-bottom: 12px;"></div>
-
-        <div class="row-title">🛡️ Telaio (6 WP)</div>
-        <div class="boxes-container align-right" id="row-body"></div>
-      </div>
-
-      <!-- SINISTRA: FRENI -->
-      <div class="row-item">
-        <div class="row-title">🛑 Freni (6 WP)</div>
-        <div class="boxes-container" id="row-brakes"></div>
-      </div>
-
-      <!-- DESTRA: MOTORE -->
-      <div class="row-item">
-        <div class="row-title">⚙️ Motore (6 WP)</div>
-        <div class="boxes-container align-right" id="row-engine"></div>
-      </div>
-
-      <!-- SINISTRA: CARBURANTE -->
-      <div class="row-item">
-        <div class="row-title">⛽ Carburante (6 WP)</div>
-        <div class="boxes-container" id="row-fuel"></div>
-      </div>
-
-      <!-- DESTRA: SOSPENSIONI -->
-      <div class="row-item">
-        <div class="row-title">🏁 Sospensioni (6 WP)</div>
-        <div class="boxes-container align-right" id="row-suspension"></div>
-      </div>
-
-      <!-- SOTTO A SINISTRA: ALETTONE -->
-      <div class="row-item">
-        <div class="row-title">🏎️ Alettone</div>
-        <div class="boxes-container">
-          <div id="box-wing" class="box" onclick="toggleWing()"></div>
+        <div class="board-side">
+          <div class="icon-box-center arrow-right" title="Telaio">ðŸŽï¸</div>
+          <div class="boxes-container" id="row-body"></div>
         </div>
       </div>
 
-      <!-- SOTTO A DESTRA: KERS -->
-      <div class="row-item">
-        <div class="row-title">⚡ KERS</div>
-        <div class="boxes-container align-right">
+      <!-- RIGA 2: FRENI / KERS / MOTORE -->
+      <div class="board-row">
+        <div class="board-side">
+          <div class="boxes-container" id="row-brakes"></div>
+          <div class="icon-box-center arrow-left" title="Freni">ðŸ›‘</div>
+        </div>
+        
+        <!-- KERS CENTRALE -->
+        <div style="display: flex; flex-direction: column; align-items: center;">
+          <small style="font-size: 0.7rem; font-weight: bold;">KERS</small>
           <div id="box-kers" class="box" onclick="interactKers()"></div>
         </div>
+
+        <div class="board-side">
+          <div class="icon-box-center arrow-right" title="Motore">âš™ï¸</div>
+          <div class="boxes-container" id="row-engine"></div>
+        </div>
       </div>
 
-    </div>
+      <!-- RIGA 3: CARBURANTE (CON MOV +1) / ALETTONE / SOSPENSIONI -->
+      <div class="board-row">
+        <div class="board-side">
+          <div class="fuel-container-wrapper">
+            <div class="fuel-mov-label">__ MOV +1 __</div>
+            <div class="boxes-container" id="row-fuel"></div>
+          </div>
+          <div class="icon-box-center arrow-left" title="Carburante">â›½</div>
+        </div>
 
-    <div style="margin-top: 20px;">
-      <button id="btn-lock-setup" class="btn btn-success" onclick="officializeSetup()" style="display: none;" disabled>Ufficializza Scheda / Inizio Gara (Assegna tutti i 13 Punti)</button>
-      <button id="btn-toggle-edit" class="btn btn-secondary" onclick="toggleRaceEdit()" style="display: none;">🔒 Modalità Lettura (Clicca per Sbloccare Edit)</button>
+        <!-- ALETTONE CENTRALE -->
+        <div style="display: flex; flex-direction: column; align-items: center;">
+          <small style="font-size: 0.7rem; font-weight: bold;">ALETTONE</small>
+          <div id="box-wing" class="box" onclick="toggleWing()"></div>
+        </div>
+
+        <div class="board-side">
+          <div class="icon-box-center arrow-right" title="Sospensioni">ðŸ</div>
+          <div class="boxes-container" id="row-suspension"></div>
+        </div>
+      </div>
+
     </div>
 
     <!-- VISTA AVVERSARI -->
@@ -384,7 +495,7 @@
   <!-- TUTORIAL -->
   <div id="screen-tutorial" class="screen">
     <h2>Tutorial & Regolamento</h2>
-    <p>1. <strong>Setup</strong>: Seleziona la mescola di partenza e distribuisci i 13 punti. Se ti dimentichi di spuntare il giro 1, l'app lo assegnerà in automatico alla mescola attiva all'ufficializzazione.</p>
+    <p>1. <strong>Setup</strong>: Seleziona la mescola di partenza e distribuisci i 13 punti. Se ti dimentichi di spuntare il giro 1, l'app lo assegnerÃ  in automatico alla mescola attiva all'ufficializzazione.</p>
     <p>2. <strong>Giri & Pit Stop</strong>: Puoi spuntare qualsiasi giro (1, 2, 3) sulla mescola attiva. Se prolunghi uno stint fino al Giro 3, potrai spuntare direttamente il Giro 3 quando rientri ai box.</p>
     <p>3. <strong>Consumo e Danni</strong>: Gomme, Freni e Carburante si barrono andando da destra verso sinistra. Telaio, Motore e Sospensioni da sinistra verso destra.</p>
     <p>4. <strong>Riparazioni Officina</strong>: Cliccando su un punto barrato di Freni, Telaio, Motore o Sospensioni, la barra si toglie e viene automaticamente barrata la prima casella libera da sinistra nei Punti Officina.</p>
@@ -397,7 +508,7 @@
 <div id="modal-kers" class="modal">
   <div class="modal-content">
     <h3>Gestione Uso KERS</h3>
-    <p>Hai utilizzato il KERS! Qual è stato l'esito del tiro?</p>
+    <p>Hai utilizzato il KERS! Qual Ã¨ stato l'esito del tiro?</p>
     <button class="btn btn-success" onclick="resolveKers(false)">Esito OK (Svuota KERS)</button>
     <button class="btn btn-danger" onclick="resolveKers(true)">Danneggiato (X Rossa)</button>
     <button class="btn btn-secondary" onclick="closeModal()">Annulla</button>
@@ -434,6 +545,8 @@
     { name: 'Hamilton', status: 'Pronto' },
     { name: 'Verstappen', status: 'In Compilazione' }
   ];
+
+  const spinSvgIcon = `<svg viewBox="0 0 100 100" style="width:24px;height:24px;"><path d="M 50 15 A 35 35 0 1 1 20 60" fill="none" stroke="#000" stroke-width="8" stroke-dasharray="6,4"/><polygon points="12,50 25,65 30,45" fill="#000"/><text x="50" y="62" font-size="34" font-weight="bold" text-anchor="middle" fill="#000">1</text></svg>`;
 
   function showScreen(screenId) {
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
@@ -484,8 +597,8 @@
     list.innerHTML = '';
     opponents.forEach(op => {
       list.innerHTML += `<div class="opp-item" onclick="alert('Visualizzazione scheda di: ${op.name}')">
-        <span>👤 <strong>${op.name}</strong></span>
-        <small style="color:${op.status === 'Pronto' ? 'var(--green)' : 'var(--accent)'}">${op.status}</small>
+        <span>ðŸ‘¤ <strong>${op.name}</strong></span>
+        <small style="color:${op.status === 'Pronto' ? 'var(--green)' : '#000'}">${op.status}</small>
       </div>`;
     });
   }
@@ -590,7 +703,9 @@
         box.className = 'box';
 
         if (!isRight) {
-          if (i < baseVal) {
+          if (comp === 'tyres' && i === 0) {
+            box.innerHTML = spinSvgIcon;
+          } else if (i < baseVal) {
             box.innerText = '1';
           } else if (i < totalPoints) {
             box.innerText = '1';
@@ -600,9 +715,12 @@
             }
           } else {
             box.innerText = '';
-            if (gameState.isSetupMode && gameState.budget > 0) {
-              box.classList.add('clickable');
-              box.onclick = () => addBudgetPoint(comp);
+            if (gameState.isSetupMode) {
+              box.classList.add('box-setup-highlight');
+              if (gameState.budget > 0) {
+                box.classList.add('clickable');
+                box.onclick = () => addBudgetPoint(comp);
+              }
             }
           }
         } else {
@@ -624,9 +742,12 @@
           } 
           else {
             box.innerText = '';
-            if (gameState.isSetupMode && gameState.budget > 0) {
-              box.classList.add('clickable');
-              box.onclick = () => addBudgetPoint(comp);
+            if (gameState.isSetupMode) {
+              box.classList.add('box-setup-highlight');
+              if (gameState.budget > 0) {
+                box.classList.add('clickable');
+                box.onclick = () => addBudgetPoint(comp);
+              }
             }
           }
         }
@@ -646,7 +767,7 @@
       }
     });
 
-    // Render Punti Officina (🔧 1 1 1)
+    // Render Punti Officina (ðŸ”§ 1 1 1)
     const workshopContainer = document.getElementById('row-workshop');
     workshopContainer.innerHTML = '';
     for (let i = 0; i < 3; i++) {
@@ -673,7 +794,7 @@
         wingBox.innerText = 'X';
         wingBox.classList.add('x-red');
       } else {
-        wingBox.innerText = '⭕';
+        wingBox.innerText = 'â­•';
         wingBox.classList.add('circle-green');
       }
     } else {
@@ -685,7 +806,7 @@
     const kersBox = document.getElementById('box-kers');
     kersBox.className = 'box';
     if (gameState.kersState === 'charged') {
-      kersBox.innerText = '⭕';
+      kersBox.innerText = 'â­•';
       kersBox.classList.add('circle-kers');
       if (gameState.isRaceMode && gameState.isEditingAllowed) kersBox.classList.add('clickable');
     } else if (gameState.kersState === 'damaged') {
@@ -741,7 +862,11 @@
 
     document.getElementById('budget-bar').style.display = 'none';
     document.getElementById('btn-lock-setup').style.display = 'none';
-    document.getElementById('btn-toggle-edit').style.display = 'block';
+    
+    const editBtn = document.getElementById('btn-toggle-edit');
+    editBtn.style.display = 'block';
+    editBtn.className = 'btn btn-read-mode';
+    editBtn.innerText = 'ðŸ”’ ModalitÃ  Lettura (Clicca per Sbloccare Edit)';
 
     renderBoard();
     renderTyreDeck();
@@ -752,17 +877,16 @@
     gameState.isEditingAllowed = !gameState.isEditingAllowed;
     const btn = document.getElementById('btn-toggle-edit');
     if (gameState.isEditingAllowed) {
-      btn.innerText = "🔓 Modalità Edit Attiva (Clicca per Bloccare)";
-      btn.classList.replace('btn-secondary', 'btn-success');
+      btn.innerText = "ðŸ”“ ModalitÃ  Edit Attiva (Clicca per Bloccare)";
+      btn.className = 'btn btn-edit-mode';
     } else {
-      btn.innerText = "🔒 Modalità Lettura (Clicca per Sbloccare Edit)";
-      btn.classList.replace('btn-success', 'btn-secondary');
+      btn.innerText = "ðŸ”’ ModalitÃ  Lettura (Clicca per Sbloccare Edit)";
+      btn.className = 'btn btn-read-mode';
     }
     renderBoard();
     renderTyreDeck();
   }
 
-  /* GESTIONE COMPLETA RIPARAZIONI ED CONSUMI/DANNI */
   function handleComponentClick(comp, clickedIndex) {
     const rightAligned = ['body', 'engine', 'suspension'];
     const repairable = ['brakes', 'body', 'engine', 'suspension'];
@@ -772,16 +896,13 @@
     const totalPoints = gameState.baseValues[comp] + gameState.allocations[comp];
     const wingBoxIndex = totalBoxes - totalPoints;
 
-    // Blocca l'interazione sul punto occupato dall'Alettone sul Telaio
     if (comp === 'body' && gameState.wingActive && clickedIndex === wingBoxIndex) return;
 
     const markedList = gameState.markedUsages[comp];
     const isAlreadyMarked = markedList.includes(clickedIndex);
 
     if (isAlreadyMarked) {
-      // LOGICA DI RIPARAZIONE (cliccando su una casella precedentemente barrata)
       if (repairable.includes(comp)) {
-        // Cerca la prima casella disponibile più a SINISTRA nei Punti Officina (indici 0, 1, 2)
         let availableWorkshopIndex = -1;
         for (let w = 0; w < 3; w++) {
           if (!gameState.workshopUsages.includes(w)) {
@@ -795,24 +916,17 @@
           return;
         }
 
-        // 1. Sbarra tolta (Punto ripristinato sul componente)
         const pos = markedList.indexOf(clickedIndex);
         markedList.splice(pos, 1);
-
-        // 2. Viene barrata la casella più a sinistra dei Punti Officina
         gameState.workshopUsages.push(availableWorkshopIndex);
       } else {
-        // Per Gomme e Carburante la barra si rimuove semplicemente
         const pos = markedList.indexOf(clickedIndex);
         markedList.splice(pos, 1);
       }
     } else {
-      // LOGICA DI CONSUMO / DANNO (cliccando su una casella libera)
       let targetIndex = -1;
 
       if (!isRight) {
-        // SEZIONI A SINISTRA (Gomme, Freni, Benzina):
-        // Si barra la prima casella disponibilità/valorizzata partendo da destra verso sinistra
         for (let i = totalPoints - 1; i >= 0; i--) {
           if (!markedList.includes(i)) {
             targetIndex = i;
@@ -820,8 +934,6 @@
           }
         }
       } else {
-        // SEZIONI A DESTRA (Telaio, Motore, Sospensioni):
-        // Si barra la prima casella disponibilità/valorizzata partendo da sinistra verso destra
         for (let i = totalBoxes - totalPoints; i < totalBoxes; i++) {
           if (comp === 'body' && gameState.wingActive && i === wingBoxIndex) continue;
           if (!markedList.includes(i)) {
