@@ -155,8 +155,12 @@
     }
 
     body.theme-cyberpunk .box.circle-kers {
+      box-shadow: none !important; /* Mantiene il rettangolo pulito */
+    }
+
+    body.theme-cyberpunk .box.circle-kers svg {
       color: #00f0ff !important;
-      filter: drop-shadow(0 0 6px #00f0ff);
+      animation: glow-only-cyber 1.4s infinite ease-in-out alternate;
     }
 
     body.theme-cyberpunk .mov-num-active {
@@ -260,9 +264,14 @@
       color: #00ffcc !important;
       filter: drop-shadow(0 0 5px #00ffcc);
     }
+    
     body.theme-ironman .box.circle-kers {
+      box-shadow: none !important; /* Mantiene il rettangolo pulito */
+    }
+
+    body.theme-ironman .box.circle-kers svg {
       color: #00f0ff !important;
-      filter: drop-shadow(0 0 6px #00f0ff);
+      animation: glow-only-iron 1.4s infinite ease-in-out alternate;
     }
 
     body.theme-ironman .mov-num-active {
@@ -515,6 +524,31 @@
       52% { opacity: 1; }
       54% { opacity: 0.7; }
       56% { opacity: 1; }
+    }
+
+    /* =========================================================
+       ANIMAZIONI BAGLIORE NEON STABILI (Senza Ridimensionamento)
+       ========================================================= */
+    @keyframes glow-only-cyber {
+      0% {
+        filter: drop-shadow(0 0 1px #00f0ff);
+        opacity: 0.55;
+      }
+      100% {
+        filter: drop-shadow(0 0 6px #00f0ff) drop-shadow(0 0 12px #00f0ff);
+        opacity: 1;
+      }
+    }
+
+    @keyframes glow-only-iron {
+      0% {
+        filter: drop-shadow(0 0 1px #00f0ff);
+        opacity: 0.6;
+      }
+      100% {
+        filter: drop-shadow(0 0 8px #00f0ff) drop-shadow(0 0 14px #f5d061);
+        opacity: 1;
+      }
     }
   </style>
 </head>
@@ -1113,7 +1147,7 @@
         wingBox.innerText = 'X';
         wingBox.classList.add('x-red');
       } else {
-        wingBox.innerHTML = f1WingSvgIcon; // Mostra l'icona Alettone F1
+        wingBox.innerHTML = f1WingSvgIcon;
         wingBox.classList.add('circle-green');
       }
     } else {
@@ -1122,7 +1156,7 @@
     if (gameState.isSetupMode) wingBox.classList.add('clickable');
 
     /* =========================================================
-       RENDERING KERS: DINAMICO IN BASE AL TEMA
+       RENDERING KERS: PULSANTE DINAMICO IN BASE AL TEMA
        ========================================================= */
     const kersBox = document.getElementById('box-kers');
     kersBox.className = 'box';
