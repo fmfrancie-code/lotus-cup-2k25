@@ -154,6 +154,17 @@
       animation: flicker 2s infinite alternate;
     }
 
+    body.theme-cyberpunk .box.circle-kers {
+      color: #00f0ff !important;
+      filter: drop-shadow(0 0 6px #00f0ff);
+    }
+
+    body.theme-cyberpunk .mov-num-active {
+      color: #00f0ff !important;
+      font-size: 0.85rem;
+      text-shadow: 0 0 8px #00f0ff, 0 0 15px #00f0ff !important;
+    }
+
 
     /* =========================================================
        2. STILE DEDICATO: IRON_1 (STARK METALLIC RED & GOLD)
@@ -178,7 +189,6 @@
       text-shadow: 0 0 10px rgba(0, 0, 0, 0.8), 0 0 5px #f5d061;
     }
 
-    /* PULSANTI ORO METALLICO IRON_1 */
     body.theme-ironman .btn {
       background: linear-gradient(180deg, #fff2bd 0%, #e5b839 40%, #c49618 100%) !important;
       color: #520003 !important;
@@ -228,7 +238,6 @@
       border: 2px solid #f5d061 !important;
     }
 
-    /* CASELLE NUMERICHE BIANCHE IRON_1 */
     body.theme-ironman .box {
       background-color: #0a0204;
       color: #ffffff;
@@ -237,7 +246,6 @@
       box-shadow: none;
     }
 
-    /* X ROSSA NEON IRON_1 */
     body.theme-ironman .box.x-red {
       background: rgba(255, 42, 42, 0.18) !important;
       border: 1px solid #ff2a2a !important;
@@ -248,13 +256,18 @@
       animation: flicker 2s infinite alternate;
     }
 
-    /* NEON RIPRISTINATO PER KERS ED ALETTONE SU IRON_1 */
     body.theme-ironman .box.circle-green {
       color: #00ffcc !important;
-      text-shadow: 0 0 8px #00ffcc, 0 0 15px #00ffcc !important;
+      filter: drop-shadow(0 0 5px #00ffcc);
     }
     body.theme-ironman .box.circle-kers {
       color: #00f0ff !important;
+      filter: drop-shadow(0 0 6px #00f0ff);
+    }
+
+    body.theme-ironman .mov-num-active {
+      color: #00f0ff !important;
+      font-size: 0.85rem;
       text-shadow: 0 0 8px #00f0ff, 0 0 15px #00f0ff !important;
     }
 
@@ -383,10 +396,24 @@
       display: flex; align-items: flex-end; gap: 6px;
     }
     .workshop-boxes-wrapper { display: flex; flex-direction: column; align-items: center; }
-    .workshop-label {
-      font-family: 'Orbitron', sans-serif; font-size: 0.65rem; font-weight: 900;
-      color: #ffb700; text-transform: uppercase; margin-bottom: 2px;
-      border-bottom: 1px solid rgba(0, 240, 255, 0.35); width: 98px; text-align: center;
+    
+    .workshop-label, .fuel-mov-label {
+      font-family: 'Orbitron', sans-serif; 
+      font-size: 0.65rem; 
+      font-weight: 900;
+      color: #ffb700; 
+      text-transform: uppercase; 
+      margin-bottom: 2px;
+      border-bottom: 1px solid rgba(0, 240, 255, 0.35); 
+      width: 98px; 
+      text-align: center;
+    }
+    .fuel-mov-label { text-align: left; padding-left: 2px; }
+
+    .mov-num-val {
+      font-weight: 900;
+      color: #ffb700;
+      transition: all 0.25s ease;
     }
 
     .board-row {
@@ -399,11 +426,6 @@
     .board-side.right-side { justify-content: flex-end; }
 
     .fuel-container-wrapper { display: flex; flex-direction: column; }
-    .fuel-mov-label {
-      font-family: 'Orbitron', sans-serif; font-size: 0.6rem; font-weight: 900;
-      color: #ffb700; text-align: left; padding-left: 2px; margin-bottom: 2px;
-      border-bottom: 1px solid rgba(0, 240, 255, 0.35); width: 98px;
-    }
 
     .icon-box-center {
       width: 30px; height: 34px; border: 1px solid rgba(0, 240, 255, 0.35);
@@ -448,7 +470,6 @@
     .box.clickable { cursor: pointer; }
     .box.clickable:hover { background-color: rgba(0, 240, 255, 0.15); }
 
-    /* X DELL'ALETTONE TRASPARENTE E MENO VISIBILE (DISCRETA IN SECONDO PIANO) */
     .box.x-black { 
       color: rgba(255, 255, 255, 0.25) !important; 
       font-weight: 700; 
@@ -458,7 +479,7 @@
       box-shadow: none !important;
     }
 
-    .box.circle-green, .box.circle-kers { color: #00ffcc; font-size: 1.1rem; }
+    .box.circle-green { color: #00ffcc; font-size: 1.1rem; }
 
     .budget-bar {
       background-color: rgba(15, 21, 34, 0.8); border: 1px solid #ffb700;
@@ -580,7 +601,7 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="#00f0ff" stroke-width="2.2" stroke-linecap="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
         </div>
         <div class="workshop-boxes-wrapper">
-          <div class="workshop-label">__ -2 MOV __</div>
+          <div class="workshop-label">__ -<span id="workshop-mov-val" class="mov-num-val">0</span> MOV __</div>
           <div class="boxes-container" id="row-workshop"></div>
         </div>
       </div>
@@ -693,7 +714,7 @@
       <div class="board-row">
         <div class="board-side">
           <div class="fuel-container-wrapper">
-            <div class="fuel-mov-label">__ +1 MOV __</div>
+            <div class="fuel-mov-label">__ +<span id="fuel-mov-val" class="mov-num-val">0</span> MOV __</div>
             <div class="boxes-container" id="row-fuel"></div>
           </div>
           <div class="icon-box-center arrow-left" title="Carburante">
@@ -766,12 +787,14 @@
   let gameState = {
     code: null, circuit: '', host: '', date: '', playerName: '',
     isSetupMode: false, isRaceMode: false, isEditingAllowed: false, budget: 13,
-    selectedTyre: 'Prime', tyreLaps: { Prime: [], Option: [], Standard: [], Pioggia: [] },
+    selectedTyre: 'Prime', tyreLaps: { Prime: [], Option: [], Intermedie: [], Pioggia: [] },
     wingActive: false, kersState: 'empty',
+    previousKersState: null,
     baseValues: { tyres: 4, brakes: 2, fuel: 2, body: 2, engine: 2, suspension: 1 },
     allocations: { tyres: 0, brakes: 0, fuel: 0, body: 0, engine: 0, suspension: 0 },
     markedUsages: { tyres: [], brakes: [], fuel: [], body: [], engine: [], suspension: [] },
-    workshopUsages: []
+    workshopUsages: [],
+    workshopStartCount: 0
   };
 
   let opponents = [
@@ -780,6 +803,15 @@
   ];
 
   const spinSvgIcon = `<svg viewBox="0 0 100 100" style="width:20px;height:20px;color:currentColor;"><path d="M 50 15 A 35 35 0 1 1 20 60" fill="none" stroke="currentColor" stroke-width="8" stroke-dasharray="6,4"/><polygon points="12,50 25,65 30,45" fill="currentColor"/><text x="50" y="62" font-size="34" font-weight="bold" text-anchor="middle" fill="currentColor" font-family="Orbitron">1</text></svg>`;
+  
+  /* 1. REATTORE ARC CLASSICO PER TEMA IRON_1 */
+  const arcReactorSvgIcon = `<svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" style="width:22px;height:22px;"><circle cx="50" cy="50" r="44" stroke-width="6"/><circle cx="50" cy="50" r="32" stroke-width="4"/><line x1="50" y1="6" x2="50" y2="18" stroke-width="7"/><line x1="50" y1="82" x2="50" y2="94" stroke-width="7"/><line x1="6" y1="50" x2="18" y2="50" stroke-width="7"/><line x1="82" y1="50" x2="94" y2="50" stroke-width="7"/><line x1="19" y1="19" x2="28" y2="28" stroke-width="7"/><line x1="72" y1="72" x2="81" y2="81" stroke-width="7"/><line x1="19" y1="81" x2="28" y2="72" stroke-width="7"/><line x1="72" y1="28" x2="81" y2="19" stroke-width="7"/><circle cx="50" cy="50" r="20" stroke-width="4"/><circle cx="50" cy="50" r="10" fill="currentColor"/></svg>`;
+
+  /* 2. ICONA POWER PER TEMA CYBER-PUNK */
+  const powerSvgIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="width:20px;height:20px;"><path d="M18.36 6.64a9 9 0 1 1-12.73 0" /><line x1="12" y1="2" x2="12" y2="12" /></svg>`;
+
+  /* 3. ICONA ALE TTONE FORMULA 1 */
+  const f1WingSvgIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;"><path d="M 2 6 L 22 6 L 20 10 L 4 10 Z" fill="currentColor" fill-opacity="0.2"/><path d="M 2 4 L 4 14 L 2 14 Z" /><path d="M 22 4 L 20 14 L 22 14 Z" /><line x1="9" y1="10" x2="9" y2="17" /><line x1="15" y1="10" x2="15" y2="17" /></svg>`;
 
   document.addEventListener('DOMContentLoaded', () => {
     const select = document.getElementById('theme-select');
@@ -863,7 +895,7 @@
   function renderTyreDeck() {
     const container = document.getElementById('tyres-deck-container');
     container.innerHTML = '';
-    const tyres = ['Prime', 'Option', 'Standard', 'Pioggia'];
+    const tyres = ['Prime', 'Option', 'Intermedie', 'Pioggia'];
 
     tyres.forEach(t => {
       const isSelected = gameState.selectedTyre === t;
@@ -945,6 +977,24 @@
   }
 
   function renderBoard() {
+    const totalEnginePoints = gameState.baseValues.engine + gameState.allocations.engine;
+    const engineUsed = gameState.markedUsages.engine.length;
+    const engineRemaining = totalEnginePoints - engineUsed;
+
+    if (engineRemaining === 0) {
+      if (gameState.kersState !== 'engine_fault') {
+        gameState.previousKersState = gameState.kersState;
+        gameState.kersState = 'engine_fault';
+      }
+    } else if (gameState.kersState === 'engine_fault') {
+      if (gameState.previousKersState === 'damaged') {
+        gameState.kersState = 'damaged';
+      } else {
+        gameState.kersState = 'empty';
+      }
+      gameState.previousKersState = null;
+    }
+
     const components = ['tyres', 'brakes', 'fuel', 'body', 'engine', 'suspension'];
     const rightAligned = ['body', 'engine', 'suspension'];
     
@@ -1053,6 +1103,9 @@
       workshopContainer.appendChild(box);
     }
 
+    /* =========================================================
+       RENDERING ALE TTONE CON ICONA F1
+       ========================================================= */
     const wingBox = document.getElementById('box-wing');
     wingBox.className = 'box';
     if (gameState.wingActive) {
@@ -1060,7 +1113,7 @@
         wingBox.innerText = 'X';
         wingBox.classList.add('x-red');
       } else {
-        wingBox.innerText = 'O';
+        wingBox.innerHTML = f1WingSvgIcon; // Mostra l'icona Alettone F1
         wingBox.classList.add('circle-green');
       }
     } else {
@@ -1068,17 +1121,58 @@
     }
     if (gameState.isSetupMode) wingBox.classList.add('clickable');
 
+    /* =========================================================
+       RENDERING KERS: DINAMICO IN BASE AL TEMA
+       ========================================================= */
     const kersBox = document.getElementById('box-kers');
     kersBox.className = 'box';
+    
     if (gameState.kersState === 'charged') {
-      kersBox.innerText = 'O';
+      const isCyberpunk = document.body.classList.contains('theme-cyberpunk');
+      
+      kersBox.innerHTML = isCyberpunk ? powerSvgIcon : arcReactorSvgIcon;
       kersBox.classList.add('circle-kers');
-      if (gameState.isRaceMode && gameState.isEditingAllowed) kersBox.classList.add('clickable');
-    } else if (gameState.kersState === 'damaged') {
+
+      if (gameState.isRaceMode && gameState.isEditingAllowed && engineRemaining > 0) {
+        kersBox.classList.add('clickable');
+      }
+    } else if (gameState.kersState === 'damaged' || gameState.kersState === 'engine_fault') {
       kersBox.innerText = 'X';
       kersBox.classList.add('x-red');
     } else {
       kersBox.innerText = '';
+    }
+
+    const totalFuelPoints = gameState.baseValues.fuel + gameState.allocations.fuel;
+    const fuelUsed = gameState.markedUsages.fuel.length;
+    const fuelRemaining = totalFuelPoints - fuelUsed;
+    const fuelValSpan = document.getElementById('fuel-mov-val');
+
+    if (fuelRemaining <= 3 && gameState.isRaceMode) {
+      fuelValSpan.innerText = '1';
+      fuelValSpan.classList.add('mov-num-active');
+    } else {
+      fuelValSpan.innerText = '0';
+      fuelValSpan.classList.remove('mov-num-active');
+    }
+
+    const workshopValSpan = document.getElementById('workshop-mov-val');
+    
+    if (gameState.isRaceMode && gameState.isEditingAllowed) {
+      const currentWorkshopCount = gameState.workshopUsages.length;
+      const newRepairsThisSession = Math.max(0, currentWorkshopCount - gameState.workshopStartCount);
+      const movPenalty = newRepairsThisSession * 2;
+
+      workshopValSpan.innerText = `${movPenalty}`;
+      
+      if (movPenalty > 0) {
+        workshopValSpan.classList.add('mov-num-active');
+      } else {
+        workshopValSpan.classList.remove('mov-num-active');
+      }
+    } else {
+      workshopValSpan.innerText = '0';
+      workshopValSpan.classList.remove('mov-num-active');
     }
 
     document.getElementById('budget-count').innerText = gameState.budget;
@@ -1143,7 +1237,9 @@
   function toggleRaceEdit() {
     gameState.isEditingAllowed = !gameState.isEditingAllowed;
     const btn = document.getElementById('btn-toggle-edit');
+    
     if (gameState.isEditingAllowed) {
+      gameState.workshopStartCount = gameState.workshopUsages.length;
       btn.innerText = "ModalitÃ  Edit Attiva (Clicca per Bloccare)";
       btn.className = 'btn btn-edit-mode';
     } else {
@@ -1223,7 +1319,9 @@
       if (targetIndex !== -1) {
         markedList.push(targetIndex);
 
-        if (comp === 'brakes' && gameState.kersState === 'empty') {
+        const totalEng = gameState.baseValues.engine + gameState.allocations.engine;
+        const engUsed = gameState.markedUsages.engine.length;
+        if (comp === 'brakes' && gameState.kersState === 'empty' && (totalEng - engUsed > 0)) {
           gameState.kersState = 'charged';
         }
       }
@@ -1249,7 +1347,10 @@
   }
 
   function interactKers() {
-    if (gameState.isRaceMode && gameState.isEditingAllowed && gameState.kersState === 'charged') {
+    const totalEng = gameState.baseValues.engine + gameState.allocations.engine;
+    const engUsed = gameState.markedUsages.engine.length;
+
+    if (gameState.isRaceMode && gameState.isEditingAllowed && gameState.kersState === 'charged' && (totalEng - engUsed > 0)) {
       document.getElementById('modal-kers').style.display = 'flex';
     }
   }
@@ -1257,9 +1358,26 @@
   function resolveKers(isDamaged) {
     if (isDamaged) {
       gameState.kersState = 'damaged';
+
+      const totalBoxes = 6;
+      const totalEnginePoints = gameState.baseValues.engine + gameState.allocations.engine;
+      const markedList = gameState.markedUsages.engine;
+
+      let targetIndex = -1;
+      for (let i = totalBoxes - totalEnginePoints; i < totalBoxes; i++) {
+        if (!markedList.includes(i)) {
+          targetIndex = i;
+          break;
+        }
+      }
+
+      if (targetIndex !== -1) {
+        markedList.push(targetIndex);
+      }
     } else {
       gameState.kersState = 'empty';
     }
+
     closeModal();
     renderBoard();
   }
