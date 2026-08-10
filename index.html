@@ -1644,6 +1644,7 @@
     if (!gameState.isPitStopActive) {
       document.getElementById('modal-pitstop-confirm').style.display = 'flex';
     } else {
+      // 1. Controllo giro successivo (2 o 3) con messaggio di avviso mirato
       let hasSelectedNewLap = false;
       if (gameState.pitStopStartLap === 1) {
         hasSelectedNewLap = isLapMarkedAnywhere(2) || isLapMarkedAnywhere(3);
@@ -1654,8 +1655,49 @@
       }
 
       if (!hasSelectedNewLap) {
+        alert("ATTENZIONE: Per poter uscire dai box devi prima selezionare a quale inizio giro ti trovi (spuntando il numero 2 o il numero 3 nella tabella delle gomme)!");
         return;
       }
+
+      // 2. Calcolo dettagliato di Malus, Bonus e Netto per l'uscita dai box
+      // --- OFFICINA ---
+      const currentWorkshopCount = gameState.workshopUsages.length;
+      const newRepairsThisSession = Math.max(0, currentWorkshopCount - gameState.workshopStartCount);
+      const workshopMalus = newRepairsThisSession * 2; // Ogni riparazione extra costa 2 MOV di malus
+
+      // --- CARBURANTE (Bonus se <= 3 punti residui, Malus se > 3 punti residui) ---
+      const totalFuelPoints = gameState.baseValues.fuel + gameState.allocations.fuel;
+      const fuelUsed = gameState.markedUsages.fuel.length;
+      const fuelRemaining = totalFuelPoints - fuelUsed;
+      
+      let fuelPointsEffect = 0;
+      let fuelTextEffect = "";
+      if (fuelRemaining <= 3) {
+        fuelPointsEffect = +1; // Bonus +1 MOV
+        fuelTextEffect = "Bonus +1 MOV (Carburante leggero)";
+      } else {
+        fuelPointsEffect = -2; // Malus -2 MOV
+        fuelTextEffect = "Malus -2 MOV (Carburante pesante)";
+      }
+
+      // Calcolo del saldo netto complessivo (Bonus positivi e Malus negativi)
+      const netTotalPoints = fuelPointsEffect - workshopMalus;
+
+      // 3. Messaggio di recap con il resoconto completo e indicazione del valore finale netto
+      let summaryMessage = `Uscita dai box completata con successo!\n\n`;
+      summaryMessage += `DETTAGLIO PARAMETRI:\n`;
+      summaryMessage += `- Riparazioni Officina: -${workshopMalus} MOV\n`;
+      summaryMessage += `- Carburante Residuo (${fuelRemaining} punti): ${fuelTextEffect}\n\n`;
+      
+      if (netTotalPoints > 0) {
+        summaryMessage += `RISULTATO FINALE: Devi AGGIUNGERE +${netTotalPoints} punti al tuo tiro per l'uscita dai box (BONUS NETTO).`;
+      } else if (netTotalPoints < 0) {
+        summaryMessage += `RISULTATO FINALE: Devi SOTTRARRE ${netTotalPoints} punti al tuo tiro per l'uscita dai box (MALUS NETTO).`;
+      } else {
+        summaryMessage += `RISULTATO FINALE: Nessuna modifica al tiro (Bilancio in pareggio).`;
+      }
+
+      alert(summaryMessage);
 
       gameState.markedUsages.tyres = [];
       gameState.savedTyresUsages = [];
