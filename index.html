@@ -658,10 +658,10 @@
       <label>Meteo Iniziale:</label>
       <select id="input-weather">
         <option value="" disabled selected>-- Seleziona Condizione Meteo --</option>
-        <option value="sun">Sole Fisso</option>
-        <option value="rain">Pioggia Fissa</option>
-        <option value="var_dry">Variabile Asciutto</option>
-        <option value="var_wet">Variabile Bagnato</option>
+        <option value="sun">&#9728;&#65039; Sole Fisso</option>
+        <option value="rain">&#127783;&#65039; Pioggia Fissa</option>
+        <option value="var_dry">&#9925; Variabile Asciutto</option>
+        <option value="var_wet">&#127783;&#65039; Variabile Bagnato</option>
       </select>
 
       <button class="btn" onclick="createGame()">Genera Partita & Stanza</button>
@@ -690,7 +690,7 @@
         <h3 style="margin:0; text-align:left; display: flex; align-items: center;">
           <span id="display-circuit">CIRCUITO</span>
           <div id="weather-badge" class="weather-badge">
-            <span id="weather-icon">Sole</span> <small id="weather-text">Sole</small>
+            <span id="weather-icon">&#9728;&#65039;</span> <small id="weather-text">Sole</small>
           </div>
         </h3>
         <small id="display-meta">Data: - | Host: -</small>
@@ -877,7 +877,7 @@
                   <rect x="54" y="58" width="8" height="18"/>
                 </g>
                 <rect x="38" y="48" width="16" height="12"/>
-                <line x1="38" y1="68" x2="68" y2="75" stroke="#00f0ff" stroke-width="4"/>
+                <line x1="38" y1="68" x2="68" y2="75" stroke="#0f1522" stroke-width="4"/>
               </svg>
             </div>
             <div class="boxes-container" id="row-suspension"></div>
@@ -1091,19 +1091,19 @@
     const badgeText = document.getElementById('weather-text');
     
     if (gameState.weather === 'rain') {
-      badgeIcon.innerText = 'Pioggia';
+      badgeIcon.innerHTML = '&#127783;&#65039;';
       badgeText.innerText = 'Pioggia Fissa';
     } else if (gameState.weather === 'sun') {
-      badgeIcon.innerText = 'Sole';
+      badgeIcon.innerHTML = '&#9728;&#65039;';
       badgeText.innerText = 'Sole Fisso';
     } else if (gameState.weather === 'var_dry') {
-      badgeIcon.innerText = 'Variabile';
-      let checkTag = gameState.weatherLastCheck ? ` [ULTIMO: ${gameState.weatherLastCheck === 'sun' ? 'Sole' : 'Pioggia'}]` : '';
-      badgeText.innerText = `VARIABILE ASCIUTTO${checkTag}`;
+      badgeIcon.innerHTML = '&#9925;';
+      let checkTag = gameState.weatherLastCheck ? ` [ULTIMO: ${gameState.weatherLastCheck === 'sun' ? '&#9728;&#65039;' : '&#127783;&#65039;'}]` : '';
+      badgeText.innerHTML = `VARIABILE ASCIUTTO${checkTag}`;
     } else if (gameState.weather === 'var_wet') {
-      badgeIcon.innerText = 'Variabile';
-      let checkTag = gameState.weatherLastCheck ? ` [ULTIMO: ${gameState.weatherLastCheck === 'sun' ? 'Sole' : 'Pioggia'}]` : '';
-      badgeText.innerText = `VARIABILE BAGNATO${checkTag}`;
+      badgeIcon.innerHTML = '&#127783;&#65039;';
+      let checkTag = gameState.weatherLastCheck ? ` [ULTIMO: ${gameState.weatherLastCheck === 'sun' ? '&#9728;&#65039;' : '&#127783;&#65039;'}]` : '';
+      badgeText.innerHTML = `VARIABILE BAGNATO${checkTag}`;
     }
   }
 
@@ -1121,20 +1121,20 @@
       if (!gameState.weatherLastCheck) {
         historyText.innerText = "Ultimo Check: Nessuno";
         buttonsContainer.innerHTML = `
-          <button class="btn btn-secondary" onclick="processWeatherCheck('sun')">Tiro Check: SOLE</button>
-          <button class="btn btn-secondary" onclick="processWeatherCheck('rain')">Tiro Check: PIOGGIA</button>
+          <button class="btn btn-secondary" onclick="processWeatherCheck('sun')">&#9728;&#65039; Tiro Check: SOLE</button>
+          <button class="btn btn-secondary" onclick="processWeatherCheck('rain')">&#127783;&#65039; Tiro Check: PIOGGIA</button>
         `;
       } else {
-        const lastSymbol = gameState.weatherLastCheck === 'sun' ? 'Sole' : 'Pioggia';
+        const lastSymbol = gameState.weatherLastCheck === 'sun' ? '&#9728;&#65039; Sole' : '&#127783;&#65039; Pioggia';
         historyText.innerHTML = `<strong style="color:#00f0ff;">Ultimo tiro registrato:</strong> ${lastSymbol}`;
 
         let btnSunText = gameState.weatherLastCheck === 'sun'
-          ? 'Tiro Check: SOLE (Stabilizza su SOLE FISSO!)'
-          : 'Tiro Check: SOLE (Asfalto passa ad Asciutto)';
+          ? '&#9728;&#65039; Tiro Check: SOLE (Stabilizza su SOLE FISSO!)'
+          : '&#9728;&#65039; Tiro Check: SOLE (Asfalto passa ad Asciutto)';
 
         let btnRainText = gameState.weatherLastCheck === 'rain'
-          ? 'Tiro Check: PIOGGIA (Stabilizza su PIOGGIA FISSA!)'
-          : 'Tiro Check: PIOGGIA (Asfalto passa a Bagnato)';
+          ? '&#127783;&#65039; Tiro Check: PIOGGIA (Stabilizza su PIOGGIA FISSA!)'
+          : '&#127783;&#65039; Tiro Check: PIOGGIA (Asfalto passa a Bagnato)';
 
         buttonsContainer.innerHTML = `
           <button class="btn btn-secondary" onclick="processWeatherCheck('sun')">${btnSunText}</button>
