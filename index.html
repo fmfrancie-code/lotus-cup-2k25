@@ -658,10 +658,10 @@
       <label>Meteo Iniziale:</label>
       <select id="input-weather">
         <option value="" disabled selected>-- Seleziona Condizione Meteo --</option>
-        <option value="sun">â˜€ï¸ Sole Fisso</option>
-        <option value="rain">ðŸŒ§ï¸ Pioggia Fissa</option>
-        <option value="var_dry">â›… Variabile Asciutto</option>
-        <option value="var_wet">ðŸŒ§ï¸ Variabile Bagnato</option>
+        <option value="sun">Sole Fisso</option>
+        <option value="rain">Pioggia Fissa</option>
+        <option value="var_dry">Variabile Asciutto</option>
+        <option value="var_wet">Variabile Bagnato</option>
       </select>
 
       <button class="btn" onclick="createGame()">Genera Partita & Stanza</button>
@@ -689,9 +689,8 @@
       <div>
         <h3 style="margin:0; text-align:left; display: flex; align-items: center;">
           <span id="display-circuit">CIRCUITO</span>
-          <!-- BADGE METEO SENZA CLICK -->
           <div id="weather-badge" class="weather-badge">
-            <span id="weather-icon">â˜€ï¸</span> <small id="weather-text">Sole</small>
+            <span id="weather-icon">Sole</span> <small id="weather-text">Sole</small>
           </div>
         </h3>
         <small id="display-meta">Data: - | Host: -</small>
@@ -708,11 +707,10 @@
       
       <div id="race-controls" style="display: none; gap: 8px; flex-direction: column;">
         <div style="display: flex; gap: 8px;">
-          <button id="btn-toggle-edit" class="btn btn-read-mode" onclick="toggleRaceEdit()" style="flex:1; margin:0;">ModalitÃ  Lettura (Clicca per Sbloccare Edit)</button>
-          <button id="btn-pitstop-action" class="btn btn-pitstop-mode" onclick="handlePitStopButtonClick()" style="display: none; flex:1; margin:0;">ðŸ”§ Entrata ai Box (Pit Stop)</button>
+          <button id="btn-toggle-edit" class="btn btn-read-mode" onclick="toggleRaceEdit()" style="flex:1; margin:0;">ModalitÃ  Edit Attiva (Clicca per Bloccare)</button>
+          <button id="btn-pitstop-action" class="btn btn-pitstop-mode" onclick="handlePitStopButtonClick()" style="display: none; flex:1; margin:0;">Entrata ai Box (Pit Stop)</button>
         </div>
-        <!-- UNICO PULSANTE DEDICATO TEST MOTORE / METEO -->
-        <button id="btn-weather-test" class="btn btn-weather-test" onclick="openWeatherModal()" style="display: none; margin: 4px 0 0 0;">ðŸŽ² Test Motore / Controllo Meteo</button>
+        <button id="btn-weather-test" class="btn btn-weather-test" onclick="openWeatherModal()" style="display: none; margin: 4px 0 0 0;">Test Motore / Controllo Meteo</button>
       </div>
     </div>
 
@@ -751,7 +749,7 @@
                 <ellipse cx="62" cy="50" rx="20" ry="32" fill="#0f1522" stroke="#00f0ff" stroke-width="3"/>
                 <ellipse cx="62" cy="50" rx="8" ry="12" fill="#00f0ff"/>
                 <line x1="62" y1="38" x2="62" y2="20" stroke="#00f0ff" stroke-width="3"/>
-                <line x1="62" y1="62" x2="62" y2="80" stroke="#00f0ff" stroke-width="3"/>
+                <line x1="62" y1="62" x2="62" y2="80" stroke="#0f1522" stroke-width="3"/>
                 <line x1="54" y1="50" x2="44" y2="50" stroke="#00f0ff" stroke-width="3"/>
                 <line x1="70" y1="50" x2="80" y2="50" stroke="#00f0ff" stroke-width="3"/>
                 <line x1="56" y1="42" x2="48" y2="30" stroke="#00f0ff" stroke-width="3"/>
@@ -879,7 +877,7 @@
                   <rect x="54" y="58" width="8" height="18"/>
                 </g>
                 <rect x="38" y="48" width="16" height="12"/>
-                <line x1="38" y1="68" x2="68" y2="75" stroke="#0f1522" stroke-width="4"/>
+                <line x1="38" y1="68" x2="68" y2="75" stroke="#00f0ff" stroke-width="4"/>
               </svg>
             </div>
             <div class="boxes-container" id="row-suspension"></div>
@@ -1033,7 +1031,7 @@
     const weather = weatherSelect.value;
     
     if (!weather) {
-      alert("âš ï¸ Seleziona prima una condizione meteo valida per la gara!");
+      alert("Seleziona prima una condizione meteo valida per la gara!");
       return;
     }
 
@@ -1093,18 +1091,18 @@
     const badgeText = document.getElementById('weather-text');
     
     if (gameState.weather === 'rain') {
-      badgeIcon.innerText = 'ðŸŒ§ï¸';
+      badgeIcon.innerText = 'Pioggia';
       badgeText.innerText = 'Pioggia Fissa';
     } else if (gameState.weather === 'sun') {
-      badgeIcon.innerText = 'â˜€ï¸';
+      badgeIcon.innerText = 'Sole';
       badgeText.innerText = 'Sole Fisso';
     } else if (gameState.weather === 'var_dry') {
-      badgeIcon.innerText = 'â›…';
-      let checkTag = gameState.weatherLastCheck ? ` [ULTIMO: ${gameState.weatherLastCheck === 'sun' ? 'â˜€ï¸' : 'ðŸŒ§ï¸'}]` : '';
+      badgeIcon.innerText = 'Variabile';
+      let checkTag = gameState.weatherLastCheck ? ` [ULTIMO: ${gameState.weatherLastCheck === 'sun' ? 'Sole' : 'Pioggia'}]` : '';
       badgeText.innerText = `VARIABILE ASCIUTTO${checkTag}`;
     } else if (gameState.weather === 'var_wet') {
-      badgeIcon.innerText = 'ðŸŒ§ï¸';
-      let checkTag = gameState.weatherLastCheck ? ` [ULTIMO: ${gameState.weatherLastCheck === 'sun' ? 'â˜€ï¸' : 'ðŸŒ§ï¸'}]` : '';
+      badgeIcon.innerText = 'Variabile';
+      let checkTag = gameState.weatherLastCheck ? ` [ULTIMO: ${gameState.weatherLastCheck === 'sun' ? 'Sole' : 'Pioggia'}]` : '';
       badgeText.innerText = `VARIABILE BAGNATO${checkTag}`;
     }
   }
@@ -1116,27 +1114,27 @@
       const buttonsContainer = document.getElementById('modal-check-buttons');
 
       const isDry = gameState.weather === 'var_dry';
-      modalText.innerText = isDry ? 'â›… Variabile Asciutto' : 'ðŸŒ§ï¸ Variabile Bagnato';
+      modalText.innerText = isDry ? 'Variabile Asciutto' : 'Variabile Bagnato';
 
       buttonsContainer.innerHTML = '';
 
       if (!gameState.weatherLastCheck) {
         historyText.innerText = "Ultimo Check: Nessuno";
         buttonsContainer.innerHTML = `
-          <button class="btn btn-secondary" onclick="processWeatherCheck('sun')">â˜€ï¸ Tiro Check: SOLE</button>
-          <button class="btn btn-secondary" onclick="processWeatherCheck('rain')">ðŸŒ§ï¸ Tiro Check: PIOGGIA</button>
+          <button class="btn btn-secondary" onclick="processWeatherCheck('sun')">Tiro Check: SOLE</button>
+          <button class="btn btn-secondary" onclick="processWeatherCheck('rain')">Tiro Check: PIOGGIA</button>
         `;
       } else {
-        const lastSymbol = gameState.weatherLastCheck === 'sun' ? 'â˜€ï¸ Sole' : 'ðŸŒ§ï¸ Pioggia';
+        const lastSymbol = gameState.weatherLastCheck === 'sun' ? 'Sole' : 'Pioggia';
         historyText.innerHTML = `<strong style="color:#00f0ff;">Ultimo tiro registrato:</strong> ${lastSymbol}`;
 
         let btnSunText = gameState.weatherLastCheck === 'sun'
-          ? 'â˜€ï¸ Tiro Check: SOLE (Stabilizza su SOLE FISSO!)'
-          : 'â˜€ï¸ Tiro Check: SOLE (Asfalto passa ad Asciutto)';
+          ? 'Tiro Check: SOLE (Stabilizza su SOLE FISSO!)'
+          : 'Tiro Check: SOLE (Asfalto passa ad Asciutto)';
 
         let btnRainText = gameState.weatherLastCheck === 'rain'
-          ? 'ðŸŒ§ï¸ Tiro Check: PIOGGIA (Stabilizza su PIOGGIA FISSA!)'
-          : 'ðŸŒ§ï¸ Tiro Check: PIOGGIA (Asfalto passa a Bagnato)';
+          ? 'Tiro Check: PIOGGIA (Stabilizza su PIOGGIA FISSA!)'
+          : 'Tiro Check: PIOGGIA (Asfalto passa a Bagnato)';
 
         buttonsContainer.innerHTML = `
           <button class="btn btn-secondary" onclick="processWeatherCheck('sun')">${btnSunText}</button>
@@ -1619,14 +1617,14 @@
     if (gameState.isPitStopActive) {
       editBtn.innerText = "Sosta ai Box in corso...";
       editBtn.className = 'btn btn-pitstop-mode';
-      pitBtn.innerText = "ðŸ Ripartenza dai Box";
+      pitBtn.innerText = "Ripartenza dai Box";
       pitBtn.style.display = 'block';
       weatherTestBtn.style.display = 'none';
     } else if (gameState.isEditingAllowed) {
       gameState.workshopStartCount = gameState.workshopUsages.length;
       editBtn.innerText = "ModalitÃ  Edit Attiva (Clicca per Bloccare)";
       editBtn.className = 'btn btn-edit-mode';
-      pitBtn.innerText = "ðŸ”§ Entrata ai Box (Pit Stop)";
+      pitBtn.innerText = "Entrata ai Box (Pit Stop)";
       pitBtn.style.display = 'block';
       
       if (isVariableWeather) {
