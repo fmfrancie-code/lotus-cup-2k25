@@ -15,9 +15,6 @@
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
 
   <style>
-    /* =========================================================
-       REGOLE BASE COMUNI
-       ========================================================= */
     * { box-sizing: border-box; }
     
     body {
@@ -48,9 +45,7 @@
       letter-spacing: 2px;
     }
 
-    /* =========================================================
-       1. STILE DEDICATO: CYBER-PUNK
-       ========================================================= */
+    /* CYBER-PUNK THEME */
     body.theme-cyberpunk {
       background-color: #080b10;
       background-image: linear-gradient(rgba(0, 240, 255, 0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 240, 255, 0.04) 1px, transparent 1px);
@@ -173,19 +168,7 @@
       animation: glow-only-cyber 1.4s infinite ease-in-out alternate;
     }
 
-    body.theme-cyberpunk .mov-num-active {
-      color: #00f0ff !important;
-      text-shadow: 0 0 8px #00f0ff, 0 0 15px #00f0ff !important;
-    }
-
-    body.theme-cyberpunk .mov-num-penalty {
-      color: #ff0055 !important;
-      text-shadow: 0 0 8px #ff0055, 0 0 15px #ff0055 !important;
-    }
-
-    /* =========================================================
-       2. STILE DEDICATO: IRON_1 (STARK METALLIC RED & GOLD)
-       ========================================================= */
+    /* IRONMAN THEME */
     body.theme-ironman {
       background-color: #050203;
       background-image: radial-gradient(circle at center, rgba(229, 184, 57, 0.08) 0%, transparent 70%), linear-gradient(rgba(229, 184, 57, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(229, 184, 57, 0.05) 1px, transparent 1px);
@@ -296,19 +279,7 @@
       animation: glow-only-iron 1.4s infinite ease-in-out alternate;
     }
 
-    body.theme-ironman .mov-num-active {
-      color: #00f0ff !important;
-      text-shadow: 0 0 8px #00f0ff, 0 0 15px #00f0ff !important;
-    }
-
-    body.theme-ironman .mov-num-penalty {
-      color: #ff2a2a !important;
-      text-shadow: 0 0 8px #ff2a2a, 0 0 15px #ff2a2a !important;
-    }
-
-    /* =========================================================
-       ELEMENTI DI LAYOUT COMUNI E LOBBY STYLING
-       ========================================================= */
+    /* GENERAL LAYOUT & LOBBY */
     input, select {
       width: 100%;
       padding: 10px;
@@ -321,34 +292,37 @@
       font-family: 'Rajdhani', sans-serif;
     }
 
-    .lobby-item {
-      background: rgba(15, 21, 34, 0.8);
+    .lobby-card {
+      background: rgba(15, 21, 34, 0.9);
       border: 1px solid #00f0ff;
-      padding: 8px 12px;
-      border-radius: 4px;
-      margin-bottom: 6px;
+      padding: 12px;
+      border-radius: 6px;
+      margin-bottom: 10px;
+      cursor: pointer;
+      transition: all 0.2s ease;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      transition: border-color 0.2s;
     }
-    .lobby-info {
-      cursor: pointer;
-      flex-grow: 1;
+    .lobby-card:hover {
+      border-color: #ffb700;
+      background: rgba(20, 28, 45, 0.95);
+      transform: translateY(-1px);
     }
-    .lobby-info:hover {
-      color: #00f0ff;
+    .lobby-card.selected {
+      border: 2px solid #ffb700;
+      box-shadow: 0 0 12px rgba(255, 183, 0, 0.4);
     }
+    
     .btn-delete-room {
       background: rgba(255, 0, 85, 0.2);
       color: #ff0055;
       border: 1px solid #ff0055;
-      padding: 4px 8px;
+      padding: 6px 10px;
       font-size: 0.75rem;
       border-radius: 4px;
       cursor: pointer;
       font-family: 'Orbitron', sans-serif;
-      margin-left: 10px;
     }
     .btn-delete-room:hover {
       background: #ff0055;
@@ -394,8 +368,6 @@
       font-size: 0.8rem;
       color: #00f0ff;
       margin-left: 10px;
-      cursor: default;
-      opacity: 0.9;
     }
 
     .tyres-deck {
@@ -499,8 +471,6 @@
       border-bottom: 1px solid rgba(0, 240, 255, 0.35); 
       width: 100%;
       text-align: center;
-      white-space: nowrap;
-      display: block;
       letter-spacing: 0.5px;
     }
     .fuel-mov-label { text-align: left; padding-left: 2px; }
@@ -514,7 +484,6 @@
       text-align: center;
     }
 
-    /* STRUTTURA E RAGGRUPPAMENTO COMPONENTI */
     .board-row {
       display: flex; align-items: flex-end; justify-content: space-between; gap: 4px;
       margin-bottom: 12px; padding: 6px;
@@ -524,21 +493,9 @@
     .board-side { display: flex; align-items: flex-end; gap: 4px; flex-shrink: 0; }
     .board-side.right-side { justify-content: flex-end; }
 
-    .comp-block-wrapper {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-    }
-    .comp-block-wrapper.align-right {
-      align-items: flex-end;
-    }
-
-    .fuel-container-wrapper { 
-      display: flex; 
-      flex-direction: column; 
-      flex-shrink: 0; 
-      width: max-content; 
-    }
+    .comp-block-wrapper { display: flex; flex-direction: column; align-items: flex-start; }
+    .comp-block-wrapper.align-right { align-items: flex-end; }
+    .fuel-container-wrapper { display: flex; flex-direction: column; flex-shrink: 0; width: max-content; }
 
     .icon-box-center {
       width: 30px; height: 34px; border: 1px solid rgba(0, 240, 255, 0.35);
@@ -546,10 +503,7 @@
       position: relative; flex-shrink: 0; border-radius: 4px; padding: 2px;
     }
     .icon-box-center svg { width: 100%; height: 100%; }
-    
-    body.theme-ironman .icon-box-center { 
-      border-color: #e5b839; 
-    }
+    body.theme-ironman .icon-box-center { border-color: #e5b839; }
 
     .icon-box-center.arrow-left { margin-left: 6px; }
     .icon-box-center.arrow-left::before {
@@ -576,26 +530,16 @@
       border: 1px dashed #ffb700; color: #ffb700; background-color: transparent;
       animation: pulse-yellow 1.5s infinite ease-in-out;
     }
-    body.theme-ironman .box.box-setup-highlight {
-      border-color: #00f0ff; color: #00f0ff;
-    }
-
-    .box.box-setup-disabled {
-      border: 1px solid #2e3d52; color: transparent; animation: none !important;
-    }
-
+    body.theme-ironman .box.box-setup-highlight { border-color: #00f0ff; color: #00f0ff; }
+    .box.box-setup-disabled { border: 1px solid #2e3d52; color: transparent; animation: none !important; }
     .box.clickable { cursor: pointer; }
     .box.clickable:hover { background-color: rgba(0, 240, 255, 0.15); }
 
     .box.x-black { 
       color: rgba(255, 255, 255, 0.25) !important; 
-      font-weight: 700; 
-      background-color: rgba(0, 0, 0, 0.4); 
-      border-color: #1e293b; 
-      text-shadow: none !important;
-      box-shadow: none !important;
+      font-weight: 700; background-color: rgba(0, 0, 0, 0.4); 
+      border-color: #1e293b; text-shadow: none !important; box-shadow: none !important;
     }
-
     .box.circle-green { color: #00ffcc; font-size: 1.1rem; }
 
     .budget-bar {
@@ -610,11 +554,23 @@
       padding: 8px 12px; border-radius: 4px; margin-bottom: 5px;
       display: flex; justify-content: space-between; align-items: center;
     }
-    .opp-item.clickable-opp {
+    .opp-item.clickable-opp { cursor: pointer; }
+    .opp-item.clickable-opp:hover { border-color: #00f0ff; }
+
+    .btn-refresh-list {
+      background: transparent;
+      border: 1px solid #00f0ff;
+      color: #00f0ff;
+      padding: 2px 8px;
+      font-size: 0.75rem;
+      border-radius: 4px;
       cursor: pointer;
+      font-family: 'Orbitron', sans-serif;
+      margin-left: 10px;
     }
-    .opp-item.clickable-opp:hover {
-      border-color: #00f0ff;
+    .btn-refresh-list:hover {
+      background: #00f0ff;
+      color: #000;
     }
 
     .modal {
@@ -629,31 +585,23 @@
 
     .status-check-box {
       background: rgba(15, 21, 34, 0.9);
-      border: 1px solid #00f0ff;
-      border-radius: 6px;
-      padding: 10px;
-      margin-bottom: 12px;
-      text-align: center;
+      border: 1px solid #00f0ff; border-radius: 6px;
+      padding: 10px; margin-bottom: 12px; text-align: center;
     }
 
     @keyframes pulse-yellow {
       0%, 100% { border-color: rgba(255, 183, 0, 0.4); }
       50% { border-color: rgba(255, 183, 0, 1); background-color: rgba(255, 183, 0, 0.05); }
     }
-
     @keyframes flicker {
       0%, 100% { opacity: 1; filter: drop-shadow(0 0 8px #ff2a2a); }
       50% { opacity: 0.85; filter: drop-shadow(0 0 3px #ff2a2a); }
-      52% { opacity: 1; }
-      54% { opacity: 0.7; }
-      56% { opacity: 1; }
+      52% { opacity: 1; } 54% { opacity: 0.7; } 56% { opacity: 1; }
     }
-
     @keyframes glow-only-cyber {
       0% { filter: drop-shadow(0 0 1px #00f0ff); opacity: 0.55; }
       100% { filter: drop-shadow(0 0 6px #00f0ff) drop-shadow(0 0 12px #00f0ff); opacity: 1; }
     }
-
     @keyframes glow-only-iron {
       0% { filter: drop-shadow(0 0 1px #00f0ff); opacity: 0.6; }
       100% { filter: drop-shadow(0 0 8px #00f0ff) drop-shadow(0 0 14px #f5d061); opacity: 1; }
@@ -714,14 +662,15 @@
     <h2>Unisciti a una Partita</h2>
     <div style="max-width: 500px; margin: 0 auto;">
       <label>Seleziona Gara / Stanza Attiva:</label>
-      <div id="lobbies-list-container" style="margin-bottom: 15px;"></div>
+      <div id="lobbies-list-container" style="margin-bottom: 15px; max-height: 250px; overflow-y: auto;"></div>
 
-      <label>O inserisci Codice Gara (Numerico):</label>
-      <input type="number" id="input-code" placeholder="es. 4821">
-      <label>Nome Pilota:</label>
-      <input type="text" id="input-player-name" placeholder="Il tuo nome...">
-      
-      <button class="btn" onclick="joinGame()">Entra nella Gara</button>
+      <div id="join-form-section" style="display: none; background: rgba(15, 21, 34, 0.7); padding: 12px; border-radius: 6px; border: 1px solid #ffb700; margin-bottom: 15px;">
+        <p style="margin: 0 0 8px 0; font-size: 0.85rem; color:#ffb700;">Gara selezionata: <strong id="selected-room-label" style="color:#fff;">-</strong></p>
+        <label>Inserisci il tuo Nome Pilota:</label>
+        <input type="text" id="input-player-name" placeholder="Il tuo nome...">
+        <button class="btn" onclick="joinGame()">Entra nella Gara</button>
+      </div>
+
       <button class="btn btn-secondary" onclick="showScreen('screen-home')">Indietro</button>
     </div>
   </div>
@@ -729,7 +678,6 @@
   <!-- 4. DASHBOARD SETUP & GARA -->
   <div id="screen-setup" class="screen">
     
-    <!-- BANNER ISPEZIONE SCHEDA ALTRUI -->
     <div id="inspection-banner" style="display: none; background: rgba(255, 183, 0, 0.2); border: 1px solid #ffb700; padding: 8px; border-radius: 4px; margin-bottom: 10px; text-align: center; font-family: 'Orbitron'; font-size: 0.85rem; color: #ffb700;">
       Stai visualizzando la scheda di: <span id="inspecting-pilot-name" style="font-weight:900; color:#fff;">-</span>
       <button class="btn btn-secondary" onclick="returnToMyBoard()" style="padding: 4px 10px; width: auto; margin: 0 0 0 15px; font-size: 0.75rem;">Torna alla mia Scheda</button>
@@ -750,7 +698,6 @@
       </div>
     </div>
 
-    <!-- BOTTONI CONFIGURAZIONE E PIT STOP -->
     <div style="margin-bottom: 15px;" id="actions-container-wrapper">
       <button id="btn-start-config" class="btn" onclick="startConfiguration()">Inizia Configurazione (13 Punti)</button>
       <button id="btn-lock-setup" class="btn btn-success" onclick="officializeSetup()" style="display: none;" disabled>Ufficializza Scheda / Inizio Gara (Assegna tutti i 13 Punti)</button>
@@ -764,10 +711,8 @@
       </div>
     </div>
 
-    <!-- MESCOLE GOMME -->
     <div class="tyres-deck" id="tyres-deck-container"></div>
 
-    <!-- OFFICINA IN ALTO A DESTRA -->
     <div style="display: flex; justify-content: flex-end; margin-bottom: 10px;">
       <div class="workshop-block">
         <div class="icon-box-center" title="Punti Officina">
@@ -780,15 +725,11 @@
       </div>
     </div>
 
-    <!-- BUDGET BAR -->
     <div id="budget-bar" class="budget-bar" style="display: none;">
       Punti Disponibili per Setup: <span id="budget-count">13</span> / 13
     </div>
 
-    <!-- SCHEDA COMPONENTI AUTO TELEMETRICA -->
     <div>
-      
-      <!-- RIGA 1: PNEUMATICI / TELAIO -->
       <div class="board-row">
         <div class="comp-block-wrapper">
           <div class="board-side">
@@ -836,7 +777,6 @@
         </div>
       </div>
 
-      <!-- RIGA 2: FRENI / KERS / MOTORE -->
       <div class="board-row">
         <div class="comp-block-wrapper">
           <div class="board-side">
@@ -891,7 +831,6 @@
         </div>
       </div>
 
-      <!-- RIGA 3: CARBURANTE / ALETTONE / SOSPENSIONI -->
       <div class="board-row">
         <div class="comp-block-wrapper">
           <div class="board-side">
@@ -934,12 +873,14 @@
           </div>
         </div>
       </div>
-
     </div>
 
-    <!-- VISTA AVVERSARI / PILOTI IN GARA -->
+    <!-- VISTA AVVERSARI / PILOTI IN GARA CON PULSANTE AGGIORNA -->
     <div class="opponents-list" id="opponents-container">
-      <h3 style="font-size: 1rem;">Piloti in Gara (Clicca per ispezionare)</h3>
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+        <h3 style="font-size: 1rem; margin:0;">Piloti in Gara (Clicca per ispezionare)</h3>
+        <button class="btn-refresh-list" onclick="refreshOpponentsList()" title="Aggiorna stato piloti">&#8635; Aggiorna</button>
+      </div>
       <div id="opponents-list-items"></div>
     </div>
   </div>
@@ -957,7 +898,7 @@
 
 </div>
 
-<!-- MODALE RIPRENDI PARTITA (SCELTA PILOTA) -->
+<!-- MODALI -->
 <div id="modal-load-game" class="modal">
   <div class="modal-content">
     <h3>Riprendi Partita</h3>
@@ -967,7 +908,6 @@
   </div>
 </div>
 
-<!-- MODALE CONFERMA PIT STOP INGRESSO -->
 <div id="modal-pitstop-confirm" class="modal">
   <div class="modal-content">
     <h3>Entrata ai Box (Pit Stop)</h3>
@@ -977,29 +917,21 @@
   </div>
 </div>
 
-<!-- MODALE METEO EVOLUTIVO DINAMICO -->
 <div id="modal-weather" class="modal">
   <div class="modal-content">
     <h3>Evoluzione Meteo Variabile</h3>
-    
     <div class="status-check-box">
       <strong style="color:#ffb700;">STATO ATTUALE ASFALTO:</strong> 
       <div id="modal-current-weather-text" style="color:#00f0ff; font-weight:bold; font-size:1.1rem; margin-top:2px;">Variabile Asciutto</div>
       <div id="modal-check-history" style="font-size:0.85rem; margin-top:6px; color:#cbd5e1;">Ultimo Check: Nessuno</div>
     </div>
-
-    <p style="color: #a0aec0; font-size:0.85rem;" id="modal-instruction-text">
-      Registra l'esito dell'ultimo tiro di dado per il controllo meteo:
-    </p>
-
+    <p style="color: #a0aec0; font-size:0.85rem;" id="modal-instruction-text">Registra l'esito dell'ultimo tiro di dado per il controllo meteo:</p>
     <div id="modal-check-buttons" style="display: flex; flex-direction: column; gap: 8px;"></div>
-
     <hr style="border-color: #2e3d52; margin: 15px 0;">
     <button class="btn btn-secondary" onclick="closeModal('modal-weather')">Annulla</button>
   </div>
 </div>
 
-<!-- MODALE KERS -->
 <div id="modal-kers" class="modal">
   <div class="modal-content">
     <h3>Gestione Uso KERS</h3>
@@ -1033,6 +965,7 @@
   let inspectingPilotId = null; 
   let activeTheme = 'ironman';
   let myPlayerId = ''; 
+  let selectedRoomCodeForJoin = null;
 
   const spinSvgIcon = `<svg viewBox="0 0 100 100" style="width:20px;height:20px;color:currentColor;"><path d="M 50 15 A 35 35 0 1 1 20 60" fill="none" stroke="currentColor" stroke-width="8" stroke-dasharray="6,4"/><polygon points="12,50 25,65 30,45" fill="currentColor"/><text x="50" y="62" font-size="34" font-weight="bold" text-anchor="middle" fill="currentColor" font-family="Orbitron">1</text></svg>`;
   const arcReactorSvgIcon = `<svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" style="width:22px;height:22px;"><circle cx="50" cy="50" r="44" stroke-width="6"/><circle cx="50" cy="50" r="32" stroke-width="4"/><line x1="50" y1="6" x2="50" y2="18" stroke-width="7"/><line x1="50" y1="82" x2="50" y2="94" stroke-width="7"/><line x1="6" y1="50" x2="18" y2="50" stroke-width="7"/><line x1="82" y1="50" x2="94" y2="50" stroke-width="7"/><line x1="19" y1="19" x2="28" y2="28" stroke-width="7"/><line x1="72" y1="72" x2="81" y2="81" stroke-width="7"/><line x1="19" y1="81" x2="28" y2="72" stroke-width="7"/><line x1="72" y1="28" x2="81" y2="19" stroke-width="7"/><circle cx="50" cy="50" r="20" stroke-width="4"/><circle cx="50" cy="50" r="10" fill="currentColor"/></svg>`;
@@ -1087,15 +1020,21 @@
       keys.forEach(code => {
         let room = lobbies[code];
         let roomDiv = document.createElement('div');
-        roomDiv.style.cssText = "margin-bottom: 8px; border-bottom: 1px solid #2e3d52; padding-bottom: 6px;";
-        roomDiv.innerHTML = `<strong style="color:#00f0ff;">${room.circuit} (Room: ${room.code})</strong>`;
+        roomDiv.style.cssText = "margin-bottom: 12px; border-bottom: 1px solid #2e3d52; padding-bottom: 8px;";
+        roomDiv.innerHTML = `
+          <strong style="color:#00f0ff; display:block;">${room.circuit} (Room: ${room.code})</strong>
+          <small style="color:#a0aec0; display:block; margin-bottom:6px;">Data: ${room.date}</small>
+        `;
         
         Object.keys(room.pilots).forEach(pId => {
           let pilotObj = room.pilots[pId];
+          let isCurrentDevicePilot = (pId === myPlayerId);
+
+          // Mostriamo solo la scheda del pilota che usa questo dispositivo o diamo accesso pulito
           let pilotBtn = document.createElement('button');
           pilotBtn.className = 'btn btn-secondary';
           pilotBtn.style.cssText = "margin: 4px 0; padding: 6px; font-size: 0.8rem; width: 100%; text-align: left;";
-          pilotBtn.innerHTML = `Pilota: <b>${pilotObj.name}</b> [ID: ${pId}] (${pilotObj.status})`;
+          pilotBtn.innerHTML = `Pilota: <b>${pilotObj.name}</b> (${pilotObj.status})`;
           pilotBtn.onclick = () => {
             myPlayerId = pilotObj.id;
             gameState = pilotObj.data;
@@ -1142,22 +1081,27 @@
   function openJoinGameScreen() {
     const lobbiesContainer = document.getElementById('lobbies-list-container');
     lobbiesContainer.innerHTML = '';
+    document.getElementById('join-form-section').style.display = 'none';
+    selectedRoomCodeForJoin = null;
+
     let lobbies = JSON.parse(localStorage.getItem('lotus_lobbies') || '{}');
     let keys = Object.keys(lobbies);
 
     if (keys.length === 0) {
-      lobbiesContainer.innerHTML = `<small style="color: #a0aec0; display:block; text-align:center; padding:8px; border:1px dashed #2e3d52; border-radius:4px;">Nessuna gara attiva trovata. Crea una nuova partita o inserisci il codice manualmente.</small>`;
+      lobbiesContainer.innerHTML = `<small style="color: #a0aec0; display:block; text-align:center; padding:8px; border:1px dashed #2e3d52; border-radius:4px;">Nessuna gara attiva trovata.</small>`;
     } else {
       keys.forEach(code => {
         let l = lobbies[code];
         let card = document.createElement('div');
-        card.className = 'lobby-item';
+        card.className = 'lobby-card';
+        card.id = `lobby-card-${l.code}`;
         card.innerHTML = `
-          <div class="lobby-info" onclick="selectRoomCode('${l.code}')">
+          <div style="flex-grow:1;" onclick="selectLobbyCard('${l.code}', '${l.circuit}')">
             <span><strong>${l.circuit}</strong> (Host: ${l.host})</span><br>
-            <small style="color:#00ffcc;">ROOM: ${l.code}</small>
+            <small style="color:#a0aec0;">Data: ${l.date}</small><br>
+            <small style="color:#00ffcc; font-family:'Orbitron';">ROOM: ${l.code}</small>
           </div>
-          <button class="btn-delete-room" onclick="deleteRoom('${l.code}')" title="Elimina Gara">Elimina</button>
+          <button class="btn-delete-room" onclick="deleteRoom(event, '${l.code}')">Elimina</button>
         `;
         lobbiesContainer.appendChild(card);
       });
@@ -1165,12 +1109,19 @@
     showScreen('screen-join-game');
   }
 
-  function selectRoomCode(code) {
-    document.getElementById('input-code').value = code;
+  function selectLobbyCard(code, circuitName) {
+    document.querySelectorAll('.lobby-card').forEach(c => c.classList.remove('selected'));
+    const selectedCard = document.getElementById(`lobby-card-${code}`);
+    if (selectedCard) selectedCard.classList.add('selected');
+
+    selectedRoomCodeForJoin = code;
+    document.getElementById('selected-room-label').innerText = `${circuitName} (ROOM: ${code})`;
+    document.getElementById('join-form-section').style.display = 'block';
   }
 
-  function deleteRoom(code) {
-    if (confirm(`Sei sicuro di voler eliminare la stanza ROOM: ${code} e tutti i dati dei piloti associati?`)) {
+  function deleteRoom(event, code) {
+    event.stopPropagation();
+    if (confirm(`Sei sicuro di voler eliminare la stanza ROOM: ${code}?`)) {
       let lobbies = JSON.parse(localStorage.getItem('lotus_lobbies') || '{}');
       if (lobbies[code] && lobbies[code].pilots) {
         Object.keys(lobbies[code].pilots).forEach(pId => {
@@ -1194,12 +1145,14 @@
       return;
     }
 
+    const nowFormatted = new Date().toLocaleString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+
     myPlayerId = '01';
     gameState = {
       code: Math.floor(1000 + Math.random() * 9000),
       circuit: circuit,
       host: host,
-      date: new Date().toLocaleDateString('it-IT'),
+      date: nowFormatted,
       playerName: host,
       playerId: myPlayerId,
       theme: activeTheme,
@@ -1231,10 +1184,10 @@
   }
 
   function joinGame() {
-    const code = document.getElementById('input-code').value.trim();
+    const code = selectedRoomCodeForJoin;
     const name = document.getElementById('input-player-name').value.trim();
     
-    if(!code) { alert('Inserisci un codice stanza valido'); return; }
+    if(!code) { alert('Seleziona una gara dalla lista soprastante!'); return; }
     if(!name) { alert('Inserisci il nome del tuo pilota'); return; }
 
     let lobbies = JSON.parse(localStorage.getItem('lotus_lobbies') || '{}');
@@ -1297,7 +1250,7 @@
 
   function initSetupScreen() {
     document.getElementById('display-circuit').innerText = gameState.circuit;
-    document.getElementById('display-meta').innerText = `Data: ${gameState.date} | Pilota: ${gameState.playerName} [ID: ${gameState.playerId}]`;
+    document.getElementById('display-meta').innerText = `Data: ${gameState.date} | Pilota: ${gameState.playerName}`;
     document.getElementById('display-code').innerText = gameState.code;
     
     updateWeatherUI();
@@ -1312,7 +1265,7 @@
       let lobbies = JSON.parse(localStorage.getItem('lotus_lobbies') || '{}');
       if (lobbies[gameState.code] && lobbies[gameState.code].pilots[inspectingPilotId]) {
         let inspectedObj = lobbies[gameState.code].pilots[inspectingPilotId];
-        document.getElementById('inspecting-pilot-name').innerText = `${inspectedObj.name} [ID: ${inspectedObj.id}]`;
+        document.getElementById('inspecting-pilot-name').innerText = `${inspectedObj.name}`;
       }
     }
     
@@ -1493,6 +1446,14 @@
         </div>`;
       });
     }
+  }
+
+  function refreshOpponentsList() {
+    let lobbies = JSON.parse(localStorage.getItem('lotus_lobbies') || '{}');
+    if (lobbies[gameState.code] && lobbies[gameState.code].pilots[myPlayerId]) {
+      saveCurrentPilotToLobby();
+    }
+    renderOpponentsList();
   }
 
   function isLapMarkedAnywhere(lap) {
@@ -1763,7 +1724,6 @@
       workshopContainer.appendChild(box);
     }
 
-    /* RENDERING ALETTONE */
     const wingBox = document.getElementById('box-wing');
     wingBox.className = 'box';
     if (gameState.wingActive) {
@@ -1779,7 +1739,6 @@
     }
     if (gameState.isSetupMode && !isInspecting) wingBox.classList.add('clickable');
 
-    /* RENDERING KERS */
     const kersBox = document.getElementById('box-kers');
     kersBox.className = 'box';
     
@@ -1798,7 +1757,6 @@
       kersBox.innerText = '';
     }
 
-    /* CALCOLO E RENDERING CARBURANTE */
     const totalFuelPoints = gameState.baseValues.fuel + gameState.allocations.fuel;
     const fuelUsed = gameState.markedUsages.fuel.length;
     const fuelRemaining = totalFuelPoints - fuelUsed;
@@ -1820,7 +1778,6 @@
       fuelValSpan.innerText = '0';
     }
 
-    /* CALCOLO E RENDERING OFFICINA */
     const workshopValSpan = document.getElementById('workshop-mov-val');
     
     if (gameState.isRaceMode && (gameState.isEditingAllowed || gameState.isPitStopActive)) {
@@ -1962,7 +1919,7 @@
       }
 
       if (!hasSelectedNewLap) {
-        alert("ATTENZIONE: Per poter uscire dai box devi prima selezionare a quale inizio giro ti trovi (spuntando il numero 2 o il numero 3 nella tabella delle gomme)!");
+        alert("ATTENZIONE: Per poter uscire dai box devi prima selezionare a quale inizio giro ti trovi!");
         return;
       }
 
@@ -1974,36 +1931,13 @@
       const fuelUsed = gameState.markedUsages.fuel.length;
       const fuelRemaining = totalFuelPoints - fuelUsed;
       
-      let fuelPointsEffect = 0;
-      let fuelTextEffect = "";
-      if (fuelRemaining <= 3) {
-        fuelPointsEffect = +1;
-        fuelTextEffect = "Bonus +1 MOV (Carburante leggero)";
-      } else {
-        fuelPointsEffect = -2;
-        fuelTextEffect = "Malus -2 MOV (Carburante pesante)";
-      }
-
+      let fuelPointsEffect = (fuelRemaining <= 3) ? +1 : -2;
       const netTotalPoints = fuelPointsEffect - workshopMalus;
 
-      let summaryMessage = `Uscita dai box completata con successo!\n\n`;
-      summaryMessage += `DETTAGLIO PARAMETRI:\n`;
-      summaryMessage += `- Riparazioni Officina: -${workshopMalus} MOV\n`;
-      summaryMessage += `- Carburante Residuo (${fuelRemaining} punti): ${fuelTextEffect}\n\n`;
-      
-      if (netTotalPoints > 0) {
-        summaryMessage += `RISULTATO FINALE: Devi AGGIUNGERE +${netTotalPoints} punti al tuo tiro per l'uscita dai box (BONUS NETTO).`;
-      } else if (netTotalPoints < 0) {
-        summaryMessage += `RISULTATO FINALE: Devi SOTTRARRE ${Math.abs(netTotalPoints)} punti al tuo tiro per l'uscita dai box (MALUS NETTO).`;
-      } else {
-        summaryMessage += `RISULTATO FINALE: Nessuna modifica al tiro (Bilancio in pareggio).`;
-      }
-
-      alert(summaryMessage);
+      alert(`Uscita dai box completata!\nRiparazioni: -${workshopMalus} MOV\nBilancio Carburante: ${fuelPointsEffect >= 0 ? '+' + fuelPointsEffect : fuelPointsEffect} MOV\nTotale Netto: ${netTotalPoints}`);
 
       gameState.markedUsages.tyres = [];
       gameState.savedTyresUsages = [];
-
       gameState.isPitStopActive = false;
       gameState.isEditingAllowed = false;
       gameState.pitStopStartLap = null;
@@ -2017,7 +1951,6 @@
 
   function confirmEnterPitStop() {
     gameState.isPitStopActive = true;
-    
     if (isLapMarkedAnywhere(2)) gameState.pitStopStartLap = 2;
     else if (isLapMarkedAnywhere(1)) gameState.pitStopStartLap = 1;
     else gameState.pitStopStartLap = 0;
@@ -2048,7 +1981,6 @@
 
       if (isClickedMarked) {
         const currentRemaining = totalFuelPoints - markedList.length;
-
         if (currentRemaining < 3) {
           markedList.sort((a, b) => a - b);
           markedList.shift();
@@ -2072,73 +2004,46 @@
       if (isClickedMarked) {
         let availableWorkshopIndex = -1;
         for (let w = 0; w < 3; w++) {
-          if (!gameState.workshopUsages.includes(w)) {
-            availableWorkshopIndex = w;
-            break;
-          }
+          if (!gameState.workshopUsages.includes(w)) { availableWorkshopIndex = w; break; }
         }
-
         if (availableWorkshopIndex === -1) return;
 
-        if (!isRight) {
-          markedList.sort((a, b) => a - b);
-          markedList.shift();
-        } else {
-          markedList.sort((a, b) => b - a);
-          markedList.shift();
-        }
+        if (!isRight) { markedList.sort((a, b) => a - b); markedList.shift(); }
+        else { markedList.sort((a, b) => b - a); markedList.shift(); }
 
         gameState.workshopUsages.push(availableWorkshopIndex);
       } else {
         let targetIndex = -1;
-
         if (!isRight) {
-          for (let i = totalPoints - 1; i >= 0; i--) {
-            if (!markedList.includes(i)) { targetIndex = i; break; }
-          }
+          for (let i = totalPoints - 1; i >= 0; i--) { if (!markedList.includes(i)) { targetIndex = i; break; } }
         } else {
           for (let i = totalBoxes - totalPoints; i < totalBoxes; i++) {
             if (comp === 'body' && gameState.wingActive && i === wingBoxIndex) continue;
             if (!markedList.includes(i)) { targetIndex = i; break; }
           }
         }
-
         if (targetIndex !== -1) {
           markedList.push(targetIndex);
-
-          if (gameState.workshopUsages.length > 0) {
-            gameState.workshopUsages.pop();
-          }
+          if (gameState.workshopUsages.length > 0) gameState.workshopUsages.pop();
         }
       }
     } else {
       const isClickedMarked = markedList.includes(clickedIndex);
-
       if (isClickedMarked) {
-        if (!isRight) {
-          markedList.sort((a, b) => a - b);
-          markedList.shift();
-        } else {
-          markedList.sort((a, b) => b - a);
-          markedList.shift();
-        }
+        if (!isRight) { markedList.sort((a, b) => a - b); markedList.shift(); }
+        else { markedList.sort((a, b) => b - a); markedList.shift(); }
       } else {
         let targetIndex = -1;
-
         if (!isRight) {
-          for (let i = totalPoints - 1; i >= 0; i--) {
-            if (!markedList.includes(i)) { targetIndex = i; break; }
-          }
+          for (let i = totalPoints - 1; i >= 0; i--) { if (!markedList.includes(i)) { targetIndex = i; break; } }
         } else {
           for (let i = totalBoxes - totalPoints; i < totalBoxes; i++) {
             if (comp === 'body' && gameState.wingActive && i === wingBoxIndex) continue;
             if (!markedList.includes(i)) { targetIndex = i; break; }
           }
         }
-
         if (targetIndex !== -1) {
           markedList.push(targetIndex);
-
           const totalEng = gameState.baseValues.engine + gameState.allocations.engine;
           const engUsed = gameState.markedUsages.engine.length;
           if (comp === 'brakes' && gameState.kersState === 'empty' && (totalEng - engUsed > 0)) {
@@ -2157,11 +2062,8 @@
     if (!gameState.isPitStopActive) return;
 
     const pos = gameState.workshopUsages.indexOf(index);
-    if (pos > -1) {
-      gameState.workshopUsages.splice(pos, 1);
-    } else {
-      gameState.workshopUsages.push(index);
-    }
+    if (pos > -1) gameState.workshopUsages.splice(pos, 1);
+    else gameState.workshopUsages.push(index);
     renderBoard();
     saveGameState();
   }
@@ -2185,26 +2087,17 @@
   function resolveKers(isDamaged) {
     if (isDamaged) {
       gameState.kersState = 'damaged';
-
       const totalBoxes = 6;
       const totalEnginePoints = gameState.baseValues.engine + gameState.allocations.engine;
       const markedList = gameState.markedUsages.engine;
-
       let targetIndex = -1;
       for (let i = totalBoxes - totalEnginePoints; i < totalBoxes; i++) {
-        if (!markedList.includes(i)) {
-          targetIndex = i;
-          break;
-        }
+        if (!markedList.includes(i)) { targetIndex = i; break; }
       }
-
-      if (targetIndex !== -1) {
-        markedList.push(targetIndex);
-      }
+      if (targetIndex !== -1) markedList.push(targetIndex);
     } else {
       gameState.kersState = 'empty';
     }
-
     closeModal('modal-kers');
     renderBoard();
     saveGameState();
