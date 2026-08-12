@@ -295,6 +295,13 @@
       font-family: 'Rajdhani', sans-serif;
     }
 
+    #lobbies-list-container {
+      margin-bottom: 15px; 
+      max-height: 250px; 
+      overflow-y: auto; 
+      padding-right: 6px; /* Spazio per evitare che la scrollbar copra le card */
+    }
+
     .lobby-card {
       background: rgba(15, 21, 34, 0.9);
       border: 1px solid #00f0ff;
@@ -667,7 +674,7 @@
     <h2>Unisciti a una Partita</h2>
     <div style="max-width: 500px; margin: 0 auto;">
       <label>Seleziona Gara / Stanza Attiva:</label>
-      <div id="lobbies-list-container" style="margin-bottom: 15px; max-height: 250px; overflow-y: auto;"></div>
+      <div id="lobbies-list-container"></div>
 
       <div id="join-form-section" style="display: none; background: rgba(15, 21, 34, 0.7); padding: 12px; border-radius: 6px; border: 1px solid #ffb700; margin-bottom: 15px;">
         <p style="margin: 0 0 8px 0; font-size: 0.85rem; color:#ffb700;">Gara selezionata: <strong id="selected-room-label" style="color:#fff;">-</strong></p>
@@ -1099,7 +1106,11 @@
 
   function openJoinGameScreen() {
     const lobbies = JSON.parse(localStorage.getItem('lotus_lobbies') || '{}');
-    renderLobbiesListHTML(lobbies);
+    let combinedLobbies = { ...remoteLobbiesCache };
+    Object.keys(lobbies).forEach(code => {
+      if (!combinedLobbies[code]) combinedLobbies[code] = lobbies[code];
+    });
+    renderLobbiesListHTML(combinedLobbies);
     showScreen('screen-join-game');
     if (typeof socket !== 'undefined' && socket.connected) {
       socket.emit('richiedi-stanze');
@@ -1119,25 +1130,26 @@
         let l = lobbiesObj[code];
         let card = document.createElement('div');
         card.className = 'lobby-card';
-        card.id = `lobby-card-${l.code}`;
+        card.id = `lobby-card-${code}`;
 
+        // Controllo Host migliorato: se il client corrente Ã¨ l'host registrato nella stanza
         let isHost = false;
-        if (gameState.code == l.code && gameState.playerName === l.host) {
+        if (gameState.code == code && gameState.playerName === l.host) {
           isHost = true;
         } else {
           let localLobbies = JSON.parse(localStorage.getItem('lotus_lobbies') || '{}');
-          if (localLobbies[l.code] && localLobbies[l.code].host === l.host && myPlayerId === '01') {
+          if (localLobbies[code] && localLobbies[code].host === l.host) {
             isHost = true;
           }
         }
 
-        let deleteBtnHtml = isHost ? `<button class="btn-delete-room" onclick="deleteRoom(event, '${l.code}')">Elimina</button>` : '';
+        let deleteBtnHtml = isHost ? `<button class="btn-delete-room" onclick="deleteRoom(event, '${code}')">Elimina</button>` : '';
 
         card.innerHTML = `
-          <div style="flex-grow:1; display: flex; flex-direction: column; gap: 3px; text-align: left;" onclick="selectLobbyCard('${l.code}', '${l.circuit}')">
+          <div style="flex-grow:1; display: flex; flex-direction: column; gap: 3px; text-align: left; cursor: pointer;" onclick="selectLobbyCard('${code}', '${l.circuit}')">
             <span style="font-size: 0.95rem;"><strong>${l.circuit}</strong> <span style="font-size:0.8rem; color:#a0aec0;">(Host: ${l.host})</span></span>
-            <small style="color:#a0aec0; font-size: 0.75rem;">Data: ${l.date}</small>
-            <small style="color:#00ffcc; font-family:'Orbitron'; font-size: 0.8rem;">ROOM: ${l.code}</small>
+            <small style="color:#a0aec0; font-size: 0.75rem;">Data: ${l.date || '-'}</small>
+            <small style="color:#00ffcc; font-family:'Orbitron'; font-size: 0.8rem;">ROOM: ${code}</small>
           </div>
           ${deleteBtnHtml}
         `;
