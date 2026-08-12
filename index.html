@@ -707,8 +707,8 @@
       
       <div id="race-controls" style="display: none; gap: 8px; flex-direction: column;">
         <div style="display: flex; gap: 8px;">
-          <button id="btn-toggle-edit" class="btn btn-read-mode" onclick="toggleRaceEdit()" style="flex:1; margin:0; text-transform:none;">ModalitÃ  edit attiva (clicca per sbloccare)</button>
-          <button id="btn-pitstop-action" class="btn btn-pitstop-mode" onclick="handlePitStopButtonClick()" style="display: none; flex:1; margin:0;">Entrata ai Box (Pit Stop)</button>
+          <button id="btn-toggle-edit" class="btn btn-read-mode" onclick="toggleRaceEdit()" style="flex:1; margin:0; text-transform:none !important;">ModalitÃ  edit attiva (clicca per sbloccare)</button>
+          <button id="btn-pitstop-action" class="btn btn-pitstop-mode" onclick="handlePitStopButtonClick()" style="display: none; flex:1; margin:0; text-transform:none !important;">Entrata ai Box (Pit Stop)</button>
         </div>
         <button id="btn-weather-test" class="btn btn-weather-test" onclick="openWeatherModal()" style="display: none; margin: 4px 0 0 0;">Test Motore / Controllo Meteo</button>
       </div>
@@ -1034,7 +1034,6 @@
           <small style="color:#a0aec0; display:block; margin-bottom:6px;">Data: ${room.date}</small>
         `;
         
-        // MOSTRA SOLO IL PILOTA SALVATO LOCALMENTE SU QUESTO DISPOSITIVO PER QUESTA STANZA
         let foundLocalPilot = false;
         Object.keys(room.pilots).forEach(pId => {
           let pilotObj = room.pilots[pId];
@@ -1042,7 +1041,7 @@
             foundLocalPilot = true;
             let pilotBtn = document.createElement('button');
             pilotBtn.className = 'btn btn-secondary';
-            pilotBtn.style.cssText = "margin: 4px 0; padding: 6px; font-size: 0.8rem; width: 100%; text-align: left;";
+            pilotBtn.style.cssText = "margin: 4px 0; padding: 6px; font-size: 0.8rem; width: 100%; text-align: left; text-transform: none !important;";
             pilotBtn.innerHTML = `Pilota: <b>${pilotObj.name}</b> (${pilotObj.status})`;
             pilotBtn.onclick = () => {
               myPlayerId = pilotObj.id;
@@ -1270,7 +1269,6 @@
     document.getElementById('display-meta').innerText = `Data: ${gameState.date} | Pilota: ${gameState.playerName}`;
     document.getElementById('display-code').innerText = gameState.code;
     
-    // GESTIONE PULITA DEI BOTTONI ALL'AVVIO ED EVITA DOPPI PULSONTI SE GARA ATTIVA
     const startConfigBtn = document.getElementById('btn-start-config');
     const lockSetupBtn = document.getElementById('btn-lock-setup');
     const raceControls = document.getElementById('race-controls');
@@ -1305,6 +1303,8 @@
         document.getElementById('inspecting-pilot-name').innerText = `${inspectedObj.name}`;
       }
       document.getElementById('actions-container-wrapper').style.display = 'none';
+    } else {
+      document.getElementById('actions-container-wrapper').style.display = 'block';
     }
 
     showScreen('screen-setup');
