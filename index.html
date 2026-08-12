@@ -970,6 +970,7 @@
   let myPlayerId = ''; 
   let selectedRoomCodeForJoin = null;
   let tempStateBackup = null;
+  let remoteLobbiesCache = {}; // Cache ricevuta dal server per le stanze multiplayer
 
   const spinSvgIcon = `<svg viewBox="0 0 100 100" style="width:20px;height:20px;color:currentColor;"><path d="M 50 15 A 35 35 0 1 1 20 60" fill="none" stroke="currentColor" stroke-width="8" stroke-dasharray="6,4"/><polygon points="12,50 25,65 30,45" fill="currentColor"/><text x="50" y="62" font-size="34" font-weight="bold" text-anchor="middle" fill="currentColor" font-family="Orbitron">1</text></svg>`;
   const arcReactorSvgIcon = `<svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" style="width:22px;height:22px;"><circle cx="50" cy="50" r="44" stroke-width="6"/><circle cx="50" cy="50" r="32" stroke-width="4"/><line x1="50" y1="6" x2="50" y2="18" stroke-width="7"/><line x1="50" y1="82" x2="50" y2="94" stroke-width="7"/><line x1="6" y1="50" x2="18" y2="50" stroke-width="7"/><line x1="82" y1="50" x2="94" y2="50" stroke-width="7"/><line x1="19" y1="19" x2="28" y2="28" stroke-width="7"/><line x1="72" y1="72" x2="81" y2="81" stroke-width="7"/><line x1="19" y1="81" x2="28" y2="72" stroke-width="7"/><line x1="72" y1="28" x2="81" y2="19" stroke-width="7"/><circle cx="50" cy="50" r="20" stroke-width="4"/><circle cx="50" cy="50" r="10" fill="currentColor"/></svg>`;
@@ -1007,7 +1008,7 @@
     localStorage.setItem('lotus_lobbies', JSON.stringify(lobbies));
     localStorage.setItem(`lotus_game_${gameState.code}_${gameState.playerId}`, JSON.stringify(gameState));
 
-    if (typeof socket !== 'undefined' && socket.connected && !gameState.isEditingAllowed) {
+    if (typeof socket !== 'undefined' && socket.connected) {
       socket.emit('aggiorna-scheda', gameState);
     }
   }
@@ -1100,14 +1101,26 @@
     document.getElementById('join-form-section').style.display = 'none';
     selectedRoomCodeForJoin = null;
 
-    let lobbies = JSON.parse(localStorage.getItem('lotus_lobbies') || '{}');
-    let keys = Object.keys(lobbies);
+    // Chiediamo la lista aggiornata delle stanze al server
+    if (typeof socket !== 'undefined' && socket.connected) {
+      socket.emit('richiedi-stanze');
+    }
+
+    renderLobbiesListHTML(remoteLobbiesCache);
+    showScreen('screen-join-game');
+  }
+
+  function renderLobbiesListHTML(lobbiesObj) {
+    const lobbiesContainer = document.getElementById('lobbies-list-container');
+    lobbiesContainer.innerHTML = '';
+
+    let keys = Object.keys(lobbiesObj);
 
     if (keys.length === 0) {
-      lobbiesContainer.innerHTML = `<small style="color: #a0aec0; display:block; text-align:center; padding:8px; border:1px dashed #2e3d52; border-radius:4px;">Nessuna gara attiva trovata.</small>`;
+      lobbiesContainer.innerHTML = `<small style="color: #a0aec0; display:block; text-align:center; padding:8px; border:1px dashed #2e3d52; border-radius:4px;">Nessuna gara attiva trovata sul server.</small>`;
     } else {
       keys.forEach(code => {
-        let l = lobbies[code];
+        let l = lobbiesObj[code];
         let card = document.createElement('div');
         card.className = 'lobby-card';
         card.id = `lobby-card-${l.code}`;
@@ -1122,7 +1135,6 @@
         lobbiesContainer.appendChild(card);
       });
     }
-    showScreen('screen-join-game');
   }
 
   function selectLobbyCard(code, circuitName) {
@@ -1146,6 +1158,15 @@
       }
       delete lobbies[code];
       localStorage.setItem('lotus_lobbies', JSON.stringify(lobbies));
+      
+      if (remoteLobbiesCache[code]) {
+        delete remoteLobbiesCache[code];
+      }
+      
+      if (typeof socket !== 'undefined' && socket.connected) {
+        socket.emit('elimina-stanza', code);
+      }
+      
       openJoinGameScreen();
     }
   }
@@ -1195,6 +1216,18 @@
     };
 
     saveGameState();
+    
+    // Invia la creazione della stanza al server per renderla visibile ad altri dispositivi
+    if (typeof socket !== 'undefined' && socket.connected) {
+      socket.emit('crea-stanza', {
+        code: gameState.code,
+        circuit: gameState.circuit,
+        host: gameState.host,
+        weather: gameState.weather,
+        date: gameState.date
+      });
+    }
+
     inspectingPilotId = null;
     initSetupScreen();
   }
@@ -1206,14 +1239,30 @@
     if(!code) { alert('Seleziona una gara dalla lista soprastante!'); return; }
     if(!name) { alert('Inserisci il nome del tuo pilota'); return; }
 
-    let lobbies = JSON.parse(localStorage.getItem('lotus_lobbies') || '{}');
-    if (!lobbies[code]) {
-      alert("Nessuna stanza trovata con questo codice!");
+    let roomMeta = remoteLobbiesCache[code];
+    if (!roomMeta) {
+      let lobbies = JSON.parse(localStorage.getItem('lotus_lobbies') || '{}');
+      roomMeta = lobbies[code];
+    }
+
+    if (!roomMeta) {
+      alert("Stanza non trovata sul server o scaduta!");
       return;
     }
 
+    let lobbies = JSON.parse(localStorage.getItem('lotus_lobbies') || '{}');
+    if (!lobbies[code]) {
+      lobbies[code] = {
+        code: roomMeta.code,
+        circuit: roomMeta.circuit,
+        host: roomMeta.host,
+        weather: roomMeta.weather,
+        date: roomMeta.date,
+        pilots: {}
+      };
+    }
+
     let room = lobbies[code];
-    
     let existingPilotId = null;
     Object.keys(room.pilots).forEach(pId => {
       if (room.pilots[pId].name === name) {
@@ -2160,8 +2209,17 @@
 
   socket.on('connect', () => {
     console.log('Connesso al server di sincronizzazione!');
+    socket.emit('richiedi-stanze');
     if (gameState.code) {
       saveCurrentPilotToLobby();
+    }
+  });
+
+  // Ricezione elenco stanze dal server (multidispositivo)
+  socket.on('lista-stanze', (stanzeObj) => {
+    remoteLobbiesCache = stanzeObj || {};
+    if (document.getElementById('screen-join-game').classList.contains('active')) {
+      renderLobbiesListHTML(remoteLobbiesCache);
     }
   });
 
@@ -2193,7 +2251,7 @@
     localStorage.setItem(`lotus_game_${data.code}_${data.playerId}`, JSON.stringify(data));
 
     if (document.getElementById('screen-join-game').classList.contains('active')) {
-      openJoinGameScreen();
+      socket.emit('richiedi-stanze');
     }
 
     if (gameState.code === data.code && inspectingPilotId === data.playerId) {
