@@ -1119,18 +1119,18 @@
         card.className = 'lobby-card';
         card.id = `lobby-card-${l.code}`;
 
-        // Controllo Host: il pulsante elimina compare solo per il creatore della stanza (ID '01')
+        // Controllo Host corretto: 
+        // 1. Se questo dispositivo Ã¨ quello che attualmente ha in memoria di essere l'host di questa stanza
+        // 2. Oppure se il nome del nostro pilota corrente corrisponde all'host della stanza e siamo nella stessa sessione
         let isHost = false;
-        if (l.pilots) {
-          Object.keys(l.pilots).forEach(pId => {
-            if (pId === '01' && pId === myPlayerId) {
-              isHost = true;
-            }
-          });
-        }
-        // Fallback se l'host corrente coincide con il nome host
-        if (gameState.code == code && myPlayerId === '01') {
+        if (gameState.code == l.code && gameState.playerName === l.host) {
           isHost = true;
+        } else {
+          // Controlliamo anche nel localStorage se siamo registrati come host di questa stanza
+          let localLobbies = JSON.parse(localStorage.getItem('lotus_lobbies') || '{}');
+          if (localLobbies[l.code] && localLobbies[l.code].host === l.host && myPlayerId === '01') {
+            isHost = true;
+          }
         }
 
         let deleteBtnHtml = isHost ? `<button class="btn-delete-room" onclick="deleteRoom(event, '${l.code}')">Elimina</button>` : '';
