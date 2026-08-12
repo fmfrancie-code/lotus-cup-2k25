@@ -298,14 +298,15 @@
     .lobby-card {
       background: rgba(15, 21, 34, 0.9);
       border: 1px solid #00f0ff;
-      padding: 12px;
+      padding: 10px 12px;
       border-radius: 6px;
-      margin-bottom: 10px;
+      margin-bottom: 8px;
       cursor: pointer;
       transition: all 0.2s ease;
       display: flex;
       justify-content: space-between;
       align-items: center;
+      gap: 10px;
     }
     .lobby-card:hover {
       border-color: #ffb700;
@@ -326,6 +327,7 @@
       border-radius: 4px;
       cursor: pointer;
       font-family: 'Orbitron', sans-serif;
+      flex-shrink: 0;
     }
     .btn-delete-room:hover {
       background: #ff0055;
@@ -1119,14 +1121,10 @@
         card.className = 'lobby-card';
         card.id = `lobby-card-${l.code}`;
 
-        // Controllo Host corretto: 
-        // 1. Se questo dispositivo Ã¨ quello che attualmente ha in memoria di essere l'host di questa stanza
-        // 2. Oppure se il nome del nostro pilota corrente corrisponde all'host della stanza e siamo nella stessa sessione
         let isHost = false;
         if (gameState.code == l.code && gameState.playerName === l.host) {
           isHost = true;
         } else {
-          // Controlliamo anche nel localStorage se siamo registrati come host di questa stanza
           let localLobbies = JSON.parse(localStorage.getItem('lotus_lobbies') || '{}');
           if (localLobbies[l.code] && localLobbies[l.code].host === l.host && myPlayerId === '01') {
             isHost = true;
@@ -1136,10 +1134,10 @@
         let deleteBtnHtml = isHost ? `<button class="btn-delete-room" onclick="deleteRoom(event, '${l.code}')">Elimina</button>` : '';
 
         card.innerHTML = `
-          <div style="flex-grow:1;" onclick="selectLobbyCard('${l.code}', '${l.circuit}')">
-            <span><strong>${l.circuit}</strong> (Host: ${l.host})</span><br>
-            <small style="color:#a0aec0;">Data: ${l.date}</small><br>
-            <small style="color:#00ffcc; font-family:'Orbitron';">ROOM: ${l.code}</small>
+          <div style="flex-grow:1; display: flex; flex-direction: column; gap: 3px; text-align: left;" onclick="selectLobbyCard('${l.code}', '${l.circuit}')">
+            <span style="font-size: 0.95rem;"><strong>${l.circuit}</strong> <span style="font-size:0.8rem; color:#a0aec0;">(Host: ${l.host})</span></span>
+            <small style="color:#a0aec0; font-size: 0.75rem;">Data: ${l.date}</small>
+            <small style="color:#00ffcc; font-family:'Orbitron'; font-size: 0.8rem;">ROOM: ${l.code}</small>
           </div>
           ${deleteBtnHtml}
         `;
@@ -1161,11 +1159,9 @@
   function deleteRoom(event, code) {
     event.stopPropagation();
     if (confirm(`Sei l'Host. Vuoi chiudere e rimuovere la stanza ROOM: ${code} per tutti i partecipanti?`)) {
-      // Invia comando di eliminazione globale via socket
       if (typeof socket !== 'undefined' && socket.connected) {
         socket.emit('elimina-stanza-globale', code);
       }
-      // Esegui pulizia locale immediata
       executeLocalRoomDeletion(code);
     }
   }
@@ -1206,7 +1202,7 @@
 
     const nowFormatted = new Date().toLocaleString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
 
-    myPlayerId = '01'; // L'host ha sempre l'ID 01
+    myPlayerId = '01';
     gameState = {
       code: Math.floor(1000 + Math.random() * 9000),
       circuit: circuit,
