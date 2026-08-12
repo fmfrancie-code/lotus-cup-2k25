@@ -1006,8 +1006,8 @@
     localStorage.setItem('lotus_lobbies', JSON.stringify(lobbies));
     localStorage.setItem(`lotus_game_${gameState.code}_${gameState.playerId}`, JSON.stringify(gameState));
 
-    // Invusione dati al server Node.js in tempo reale
-    if (typeof socket !== 'undefined') {
+    // Invio dati al server Node.js in tempo reale
+    if (typeof socket !== 'undefined' && socket.connected) {
       socket.emit('aggiorna-scheda', gameState);
     }
   }
@@ -1862,7 +1862,7 @@
     renderBoard();
     renderTyreDeck();
     renderOpponentsList();
-    saveGameState();
+    saveGameState(); // Invia stato Pronto al server
   }
 
   function toggleRaceEdit() {
@@ -1873,7 +1873,7 @@
     updateEditButtonUI();
     renderBoard();
     renderTyreDeck();
-    saveGameState();
+    saveGameState(); // Invia modifiche al server quando si blocca/sblocca l'edit
   }
 
   function updateEditButtonUI() {
@@ -2118,38 +2118,46 @@
   const socket = io('https://lotus-cup-server.onrender.com');
 
   socket.on('connect', () => {
-    console.log('Connesso al server di sincronizzazione locale!');
+    console.log('Connesso al server di sincronizzazione!');
+    // Se siamo giÃ  dentro una partita attiva, ci uniamo subito alla stanza sul server
+    if (gameState.code) {
+      saveCurrentPilotToLobby();
+    }
   });
 
   // Ricezione aggiornamenti dagli altri dispositivi
   socket.on('ricevi-scheda', (data) => {
     console.log("Aggiornamento ricevuto dal server per la stanza:", data.code);
     
-    // Aggiorna i dati nel localStorage globale delle stanze
     let lobbies = JSON.parse(localStorage.getItem('lotus_lobbies') || '{}');
-    if (lobbies[data.code]) {
-      if (!lobbies[data.code].pilots) lobbies[data.code].pilots = {};
-      
-      let currentStatus = data.isRaceMode ? 'Pronto' : 'In Compilazione';
-      lobbies[data.code].pilots[data.playerId] = {
-        id: data.playerId,
-        name: data.playerName,
-        status: currentStatus,
-        data: data
+    if (!lobbies[data.code]) {
+      lobbies[data.code] = {
+        code: data.code,
+        circuit: data.circuit,
+        host: data.host,
+        weather: data.weather,
+        date: data.date,
+        pilots: {}
       };
-      localStorage.setItem('lotus_lobbies', JSON.stringify(lobbies));
-      localStorage.setItem(`lotus_game_${data.code}_${data.playerId}`, JSON.stringify(data));
+    }
+    if (!lobbies[data.code].pilots) lobbies[data.code].pilots = {};
+    
+    let currentStatus = data.isRaceMode ? 'Pronto' : 'In Compilazione';
+    lobbies[data.code].pilots[data.playerId] = {
+      id: data.playerId,
+      name: data.playerName,
+      status: currentStatus,
+      data: data
+    };
+    
+    localStorage.setItem('lotus_lobbies', JSON.stringify(lobbies));
+    localStorage.setItem(`lotus_game_${data.code}_${data.playerId}`, JSON.stringify(data));
 
-      // Se stiamo attivamente visualizzando la scheda del pilota modificato, aggiorna a schermo
-      if (gameState.code === data.code && inspectingPilotId === data.playerId) {
-        gameState = data;
-        initSetupScreen();
-      } else if (gameState.code === data.code && inspectingPilotId === null && myPlayerId === data.playerId) {
-        // Se siamo noi stessi, aggiorniamo la lista avversari/stato
-        renderOpponentsList();
-      } else {
-        renderOpponentsList();
-      }
+    if (gameState.code === data.code && inspectingPilotId === data.playerId) {
+      gameState = data;
+      initSetupScreen();
+    } else {
+      renderOpponentsList();
     }
   });
 </script>
