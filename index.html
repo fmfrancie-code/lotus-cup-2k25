@@ -1118,13 +1118,30 @@
         let card = document.createElement('div');
         card.className = 'lobby-card';
         card.id = `lobby-card-${l.code}`;
+
+        // Controllo Host: il pulsante elimina compare solo per il creatore della stanza (ID '01')
+        let isHost = false;
+        if (l.pilots) {
+          Object.keys(l.pilots).forEach(pId => {
+            if (pId === '01' && pId === myPlayerId) {
+              isHost = true;
+            }
+          });
+        }
+        // Fallback se l'host corrente coincide con il nome host
+        if (gameState.code == code && myPlayerId === '01') {
+          isHost = true;
+        }
+
+        let deleteBtnHtml = isHost ? `<button class="btn-delete-room" onclick="deleteRoom(event, '${l.code}')">Elimina</button>` : '';
+
         card.innerHTML = `
           <div style="flex-grow:1;" onclick="selectLobbyCard('${l.code}', '${l.circuit}')">
             <span><strong>${l.circuit}</strong> (Host: ${l.host})</span><br>
             <small style="color:#a0aec0;">Data: ${l.date}</small><br>
             <small style="color:#00ffcc; font-family:'Orbitron';">ROOM: ${l.code}</small>
           </div>
-          <button class="btn-delete-room" onclick="deleteRoom(event, '${l.code}')">Elimina</button>
+          ${deleteBtnHtml}
         `;
         lobbiesContainer.appendChild(card);
       });
@@ -1143,24 +1160,35 @@
 
   function deleteRoom(event, code) {
     event.stopPropagation();
-    if (confirm(`Sei sicuro di voler eliminare la stanza ROOM: ${code}?`)) {
-      let lobbies = JSON.parse(localStorage.getItem('lotus_lobbies') || '{}');
-      if (lobbies[code] && lobbies[code].pilots) {
-        Object.keys(lobbies[code].pilots).forEach(pId => {
-          localStorage.removeItem(`lotus_game_${code}_${pId}`);
-        });
-      }
-      delete lobbies[code];
-      localStorage.setItem('lotus_lobbies', JSON.stringify(lobbies));
-      
-      if (remoteLobbiesCache[code]) {
-        delete remoteLobbiesCache[code];
-      }
-      
+    if (confirm(`Sei l'Host. Vuoi chiudere e rimuovere la stanza ROOM: ${code} per tutti i partecipanti?`)) {
+      // Invia comando di eliminazione globale via socket
       if (typeof socket !== 'undefined' && socket.connected) {
-        socket.emit('elimina-stanza', code);
+        socket.emit('elimina-stanza-globale', code);
       }
-      
+      // Esegui pulizia locale immediata
+      executeLocalRoomDeletion(code);
+    }
+  }
+
+  function executeLocalRoomDeletion(code) {
+    let lobbies = JSON.parse(localStorage.getItem('lotus_lobbies') || '{}');
+    if (lobbies[code] && lobbies[code].pilots) {
+      Object.keys(lobbies[code].pilots).forEach(pId => {
+        localStorage.removeItem(`lotus_game_${code}_${pId}`);
+      });
+    }
+    delete lobbies[code];
+    localStorage.setItem('lotus_lobbies', JSON.stringify(lobbies));
+    
+    if (remoteLobbiesCache[code]) {
+      delete remoteLobbiesCache[code];
+    }
+
+    if (gameState.code == code) {
+      alert("La partita Ã¨ stata chiusa.");
+      gameState.code = null;
+      showScreen('screen-home');
+    } else if (document.getElementById('screen-join-game').classList.contains('active')) {
       openJoinGameScreen();
     }
   }
@@ -1178,7 +1206,7 @@
 
     const nowFormatted = new Date().toLocaleString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
 
-    myPlayerId = '01';
+    myPlayerId = '01'; // L'host ha sempre l'ID 01
     gameState = {
       code: Math.floor(1000 + Math.random() * 9000),
       circuit: circuit,
@@ -1393,11 +1421,11 @@
       badgeText.innerText = 'Sole Fisso';
     } else if (gameState.weather === 'var_dry') {
       badgeIcon.innerHTML = '&#9925;';
-      let checkTag = gameState.weatherLastCheck ? ` [ULTIMO: ${gameState.weatherLastCheck === 'sun' ? '&#9728;&#65039;' : '&#127783;&#65039; '}]` : '';
+      let checkTag = gameState.weatherLastCheck ? ` [ULTIMO: ${gameState.weatherLastCheck === 'sun' ? '&#9728;&#65039;' : '&#127783;&#65039;'}]` : '';
       badgeText.innerHTML = `VARIABILE ASCIUTTO${checkTag}`;
     } else if (gameState.weather === 'var_wet') {
       badgeIcon.innerHTML = '&#127783;&#65039;';
-      let checkTag = gameState.weatherLastCheck ? ` [ULTIMO: ${gameState.weatherLastCheck === 'sun' ? '&#9728;&#65039;' : '&#127783;&#65039; '}]` : '';
+      let checkTag = gameState.weatherLastCheck ? ` [ULTIMO: ${gameState.weatherLastCheck === 'sun' ? '&#9728;&#65039;' : '&#127783;&#65039;'}]` : '';
       badgeText.innerHTML = `VARIABILE BAGNATO${checkTag}`;
     }
   }
@@ -2265,6 +2293,12 @@
     } else {
       renderOpponentsList();
     }
+  });
+
+  // Ricezione evento globale di cancellazione stanza da parte dell'Host
+  socket.on('stanza-eliminata-globale', (code) => {
+    console.log("Stanza eliminata globalmente dal server:", code);
+    executeLocalRoomDeletion(code);
   });
 </script>
 
