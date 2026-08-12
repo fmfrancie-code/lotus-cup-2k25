@@ -707,7 +707,7 @@
       
       <div id="race-controls" style="display: none; gap: 8px; flex-direction: column;">
         <div style="display: flex; gap: 8px;">
-          <button id="btn-toggle-edit" class="btn btn-read-mode" onclick="toggleRaceEdit()" style="flex:1; margin:0;">ModalitÃ  Edit Attiva (Clicca per Bloccare)</button>
+          <button id="btn-toggle-edit" class="btn btn-read-mode" onclick="toggleRaceEdit()" style="flex:1; margin:0; text-transform:none;">ModalitÃ  edit attiva (clicca per sbloccare)</button>
           <button id="btn-pitstop-action" class="btn btn-pitstop-mode" onclick="handlePitStopButtonClick()" style="display: none; flex:1; margin:0;">Entrata ai Box (Pit Stop)</button>
         </div>
         <button id="btn-weather-test" class="btn btn-weather-test" onclick="openWeatherModal()" style="display: none; margin: 4px 0 0 0;">Test Motore / Controllo Meteo</button>
@@ -1034,26 +1034,38 @@
           <small style="color:#a0aec0; display:block; margin-bottom:6px;">Data: ${room.date}</small>
         `;
         
+        // MOSTRA SOLO IL PILOTA SALVATO LOCALMENTE SU QUESTO DISPOSITIVO PER QUESTA STANZA
+        let foundLocalPilot = false;
         Object.keys(room.pilots).forEach(pId => {
           let pilotObj = room.pilots[pId];
-          let pilotBtn = document.createElement('button');
-          pilotBtn.className = 'btn btn-secondary';
-          pilotBtn.style.cssText = "margin: 4px 0; padding: 6px; font-size: 0.8rem; width: 100%; text-align: left;";
-          pilotBtn.innerHTML = `Pilota: <b>${pilotObj.name}</b> (${pilotObj.status})`;
-          pilotBtn.onclick = () => {
-            myPlayerId = pilotObj.id;
-            gameState = pilotObj.data;
-            activeTheme = gameState.theme || 'ironman';
-            document.getElementById('theme-select').value = activeTheme;
-            changeTheme(activeTheme);
-            closeModal('modal-load-game');
-            inspectingPilotId = null;
-            initSetupScreen();
-          };
-          roomDiv.appendChild(pilotBtn);
+          if (localStorage.getItem(`lotus_game_${code}_${pId}`)) {
+            foundLocalPilot = true;
+            let pilotBtn = document.createElement('button');
+            pilotBtn.className = 'btn btn-secondary';
+            pilotBtn.style.cssText = "margin: 4px 0; padding: 6px; font-size: 0.8rem; width: 100%; text-align: left;";
+            pilotBtn.innerHTML = `Pilota: <b>${pilotObj.name}</b> (${pilotObj.status})`;
+            pilotBtn.onclick = () => {
+              myPlayerId = pilotObj.id;
+              gameState = JSON.parse(localStorage.getItem(`lotus_game_${code}_${pId}`));
+              activeTheme = gameState.theme || 'ironman';
+              document.getElementById('theme-select').value = activeTheme;
+              changeTheme(activeTheme);
+              closeModal('modal-load-game');
+              inspectingPilotId = null;
+              initSetupScreen();
+            };
+            roomDiv.appendChild(pilotBtn);
+          }
         });
-        container.appendChild(roomDiv);
+
+        if (foundLocalPilot) {
+          container.appendChild(roomDiv);
+        }
       });
+      
+      if (container.children.length === 0) {
+        container.innerHTML = `<small style="color:#a0aec0;">Nessuna partita salvata trovata su questo dispositivo.</small>`;
+      }
     }
     document.getElementById('modal-load-game').style.display = 'flex';
   }
@@ -1258,10 +1270,30 @@
     document.getElementById('display-meta').innerText = `Data: ${gameState.date} | Pilota: ${gameState.playerName}`;
     document.getElementById('display-code').innerText = gameState.code;
     
+    // GESTIONE PULITA DEI BOTTONI ALL'AVVIO ED EVITA DOPPI PULSONTI SE GARA ATTIVA
+    const startConfigBtn = document.getElementById('btn-start-config');
+    const lockSetupBtn = document.getElementById('btn-lock-setup');
+    const raceControls = document.getElementById('race-controls');
+
+    if (gameState.isRaceMode) {
+      startConfigBtn.style.display = 'none';
+      lockSetupBtn.style.display = 'none';
+      raceControls.style.display = 'flex';
+    } else if (gameState.isSetupMode) {
+      startConfigBtn.style.display = 'none';
+      lockSetupBtn.style.display = 'block';
+      raceControls.style.display = 'none';
+    } else {
+      startConfigBtn.style.display = 'block';
+      lockSetupBtn.style.display = 'none';
+      raceControls.style.display = 'none';
+    }
+    
     updateWeatherUI();
     renderOpponentsList();
     renderTyreDeck();
     renderBoard();
+    updateEditButtonUI();
     
     const isInspecting = inspectingPilotId !== null;
     document.getElementById('inspection-banner').style.display = isInspecting ? 'block' : 'none';
@@ -1272,15 +1304,9 @@
         let inspectedObj = lobbies[gameState.code].pilots[inspectingPilotId];
         document.getElementById('inspecting-pilot-name').innerText = `${inspectedObj.name}`;
       }
+      document.getElementById('actions-container-wrapper').style.display = 'none';
     }
-    
-    document.getElementById('actions-container-wrapper').style.display = isInspecting ? 'none' : 'block';
 
-    if (!isInspecting && gameState.isRaceMode) {
-      document.getElementById('race-controls').style.display = 'flex';
-      updateEditButtonUI();
-    }
-    
     showScreen('screen-setup');
   }
 
@@ -1870,12 +1896,10 @@
     if (gameState.isPitStopActive) return;
 
     if (!gameState.isEditingAllowed) {
-      // ENTRA IN EDIT: Salviamo una copia dello stato attuale per un eventuale pacchetto
       tempStateBackup = JSON.parse(JSON.stringify(gameState));
       gameState.isEditingAllowed = true;
       gameState.workshopStartCount = gameState.workshopUsages.length;
     } else {
-      // CHIUDE / BLOCCA EDIT: Inviamo ufficialmente il pacchetto completo agli altri giocatori
       gameState.isEditingAllowed = false;
       tempStateBackup = null;
       saveGameState(); 
@@ -1885,7 +1909,6 @@
     renderBoard();
     renderTyreDeck();
     
-    // Se stiamo uscendo dall'edit, aggiorniamo subito anche il salvataggio locale standard
     if (!gameState.isEditingAllowed) {
       let lobbies = JSON.parse(localStorage.getItem('lotus_lobbies') || '{}');
       if (lobbies[gameState.code] && lobbies[gameState.code].pilots[myPlayerId]) {
@@ -1903,13 +1926,13 @@
     const isVariableWeather = (gameState.weather === 'var_dry' || gameState.weather === 'var_wet');
 
     if (gameState.isPitStopActive) {
-      editBtn.innerText = "Sosta ai Box in corso...";
+      editBtn.innerText = "Sosta ai box in corso...";
       editBtn.className = 'btn btn-pitstop-mode';
-      pitBtn.innerText = "Ripartenza dai Box";
+      pitBtn.innerText = "Ripartenza dai box";
       pitBtn.style.display = 'block';
       weatherTestBtn.style.display = 'none';
     } else if (gameState.isEditingAllowed) {
-      editBtn.innerText = "ModalitÃ  Edit Attiva (Clicca per Bloccare)";
+      editBtn.innerText = "ModalitÃ  edit attiva (clicca per bloccare)";
       editBtn.className = 'btn btn-edit-mode';
       pitBtn.innerText = "Entrata ai Box (Pit Stop)";
       pitBtn.style.display = 'block';
@@ -1920,7 +1943,7 @@
         weatherTestBtn.style.display = 'none';
       }
     } else {
-      editBtn.innerText = "ModalitÃ  Lettura (Clicca per Sbloccare Edit)";
+      editBtn.innerText = "ModalitÃ  edit attiva (clicca per sbloccare)";
       editBtn.className = 'btn btn-read-mode';
       pitBtn.style.display = 'none';
       weatherTestBtn.style.display = 'none';
