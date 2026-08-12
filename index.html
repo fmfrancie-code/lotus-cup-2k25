@@ -14,6 +14,9 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
 
+  <!-- Socket.io Client Library -->
+  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+
   <style>
     * { box-sizing: border-box; }
     
@@ -934,7 +937,7 @@
 
 <div id="modal-kers" class="modal">
   <div class="modal-content">
-    <h3>Gestione Uso KERS</h3>
+  <h3>Gestione Uso KERS</h3>
     <p style="color: #a0aec0;">Hai utilizzato il KERS! Qual Ã¨ stato l'esito del tiro?</p>
     <button class="btn btn-success" onclick="resolveKers(false)">Esito OK (Svuota KERS)</button>
     <button class="btn btn-danger" onclick="resolveKers(true)">Danneggiato (X Rossa)</button>
@@ -1002,6 +1005,11 @@
     };
     localStorage.setItem('lotus_lobbies', JSON.stringify(lobbies));
     localStorage.setItem(`lotus_game_${gameState.code}_${gameState.playerId}`, JSON.stringify(gameState));
+
+    // Invusione dati al server Node.js in tempo reale
+    if (typeof socket !== 'undefined') {
+      socket.emit('aggiorna-scheda', gameState);
+    }
   }
 
   function saveGameState() {
@@ -1028,9 +1036,6 @@
         
         Object.keys(room.pilots).forEach(pId => {
           let pilotObj = room.pilots[pId];
-          let isCurrentDevicePilot = (pId === myPlayerId);
-
-          // Mostriamo solo la scheda del pilota che usa questo dispositivo o diamo accesso pulito
           let pilotBtn = document.createElement('button');
           pilotBtn.className = 'btn btn-secondary';
           pilotBtn.style.cssText = "margin: 4px 0; padding: 6px; font-size: 0.8rem; width: 100%; text-align: left;";
@@ -2106,6 +2111,47 @@
   function closeModal(modalId) {
     document.getElementById(modalId).style.display = 'none';
   }
+
+  // ----------------------------------------------------
+  // SOCKET.IO REAL-TIME SYNCHRONIZATION SETUP
+  // ----------------------------------------------------
+  const socket = io('http://192.168.1.15:3000');
+
+  socket.on('connect', () => {
+    console.log('Connesso al server di sincronizzazione locale!');
+  });
+
+  // Ricezione aggiornamenti dagli altri dispositivi
+  socket.on('ricevi-scheda', (data) => {
+    console.log("Aggiornamento ricevuto dal server per la stanza:", data.code);
+    
+    // Aggiorna i dati nel localStorage globale delle stanze
+    let lobbies = JSON.parse(localStorage.getItem('lotus_lobbies') || '{}');
+    if (lobbies[data.code]) {
+      if (!lobbies[data.code].pilots) lobbies[data.code].pilots = {};
+      
+      let currentStatus = data.isRaceMode ? 'Pronto' : 'In Compilazione';
+      lobbies[data.code].pilots[data.playerId] = {
+        id: data.playerId,
+        name: data.playerName,
+        status: currentStatus,
+        data: data
+      };
+      localStorage.setItem('lotus_lobbies', JSON.stringify(lobbies));
+      localStorage.setItem(`lotus_game_${data.code}_${data.playerId}`, JSON.stringify(data));
+
+      // Se stiamo attivamente visualizzando la scheda del pilota modificato, aggiorna a schermo
+      if (gameState.code === data.code && inspectingPilotId === data.playerId) {
+        gameState = data;
+        initSetupScreen();
+      } else if (gameState.code === data.code && inspectingPilotId === null && myPlayerId === data.playerId) {
+        // Se siamo noi stessi, aggiorniamo la lista avversari/stato
+        renderOpponentsList();
+      } else {
+        renderOpponentsList();
+      }
+    }
+  });
 </script>
 
 </body>
