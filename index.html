@@ -970,7 +970,7 @@
   let myPlayerId = ''; 
   let selectedRoomCodeForJoin = null;
   let tempStateBackup = null;
-  let remoteLobbiesCache = {}; // Cache ricevuta dal server per le stanze multiplayer
+  let remoteLobbiesCache = {};
 
   const spinSvgIcon = `<svg viewBox="0 0 100 100" style="width:20px;height:20px;color:currentColor;"><path d="M 50 15 A 35 35 0 1 1 20 60" fill="none" stroke="currentColor" stroke-width="8" stroke-dasharray="6,4"/><polygon points="12,50 25,65 30,45" fill="currentColor"/><text x="50" y="62" font-size="34" font-weight="bold" text-anchor="middle" fill="currentColor" font-family="Orbitron">1</text></svg>`;
   const arcReactorSvgIcon = `<svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" style="width:22px;height:22px;"><circle cx="50" cy="50" r="44" stroke-width="6"/><circle cx="50" cy="50" r="32" stroke-width="4"/><line x1="50" y1="6" x2="50" y2="18" stroke-width="7"/><line x1="50" y1="82" x2="50" y2="94" stroke-width="7"/><line x1="6" y1="50" x2="18" y2="50" stroke-width="7"/><line x1="82" y1="50" x2="94" y2="50" stroke-width="7"/><line x1="19" y1="19" x2="28" y2="28" stroke-width="7"/><line x1="72" y1="72" x2="81" y2="81" stroke-width="7"/><line x1="19" y1="81" x2="28" y2="72" stroke-width="7"/><line x1="72" y1="28" x2="81" y2="19" stroke-width="7"/><circle cx="50" cy="50" r="20" stroke-width="4"/><circle cx="50" cy="50" r="10" fill="currentColor"/></svg>`;
@@ -1101,12 +1101,20 @@
     document.getElementById('join-form-section').style.display = 'none';
     selectedRoomCodeForJoin = null;
 
-    // Chiediamo la lista aggiornata delle stanze al server
     if (typeof socket !== 'undefined' && socket.connected) {
       socket.emit('richiedi-stanze');
     }
 
-    renderLobbiesListHTML(remoteLobbiesCache);
+    // Uniamo la cache locale del server e il localStorage per massima affidabilitÃ 
+    let combinedLobbies = { ...remoteLobbiesCache };
+    let localLobbies = JSON.parse(localStorage.getItem('lotus_lobbies') || '{}');
+    Object.keys(localLobbies).forEach(code => {
+      if (!combinedLobbies[code]) {
+        combinedLobbies[code] = localLobbies[code];
+      }
+    });
+
+    renderLobbiesListHTML(combinedLobbies);
     showScreen('screen-join-game');
   }
 
@@ -1117,7 +1125,7 @@
     let keys = Object.keys(lobbiesObj);
 
     if (keys.length === 0) {
-      lobbiesContainer.innerHTML = `<small style="color: #a0aec0; display:block; text-align:center; padding:8px; border:1px dashed #2e3d52; border-radius:4px;">Nessuna gara attiva trovata sul server.</small>`;
+      lobbiesContainer.innerHTML = `<small style="color: #a0aec0; display:block; text-align:center; padding:8px; border:1px dashed #2e3d52; border-radius:4px;">Nessuna gara attiva trovata.</small>`;
     } else {
       keys.forEach(code => {
         let l = lobbiesObj[code];
@@ -1217,15 +1225,19 @@
 
     saveGameState();
     
-    // Invia la creazione della stanza al server per renderla visibile ad altri dispositivi
+    const roomMetaPayload = {
+      code: gameState.code,
+      circuit: gameState.circuit,
+      host: gameState.host,
+      weather: gameState.weather,
+      date: gameState.date
+    };
+
+    remoteLobbiesCache[gameState.code] = roomMetaPayload;
+
     if (typeof socket !== 'undefined' && socket.connected) {
-      socket.emit('crea-stanza', {
-        code: gameState.code,
-        circuit: gameState.circuit,
-        host: gameState.host,
-        weather: gameState.weather,
-        date: gameState.date
-      });
+      socket.emit('crea-stanza', roomMetaPayload);
+      socket.emit('aggiorna-scheda', gameState);
     }
 
     inspectingPilotId = null;
@@ -1246,7 +1258,7 @@
     }
 
     if (!roomMeta) {
-      alert("Stanza non trovata sul server o scaduta!");
+      alert("Stanza non trovata o scaduta!");
       return;
     }
 
@@ -2215,11 +2227,17 @@
     }
   });
 
-  // Ricezione elenco stanze dal server (multidispositivo)
   socket.on('lista-stanze', (stanzeObj) => {
     remoteLobbiesCache = stanzeObj || {};
     if (document.getElementById('screen-join-game').classList.contains('active')) {
-      renderLobbiesListHTML(remoteLobbiesCache);
+      let combinedLobbies = { ...remoteLobbiesCache };
+      let localLobbies = JSON.parse(localStorage.getItem('lotus_lobbies') || '{}');
+      Object.keys(localLobbies).forEach(code => {
+        if (!combinedLobbies[code]) {
+          combinedLobbies[code] = localLobbies[code];
+        }
+      });
+      renderLobbiesListHTML(combinedLobbies);
     }
   });
 
