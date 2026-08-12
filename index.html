@@ -969,6 +969,7 @@
   let activeTheme = 'ironman';
   let myPlayerId = ''; 
   let selectedRoomCodeForJoin = null;
+  let tempStateBackup = null;
 
   const spinSvgIcon = `<svg viewBox="0 0 100 100" style="width:20px;height:20px;color:currentColor;"><path d="M 50 15 A 35 35 0 1 1 20 60" fill="none" stroke="currentColor" stroke-width="8" stroke-dasharray="6,4"/><polygon points="12,50 25,65 30,45" fill="currentColor"/><text x="50" y="62" font-size="34" font-weight="bold" text-anchor="middle" fill="currentColor" font-family="Orbitron">1</text></svg>`;
   const arcReactorSvgIcon = `<svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" style="width:22px;height:22px;"><circle cx="50" cy="50" r="44" stroke-width="6"/><circle cx="50" cy="50" r="32" stroke-width="4"/><line x1="50" y1="6" x2="50" y2="18" stroke-width="7"/><line x1="50" y1="82" x2="50" y2="94" stroke-width="7"/><line x1="6" y1="50" x2="18" y2="50" stroke-width="7"/><line x1="82" y1="50" x2="94" y2="50" stroke-width="7"/><line x1="19" y1="19" x2="28" y2="28" stroke-width="7"/><line x1="72" y1="72" x2="81" y2="81" stroke-width="7"/><line x1="19" y1="81" x2="28" y2="72" stroke-width="7"/><line x1="72" y1="28" x2="81" y2="19" stroke-width="7"/><circle cx="50" cy="50" r="20" stroke-width="4"/><circle cx="50" cy="50" r="10" fill="currentColor"/></svg>`;
@@ -1006,7 +1007,7 @@
     localStorage.setItem('lotus_lobbies', JSON.stringify(lobbies));
     localStorage.setItem(`lotus_game_${gameState.code}_${gameState.playerId}`, JSON.stringify(gameState));
 
-    if (typeof socket !== 'undefined' && socket.connected) {
+    if (typeof socket !== 'undefined' && socket.connected && !gameState.isEditingAllowed) {
       socket.emit('aggiorna-scheda', gameState);
     }
   }
@@ -1868,11 +1869,30 @@
     if (inspectingPilotId !== null) return;
     if (gameState.isPitStopActive) return;
 
-    gameState.isEditingAllowed = !gameState.isEditingAllowed;
+    if (!gameState.isEditingAllowed) {
+      // ENTRA IN EDIT: Salviamo una copia dello stato attuale per un eventuale pacchetto
+      tempStateBackup = JSON.parse(JSON.stringify(gameState));
+      gameState.isEditingAllowed = true;
+      gameState.workshopStartCount = gameState.workshopUsages.length;
+    } else {
+      // CHIUDE / BLOCCA EDIT: Inviamo ufficialmente il pacchetto completo agli altri giocatori
+      gameState.isEditingAllowed = false;
+      tempStateBackup = null;
+      saveGameState(); 
+    }
+
     updateEditButtonUI();
     renderBoard();
     renderTyreDeck();
-    saveGameState();
+    
+    // Se stiamo uscendo dall'edit, aggiorniamo subito anche il salvataggio locale standard
+    if (!gameState.isEditingAllowed) {
+      let lobbies = JSON.parse(localStorage.getItem('lotus_lobbies') || '{}');
+      if (lobbies[gameState.code] && lobbies[gameState.code].pilots[myPlayerId]) {
+        lobbies[gameState.code].pilots[myPlayerId].data = gameState;
+        localStorage.setItem('lotus_lobbies', JSON.stringify(lobbies));
+      }
+    }
   }
 
   function updateEditButtonUI() {
@@ -1889,7 +1909,6 @@
       pitBtn.style.display = 'block';
       weatherTestBtn.style.display = 'none';
     } else if (gameState.isEditingAllowed) {
-      gameState.workshopStartCount = gameState.workshopUsages.length;
       editBtn.innerText = "ModalitÃ  Edit Attiva (Clicca per Bloccare)";
       editBtn.className = 'btn btn-edit-mode';
       pitBtn.innerText = "Entrata ai Box (Pit Stop)";
@@ -2123,7 +2142,6 @@
     }
   });
 
-  // Ricezione aggiornamenti stanza/scheda da altri dispositivi
   socket.on('ricevi-scheda', (data) => {
     console.log("Aggiornamento ricevuto dal server per la stanza:", data.code);
     
@@ -2151,7 +2169,6 @@
     localStorage.setItem('lotus_lobbies', JSON.stringify(lobbies));
     localStorage.setItem(`lotus_game_${data.code}_${data.playerId}`, JSON.stringify(data));
 
-    // Se stiamo visualizzando la lista stanze in questo momento, aggiorna la vista
     if (document.getElementById('screen-join-game').classList.contains('active')) {
       openJoinGameScreen();
     }
