@@ -3,23 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta class="apple-mobile-web-app-capable" content="yes">
-  <meta class="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta class="apple-mobile-web-app-title" content="Lotus Cup">
-  <link rel="apple-touch-icon" href="https://via.placeholder.com/180/000000/ffffff?text=LOTUS">
-
   <title>Lotus Cup 2k25 - Telemetria & Setup System</title>
   
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
 
-  <!-- Socket.io Client Library -->
   <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
 
   <style>
     * { box-sizing: border-box; }
-    
     body {
       font-family: 'Rajdhani', sans-serif;
       margin: 0;
@@ -28,7 +21,6 @@
       justify-content: center;
       transition: background 0.3s ease, color 0.3s ease;
     }
-
     .app-container {
       width: 100%;
       max-width: 950px;
@@ -37,10 +29,8 @@
       backdrop-filter: blur(10px);
       position: relative;
     }
-
     .screen { display: none; }
     .screen.active { display: block; }
-
     h1, h2, h3 { 
       font-family: 'Orbitron', sans-serif;
       text-align: center; 
@@ -48,32 +38,25 @@
       text-transform: uppercase;
       letter-spacing: 2px;
     }
-
-    /* CYBER-PUNK THEME */
     body.theme-cyberpunk {
       background-color: #080b10;
-      background-image: linear-gradient(rgba(0, 240, 255, 0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 240, 255, 0.04) 1px, transparent 1px);
-      background-size: 30px 30px;
       color: #e0e6ed;
     }
-
     body.theme-cyberpunk .app-container {
       background: rgba(18, 24, 38, 0.85);
       border: 1px solid rgba(0, 240, 255, 0.35);
-      box-shadow: 0 0 25px rgba(0, 240, 255, 0.12), inset 0 0 15px rgba(0, 0, 0, 0.8);
     }
-
-    body.theme-cyberpunk h1, 
-    body.theme-cyberpunk h2, 
-    body.theme-cyberpunk h3 {
-      color: #00f0ff;
-      text-shadow: 0 0 12px #00f0ff;
+    body.theme-cyberpunk h1, body.theme-cyberpunk h2, body.theme-cyberpunk h3 { color: #00f0ff; }
+    body.theme-ironman {
+      background-color: #050203;
+      color: #ffffff;
     }
-
-    body.theme-cyberpunk .btn {
-      background-color: #0f1522;
-      color: #00f0ff;
-      border: 1px solid #00f0ff;
+    body.theme-ironman .app-container {
+      background: rgba(92, 0, 3, 0.92);
+      border: 2px solid #e5b839;
+    }
+    body.theme-ironman h1, body.theme-ironman h2, body.theme-ironman h3 { color: #f5d061; }
+    .btn {
       font-family: 'Orbitron', sans-serif;
       padding: 14px 20px;
       font-size: 1rem;
@@ -82,210 +65,7 @@
       cursor: pointer;
       width: 100%;
       margin: 10px 0;
-      transition: all 0.25s ease-in-out;
-      box-shadow: 0 0 10px rgba(0, 240, 255, 0.2);
-      text-transform: none !important;
     }
-
-    body.theme-cyberpunk .btn:hover:not(:disabled) {
-      background-color: #00f0ff;
-      color: #000000;
-      box-shadow: 0 0 20px #00f0ff;
-      transform: translateY(-1px);
-    }
-
-    body.theme-cyberpunk .btn:disabled {
-      background-color: #111827 !important;
-      border-color: #374151 !important;
-      color: #6b7280 !important;
-      box-shadow: none !important;
-      cursor: not-allowed;
-      opacity: 0.6;
-    }
-
-    body.theme-cyberpunk .btn-secondary {
-      background-color: rgba(30, 41, 59, 0.8);
-      color: #e0e6ed;
-      border: 1px solid #2e3d52;
-      box-shadow: none;
-    }
-
-    body.theme-cyberpunk .btn-danger {
-      background-color: rgba(255, 0, 85, 0.2);
-      color: #ff0055;
-      border: 1px solid #ff0055;
-      box-shadow: 0 0 10px rgba(255, 0, 85, 0.3);
-    }
-
-    body.theme-cyberpunk .btn-success {
-      background-color: rgba(0, 255, 204, 0.15);
-      color: #00ffcc;
-      border: 1px solid #00ffcc;
-      box-shadow: 0 0 10px rgba(0, 255, 204, 0.3);
-    }
-
-    body.theme-cyberpunk .btn-read-mode {
-      background-color: rgba(0, 255, 204, 0.2) !important;
-      color: #00ffcc !important;
-      border: 1px solid #00ffcc !important;
-    }
-
-    body.theme-cyberpunk .btn-edit-mode {
-      background-color: rgba(255, 183, 0, 0.2) !important;
-      color: #ffb700 !important;
-      border: 1px solid #ffb700 !important;
-    }
-
-    body.theme-cyberpunk .btn-pitstop-mode {
-      background-color: rgba(255, 0, 220, 0.2) !important;
-      color: #ff00dc !important;
-      border: 1px solid #ff00dc !important;
-      box-shadow: 0 0 12px rgba(255, 0, 220, 0.4) !important;
-    }
-
-    body.theme-cyberpunk .btn-weather-test {
-      background-color: rgba(0, 240, 255, 0.15) !important;
-      color: #00f0ff !important;
-      border: 1px solid #00f0ff !important;
-    }
-
-    body.theme-cyberpunk .box {
-      background-color: #0f1522;
-      color: #00ffcc;
-      border: 1px solid #00f0ff;
-      text-shadow: 0 0 8px #00ffcc;
-      box-shadow: 0 0 6px rgba(0, 240, 255, 0.15), inset 0 0 8px rgba(0, 255, 204, 0.08);
-    }
-
-    body.theme-cyberpunk .box.x-red {
-      background: rgba(255, 0, 85, 0.12) !important;
-      border: 1px solid #ff0055 !important;
-      color: #ff0055 !important;
-      font-weight: 900;
-      text-shadow: 0 0 10px #ff0055, 0 0 20px #ff0055 !important;
-      box-shadow: 0 0 10px rgba(255, 0, 85, 0.35) !important;
-      animation: flicker 2s infinite alternate;
-    }
-
-    body.theme-cyberpunk .box.circle-kers { box-shadow: none !important; }
-    body.theme-cyberpunk .box.circle-kers svg {
-      color: #00f0ff !important;
-      animation: glow-only-cyber 1.4s infinite ease-in-out alternate;
-    }
-
-    /* IRONMAN THEME */
-    body.theme-ironman {
-      background-color: #050203;
-      background-image: radial-gradient(circle at center, rgba(229, 184, 57, 0.08) 0%, transparent 70%), linear-gradient(rgba(229, 184, 57, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(229, 184, 57, 0.05) 1px, transparent 1px);
-      background-size: 30px 30px;
-      color: #ffffff;
-    }
-
-    body.theme-ironman .app-container {
-      background: rgba(92, 0, 3, 0.92);
-      border: 2px solid #e5b839;
-      box-shadow: 0 0 30px rgba(0, 0, 0, 0.8);
-    }
-
-    body.theme-ironman h1, 
-    body.theme-ironman h2, 
-    body.theme-ironman h3 {
-      color: #f5d061;
-      text-shadow: 0 0 10px rgba(0, 0, 0, 0.8), 0 0 5px #f5d061;
-    }
-
-    body.theme-ironman .btn {
-      background: linear-gradient(180deg, #fff2bd 0%, #e5b839 40%, #c49618 100%) !important;
-      color: #520003 !important;
-      border: 2px solid #000000 !important;
-      font-family: 'Orbitron', sans-serif;
-      padding: 14px 20px;
-      font-size: 1rem;
-      font-weight: 900;
-      border-radius: 6px;
-      cursor: pointer;
-      width: 100%;
-      margin: 10px 0;
-      transition: all 0.2s ease-in-out;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
-      text-shadow: none !important;
-      text-transform: none !important;
-    }
-
-    body.theme-ironman .btn:hover:not(:disabled) {
-      background: linear-gradient(180deg, #ffffff 0%, #f5d061 40%, #e5b839 100%) !important;
-      color: #300002 !important;
-      transform: translateY(-2px);
-      box-shadow: 0 6px 15px rgba(229, 184, 57, 0.4);
-    }
-
-    body.theme-ironman .btn-secondary {
-      background: #0a0204 !important;
-      color: #f5d061 !important;
-      border: 1px solid #e5b839 !important;
-    }
-
-    body.theme-ironman .btn-danger {
-      background: rgba(255, 0, 85, 0.2) !important;
-      color: #ff2a2a !important;
-      border: 1px solid #ff2a2a !important;
-    }
-
-    body.theme-ironman .btn-read-mode {
-      background: linear-gradient(180deg, #fff2bd 0%, #e5b839 40%, #c49618 100%) !important;
-      color: #520003 !important;
-      border: 2px solid #000000 !important;
-      opacity: 1 !important;
-    }
-
-    body.theme-ironman .btn-edit-mode {
-      background: rgba(60, 0, 2, 0.95) !important;
-      color: #f5d061 !important;
-      border: 2px solid #f5d061 !important;
-    }
-
-    body.theme-ironman .btn-pitstop-mode {
-      background: rgba(255, 0, 220, 0.2) !important;
-      color: #ff00dc !important;
-      border: 2px solid #ff00dc !important;
-    }
-
-    body.theme-ironman .btn-weather-test {
-      background: rgba(229, 184, 57, 0.2) !important;
-      color: #f5d061 !important;
-      border: 2px solid #e5b839 !important;
-    }
-
-    body.theme-ironman .box {
-      background-color: #0a0204;
-      color: #ffffff;
-      border: 1px solid #00f0ff;
-      text-shadow: none;
-      box-shadow: none;
-    }
-
-    body.theme-ironman .box.x-red {
-      background: rgba(255, 42, 42, 0.18) !important;
-      border: 1px solid #ff2a2a !important;
-      color: #ff2a2a !important;
-      font-weight: 900;
-      text-shadow: 0 0 10px #ff2a2a, 0 0 18px #ff2a2a !important;
-      box-shadow: 0 0 10px rgba(255, 42, 42, 0.4) !important;
-      animation: flicker 2s infinite alternate;
-    }
-
-    body.theme-ironman .box.circle-green {
-      color: #00ffcc !important;
-      filter: drop-shadow(0 0 5px #00ffcc);
-    }
-    
-    body.theme-ironman .box.circle-kers { box-shadow: none !important; }
-    body.theme-ironman .box.circle-kers svg {
-      color: #00f0ff !important;
-      animation: glow-only-iron 1.4s infinite ease-in-out alternate;
-    }
-
-    /* GENERAL LAYOUT & LOBBY */
     input, select {
       width: 100%;
       padding: 10px;
@@ -297,14 +77,6 @@
       font-size: 1rem;
       font-family: 'Rajdhani', sans-serif;
     }
-
-    #lobbies-list-container {
-      margin-bottom: 15px; 
-      max-height: 250px; 
-      overflow-y: auto; 
-      padding-right: 6px;
-    }
-
     .lobby-card {
       background: rgba(15, 21, 34, 0.9);
       border: 1px solid #00f0ff;
@@ -312,56 +84,10 @@
       border-radius: 6px;
       margin-bottom: 8px;
       cursor: pointer;
-      transition: all 0.2s ease;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      gap: 10px;
     }
-    .lobby-card:hover {
-      border-color: #ffb700;
-      background: rgba(20, 28, 45, 0.95);
-      transform: translateY(-1px);
-    }
-    .lobby-card.selected {
-      border: 2px solid #ffb700;
-      box-shadow: 0 0 12px rgba(255, 183, 0, 0.4);
-    }
-    
-    .btn-delete-room {
-      background: rgba(255, 0, 85, 0.2);
-      color: #ff0055;
-      border: 1px solid #ff0055;
-      padding: 6px 10px;
-      font-size: 0.75rem;
-      border-radius: 4px;
-      cursor: pointer;
-      font-family: 'Orbitron', sans-serif;
-      flex-shrink: 0;
-      text-transform: none !important;
-    }
-    .btn-delete-room:hover {
-      background: #ff0055;
-      color: #000;
-    }
-
-    .theme-selector-wrapper {
-      background: rgba(15, 21, 34, 0.8);
-      border: 1px solid rgba(0, 240, 255, 0.35);
-      border-radius: 6px;
-      padding: 12px;
-      margin: 15px 0;
-      text-align: center;
-    }
-    .theme-selector-wrapper label {
-      font-family: 'Orbitron', sans-serif;
-      font-size: 0.85rem;
-      color: #ffb700;
-      display: block;
-      margin-bottom: 5px;
-      font-weight: bold;
-    }
-
     .sheet-header {
       display: flex;
       justify-content: space-between;
@@ -369,74 +95,25 @@
       border-bottom: 1px solid rgba(0, 240, 255, 0.35);
       padding-bottom: 10px;
       margin-bottom: 15px;
-      flex-wrap: wrap;
     }
-
-    .weather-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      background: rgba(15, 21, 34, 0.8);
-      border: 1px solid #00f0ff;
-      border-radius: 4px;
-      padding: 4px 8px;
-      font-family: 'Orbitron', sans-serif;
-      font-size: 0.8rem;
-      color: #00f0ff;
-      margin-left: 10px;
-    }
-
     .tyres-deck {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      grid-template-columns: repeat(4, 1fr);
       gap: 8px;
       margin-bottom: 15px;
       background-color: rgba(15, 21, 34, 0.6);
       padding: 8px;
       border-radius: 6px;
-      border: 1px solid #2e3d52;
     }
-
     .tyre-card {
       background-color: #0f1522;
       border: 1px solid rgba(0, 240, 255, 0.15);
       border-radius: 4px;
       padding: 6px;
       text-align: center;
-      transition: all 0.2s ease;
     }
-    .tyre-card.active { 
-      border-color: #00f0ff !important; 
-      box-shadow: 0 0 10px #00f0ff !important;
-    }
-    .tyre-card.disabled-weather {
-      opacity: 0.3 !important;
-      filter: grayscale(1);
-      pointer-events: none;
-    }
-
-    .tyre-title-btn {
-      width: 100%;
-      padding: 6px;
-      background: rgba(30, 41, 59, 0.9);
-      color: #ffffff;
-      border: 1px solid #2e3d52;
-      font-family: 'Orbitron', sans-serif;
-      font-size: 0.8rem;
-      font-weight: bold;
-      border-radius: 4px;
-      cursor: pointer;
-      margin-bottom: 6px;
-      text-transform: none !important;
-    }
-    .tyre-card.active .tyre-title-btn { 
-      background: #00f0ff; 
-      color: #000000; 
-      border-color: #00f0ff;
-    }
-
+    .tyre-card.active { border-color: #00f0ff !important; }
     .laps-container { display: flex; justify-content: center; gap: 6px; }
-
     .lap-box {
       width: 28px; height: 28px;
       background-color: #0f1522;
@@ -445,477 +122,110 @@
       border-radius: 3px;
       font-family: 'Orbitron', sans-serif;
       font-size: 0.9rem;
-      font-weight: bold;
       display: flex; align-items: center; justify-content: center;
-      user-select: none; opacity: 0.6;
     }
-    body.theme-ironman .lap-box { border-color: #520003; }
-    .tyre-card.active .lap-box { border-color: #00f0ff; }
-
-    .lap-box.pre-selected {
-      background-color: #0b1320 !important;
-      color: #ffffff !important;
-      border: 1px solid #00f0ff !important;
-      opacity: 1 !important;
-    }
-
-    .lap-box.marked { 
-      background-color: #00f0ff !important; 
-      color: #000 !important; 
-      font-weight: 900 !important; 
-      opacity: 1 !important; 
-    }
-    .lap-box.clickable { cursor: pointer; opacity: 1; }
-    .lap-box.disabled { cursor: not-allowed; opacity: 0.25; }
-
-    .workshop-block {
-      background-color: rgba(15, 21, 34, 0.8);
-      padding: 4px 6px; border-radius: 6px;
-      border: 1px solid rgba(0, 240, 255, 0.35);
-      display: inline-flex; align-items: flex-end; gap: 6px;
-      width: max-content;
-      flex-shrink: 0;
-    }
-    .workshop-boxes-wrapper { display: flex; flex-direction: column; align-items: center; width: 100%; }
-    
-    .workshop-label, .fuel-mov-label {
-      font-family: 'Orbitron', sans-serif; 
-      font-size: 0.65rem; 
-      font-weight: 900;
-      color: #ffb700; 
-      text-transform: uppercase; 
-      margin-bottom: 2px;
-      border-bottom: 1px solid rgba(0, 240, 255, 0.35); 
-      width: 100%;
-      text-align: center;
-      letter-spacing: 0.5px;
-    }
-    .fuel-mov-label { text-align: left; padding-left: 2px; }
-
-    .mov-num-val {
-      font-weight: 900;
-      color: #ffb700;
-      transition: color 0.2s ease;
-      display: inline-block;
-      min-width: 1.5ch;
-      text-align: center;
-    }
-
+    .lap-box.marked { background-color: #00f0ff !important; color: #000 !important; font-weight: 900 !important; }
+    .lap-box.clickable { cursor: pointer; }
     .board-row {
       display: flex; align-items: flex-end; justify-content: space-between; gap: 4px;
       margin-bottom: 12px; padding: 6px;
       border: 1px solid rgba(0, 240, 255, 0.35); border-radius: 6px; width: 100%;
-      clip-path: polygon(0 0, 98% 0, 100% 10px, 100% 100%, 2% 100%, 0 calc(100% - 10px));
     }
-    .board-side { display: flex; align-items: flex-end; gap: 4px; flex-shrink: 0; }
-    .board-side.right-side { justify-content: flex-end; }
-
-    .comp-block-wrapper { display: flex; flex-direction: column; align-items: flex-start; }
-    .comp-block-wrapper.align-right { align-items: flex-end; }
-    .fuel-container-wrapper { display: flex; flex-direction: column; flex-shrink: 0; width: max-content; }
-
-    .icon-box-center {
-      width: 30px; height: 34px; border: 1px solid rgba(0, 240, 255, 0.35);
-      background: #0f1522; display: flex; align-items: center; justify-content: center;
-      position: relative; flex-shrink: 0; border-radius: 4px; padding: 2px;
-    }
-    .icon-box-center svg { width: 100%; height: 100%; }
-    body.theme-ironman .icon-box-center { border-color: #e5b839; }
-
-    .icon-box-center.arrow-left { margin-left: 6px; }
-    .icon-box-center.arrow-left::before {
-      content: ''; position: absolute; left: -7px; top: 50%; transform: translateY(-50%);
-      border-top: 4px solid transparent; border-bottom: 4px solid transparent; border-right: 6px solid #00f0ff;
-    }
-
-    .icon-box-center.arrow-right { margin-right: 6px; }
-    .icon-box-center.arrow-right::after {
-      content: ''; position: absolute; right: -7px; top: 50%; transform: translateY(-50%);
-      border-top: 4px solid transparent; border-bottom: 4px solid transparent; border-left: 6px solid #00f0ff;
-    }
-
+    .board-side { display: flex; align-items: flex-end; gap: 4px; }
     .boxes-container { display: flex; gap: 2px; }
-
     .box {
       width: 30px; height: 34px;
       font-family: 'Orbitron', sans-serif; font-weight: 700; font-size: 1rem;
       display: flex; align-items: center; justify-content: center;
-      user-select: none; border-radius: 3px; position: relative; flex-shrink: 0;
+      border-radius: 3px; background: #0f1522; color: #00ffcc; border: 1px solid #00f0ff;
     }
-
-    .box.box-setup-highlight {
-      border: 1px dashed #ffb700; color: #ffb700; background-color: transparent;
-      animation: pulse-yellow 1.5s infinite ease-in-out;
-    }
-    body.theme-ironman .box.box-setup-highlight { border-color: #00f0ff; color: #00f0ff; }
-    .box.box-setup-disabled { border: 1px solid #2e3d52; color: transparent; animation: none !important; }
+    .box.x-red { background: rgba(255, 0, 85, 0.2) !important; color: #ff0055 !important; border: 1px solid #ff0055 !important; }
     .box.clickable { cursor: pointer; }
-    .box.clickable:hover { background-color: rgba(0, 240, 255, 0.15); }
-
-    .box.x-black { 
-      color: rgba(255, 255, 255, 0.25) !important; 
-      font-weight: 700; background-color: rgba(0, 0, 0, 0.4); 
-      border-color: #1e293b; text-shadow: none !important; box-shadow: none !important;
-    }
-    .box.circle-green { color: #00ffcc; font-size: 1.1rem; }
-
-    .budget-bar {
-      background-color: rgba(15, 21, 34, 0.8); border: 1px solid #ffb700;
-      padding: 10px; text-align: center; border-radius: 6px; margin-bottom: 15px;
-      font-family: 'Orbitron', sans-serif; font-weight: bold; font-size: 1rem; color: #ffb700;
-    }
-
-    .opponents-list { margin-top: 15px; border-top: 1px solid rgba(0, 240, 255, 0.35); padding-top: 10px; }
-    .opp-item {
-      background: rgba(15, 21, 34, 0.6); border: 1px solid #2e3d52;
-      padding: 8px 12px; border-radius: 4px; margin-bottom: 5px;
-      display: flex; justify-content: space-between; align-items: center;
-    }
-    .opp-item.clickable-opp { cursor: pointer; }
-    .opp-item.clickable-opp:hover { border-color: #00f0ff; }
-
-    .btn-refresh-list {
-      background: transparent;
-      border: 1px solid #00f0ff;
-      color: #00f0ff;
-      padding: 2px 8px;
-      font-size: 0.75rem;
-      border-radius: 4px;
-      cursor: pointer;
-      font-family: 'Orbitron', sans-serif;
-      margin-left: 10px;
-      text-transform: none !important;
-    }
-    .btn-refresh-list:hover {
-      background: #00f0ff;
-      color: #000;
-    }
-
     .modal {
       display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0,0,0,0.85); backdrop-filter: blur(5px);
-      justify-content: center; align-items: center; z-index: 100;
+      background: rgba(0,0,0,0.85); justify-content: center; align-items: center; z-index: 100;
     }
     .modal-content {
-      background: #080b10; padding: 20px; border-radius: 8px; max-width: 450px; width: 92%;
-      text-align: center; border: 1px solid #00f0ff;
-    }
-
-    .status-check-box {
-      background: rgba(15, 21, 34, 0.9);
-      border: 1px solid #00f0ff; border-radius: 6px;
-      padding: 10px; margin-bottom: 12px; text-align: center;
-    }
-
-    @keyframes pulse-yellow {
-      0%, 100% { border-color: rgba(255, 183, 0, 0.4); }
-      50% { border-color: rgba(255, 183, 0, 1); background-color: rgba(255, 183, 0, 0.05); }
-    }
-    @keyframes flicker {
-      0%, 100% { opacity: 1; filter: drop-shadow(0 0 8px #ff2a2a); }
-      50% { opacity: 0.85; filter: drop-shadow(0 0 3px #ff2a2a); }
-      52% { opacity: 1; } 54% { opacity: 0.7; } 56% { opacity: 1; }
-    }
-    @keyframes glow-only-cyber {
-      0% { filter: drop-shadow(0 0 1px #00f0ff); opacity: 0.55; }
-      100% { filter: drop-shadow(0 0 6px #00f0ff) drop-shadow(0 0 12px #00f0ff); opacity: 1; }
-    }
-    @keyframes glow-only-iron {
-      0% { filter: drop-shadow(0 0 1px #00f0ff); opacity: 0.6; }
-      100% { filter: drop-shadow(0 0 8px #00f0ff) drop-shadow(0 0 14px #f5d061); opacity: 1; }
+      background: #080b10; padding: 20px; border-radius: 8px; max-width: 450px; width: 92%; text-align: center; border: 1px solid #00f0ff;
     }
   </style>
 </head>
-<body>
+<body class="theme-ironman">
 
 <div class="app-container">
 
-  <!-- 1. HOME MENU -->
-  <div id="screen-home" class="screen active" style="position: relative; min-height: 420px; padding-bottom: 25px;">
+  <!-- HOME MENU -->
+  <div id="screen-home" class="screen active">
     <h1>LOTUS CUP 2K25</h1>
     <p style="text-align: center; font-family: 'Orbitron'; font-size: 0.85rem;">TELEMETRIA & SETUP SYSTEM</p>
-    <hr style="border-color: rgba(0, 240, 255, 0.35); margin: 20px 0;">
-    
     <div style="max-width: 400px; margin: 0 auto;">
-      <div class="theme-selector-wrapper">
-        <label for="theme-select">STILE GRAFICO APPLICAZIONE</label>
-        <select id="theme-select" onchange="changeTheme(this.value)">
-          <option value="ironman" selected>Iron_1 (Stark Metallic Red & Gold)</option>
-          <option value="cyberpunk">Cyber-Punk (HUD Neon)</option>
-        </select>
-      </div>
-
+      <select id="theme-select" onchange="changeTheme(this.value)">
+        <option value="ironman" selected>Iron-Man Theme</option>
+        <option value="cyberpunk">Cyber-Punk Theme</option>
+      </select>
       <button class="btn" onclick="showScreen('screen-new-game')">Crea Nuova Partita</button>
       <button class="btn" onclick="openJoinGameScreen()">Unisciti a una Partita</button>
       <button class="btn" onclick="loadSavedGameModal()">Riprendi Partita</button>
-      <button class="btn" onclick="showScreen('screen-tutorial')">Tutorial & Regole</button>
-    </div>
-
-    <!-- Numero di versione in basso a destra solo nella Home -->
-    <div style="position: absolute; bottom: 5px; right: 8px; font-size: 0.7rem; color: #a0aec0; font-family: 'Orbitron';">
-      v1.0.<span id="build-version">VERSION</span>
     </div>
   </div>
 
-  <!-- 2. CREA PARTITA -->
+  <!-- CREA PARTITA -->
   <div id="screen-new-game" class="screen">
     <h2>Crea Nuova Partita</h2>
     <div style="max-width: 500px; margin: 0 auto;">
-      <label>Nome Gara / Circuito:</label>
-      <input type="text" id="input-circuit" placeholder="es. Monza, Spa, Monaco...">
-      <label>Nome Pilota / Host:</label>
-      <input type="text" id="input-host" placeholder="Il tuo nome...">
-      
-      <label>Meteo Iniziale:</label>
-      <select id="input-weather">
-        <option value="" disabled selected>-- Seleziona Condizione Meteo --</option>
-        <option value="sun">&#9728;&#65039; Sole Fisso</option>
-        <option value="rain">&#127783;&#65039; Pioggia Fissa</option>
-        <option value="var_dry">&#9925; Variabile Asciutto</option>
-        <option value="var_wet">&#127783;&#65039; Variabile Bagnato</option>
-      </select>
-
-      <button class="btn" onclick="createGame()">Genera Partita & Stanza</button>
-      <button class="btn btn-secondary" onclick="showScreen('screen-home')">Indietro</button>
+      <label>Circuito:</label>
+      <input type="text" id="input-circuit" placeholder="Monza">
+      <label>Host:</label>
+      <input type="text" id="input-host" placeholder="Nome Pilota">
+      <button class="btn" onclick="createGame()">Genera Stanza</button>
+      <button class="btn" onclick="showScreen('screen-home')">Indietro</button>
     </div>
   </div>
 
-  <!-- 3. UNISCITI A UNA PARTITA -->
+  <!-- UNISCITI -->
   <div id="screen-join-game" class="screen">
     <h2>Unisciti a una Partita</h2>
     <div style="max-width: 500px; margin: 0 auto;">
-      <label>Seleziona Gara / Stanza Attiva:</label>
       <div id="lobbies-list-container"></div>
-
-      <div id="join-form-section" style="display: none; background: rgba(15, 21, 34, 0.7); padding: 12px; border-radius: 6px; border: 1px solid #ffb700; margin-bottom: 15px;">
-        <p style="margin: 0 0 8px 0; font-size: 0.85rem; color:#ffb700;">Gara selezionata: <strong id="selected-room-label" style="color:#fff;">-</strong></p>
-        <label>Inserisci il tuo Nome Pilota:</label>
-        <input type="text" id="input-player-name" placeholder="Il tuo nome...">
-        <button class="btn" onclick="joinGame()">Entra nella Gara</button>
+      <div id="join-form-section" style="display:none;">
+        <label>Nome Pilota:</label>
+        <input type="text" id="input-player-name">
+        <button class="btn" onclick="joinGame()">Entra</button>
       </div>
-
-      <button class="btn btn-secondary" onclick="showScreen('screen-home')">Indietro</button>
+      <button class="btn" onclick="showScreen('screen-home')">Indietro</button>
     </div>
   </div>
 
-  <!-- 4. DASHBOARD SETUP & GARA -->
+  <!-- DASHBOARD -->
   <div id="screen-setup" class="screen">
-    
-    <div id="inspection-banner" style="display: none; background: rgba(255, 183, 0, 0.2); border: 1px solid #ffb700; padding: 8px; border-radius: 4px; margin-bottom: 10px; text-align: center; font-family: 'Orbitron'; font-size: 0.85rem; color: #ffb700;">
-      Stai visualizzando la scheda di: <span id="inspecting-pilot-name" style="font-weight:900; color:#fff;">-</span>
-      <button class="btn btn-secondary" onclick="returnToMyBoard()" style="padding: 4px 10px; width: auto; margin: 0 0 0 15px; font-size: 0.75rem;">Torna alla mia Scheda</button>
-    </div>
-
     <div class="sheet-header">
       <div>
-        <h3 style="margin:0; text-align:left; display: flex; align-items: center;">
-          <span id="display-circuit">CIRCUITO</span>
-          <div id="weather-badge" class="weather-badge">
-            <span id="weather-icon">&#9728;&#65039;</span> <small id="weather-text">Sole</small>
-          </div>
-        </h3>
-        <small id="display-meta">Data: - | Pilota: -</small>
+        <h3 id="display-circuit" style="margin:0;">CIRCUITO</h3>
+        <small id="display-meta">-</small>
       </div>
-      <div>
-        <strong style="font-family: 'Orbitron';">ROOM: <span id="display-code">0000</span></strong>
-      </div>
+      <div><strong>ROOM: <span id="display-code">0000</span></strong></div>
     </div>
 
-    <div style="margin-bottom: 15px;" id="actions-container-wrapper">
+    <div style="margin-bottom: 15px;">
       <button id="btn-start-config" class="btn" onclick="startConfiguration()">Inizia Configurazione (13 Punti)</button>
-      <button id="btn-lock-setup" class="btn btn-success" onclick="officializeSetup()" style="display: none;" disabled>Ufficializza Scheda / Inizio Gara (Assegna tutti i 13 Punti)</button>
-      
-      <div id="race-controls" style="display: none; gap: 8px; flex-direction: column;">
-        <div style="display: flex; gap: 8px;">
-          <button id="btn-toggle-edit" class="btn btn-read-mode" onclick="toggleRaceEdit()" style="flex:1; margin:0; text-transform:none !important;">ModalitÃ  edit attiva (clicca per sbloccare)</button>
-          <button id="btn-pitstop-action" class="btn btn-pitstop-mode" onclick="handlePitStopButtonClick()" style="display: none; flex:1; margin:0; text-transform:none !important;">Entrata ai Box (Pit Stop)</button>
-        </div>
-        <button id="btn-weather-test" class="btn btn-weather-test" onclick="openWeatherModal()" style="display: none; margin: 4px 0 0 0;">Test Motore / Controllo Meteo</button>
+      <button id="btn-lock-setup" class="btn" onclick="officializeSetup()" style="display:none;" disabled>Inizia Gara</button>
+      <div id="race-controls" style="display:none; gap:8px; display:flex;">
+        <button id="btn-toggle-edit" class="btn" onclick="toggleRaceEdit()">Sblocca Edit</button>
+        <button id="btn-pitstop-action" class="btn" onclick="handlePitStopButtonClick()" style="display:none;">Pit Stop</button>
       </div>
     </div>
 
     <div class="tyres-deck" id="tyres-deck-container"></div>
+    <div id="budget-bar" style="display:none; text-align:center; font-family:'Orbitron'; margin-bottom:10px;">Punti Setup: <span id="budget-count">13</span>/13</div>
 
-    <div style="display: flex; justify-content: flex-end; margin-bottom: 10px;">
-      <div class="workshop-block">
-        <div class="icon-box-center" title="Punti Officina">
-          <svg viewBox="0 0 24 24" fill="none" stroke="#00f0ff" stroke-width="2.2" stroke-linecap="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
-        </div>
-        <div class="workshop-boxes-wrapper">
-          <div class="workshop-label"><span id="workshop-mov-val" class="mov-num-val">0</span> MOV</div>
-          <div class="boxes-container" id="row-workshop"></div>
-        </div>
-      </div>
-    </div>
+    <!-- RIGHE COMPONENTI -->
+    <div class="board-row"><div class="board-side"><div class="boxes-container" id="row-tyres"></div></div><div class="board-side"><div class="boxes-container" id="row-body"></div></div></div>
+    <div class="board-row"><div class="board-side"><div class="boxes-container" id="row-brakes"></div></div><div class="board-side"><div class="boxes-container" id="row-engine"></div></div></div>
+    <div class="board-row"><div class="board-side"><div class="boxes-container" id="row-fuel"></div></div><div class="board-side"><div class="boxes-container" id="row-suspension"></div></div></div>
 
-    <div id="budget-bar" class="budget-bar" style="display: none;">
-      Punti Disponibili per Setup: <span id="budget-count">13</span> / 13
-    </div>
-
-    <div>
-      <div class="board-row">
-        <div class="comp-block-wrapper">
-          <div class="board-side">
-            <div class="boxes-container" id="row-tyres"></div>
-            <div class="icon-box-center arrow-left" title="Pneumatici">
-              <svg viewBox="0 0 100 100" fill="none" stroke="#00f0ff">
-                <path d="M 45 12 Q 22 18 18 50 Q 22 82 45 88 Q 85 88 85 50 Q 85 12 45 12 Z" fill="#00f0ff"/>
-                <ellipse cx="62" cy="50" rx="20" ry="32" fill="#0f1522" stroke="#00f0ff" stroke-width="3"/>
-                <ellipse cx="62" cy="50" rx="8" ry="12" fill="#00f0ff"/>
-                <line x1="62" y1="38" x2="62" y2="20" stroke="#00f0ff" stroke-width="3"/>
-                <line x1="62" y1="62" x2="62" y2="80" stroke="#0f1522" stroke-width="3"/>
-                <line x1="54" y1="50" x2="44" y2="50" stroke="#00f0ff" stroke-width="3"/>
-                <line x1="70" y1="50" x2="80" y2="50" stroke="#00f0ff" stroke-width="3"/>
-                <line x1="56" y1="42" x2="48" y2="30" stroke="#00f0ff" stroke-width="3"/>
-                <line x1="68" y1="58" x2="76" y2="70" stroke="#00f0ff" stroke-width="3"/>
-                <path d="M 22 25 L 35 22 M 20 38 L 35 34 M 19 50 L 35 48 M 22 75 L 35 78" stroke="#0f1522" stroke-width="3"/>
-              </svg>
-            </div>
-          </div>
-        </div>
-
-        <div class="comp-block-wrapper align-right">
-          <div class="board-side right-side">
-            <div class="icon-box-center arrow-right" title="Telaio">
-              <svg viewBox="0 0 100 100" fill="#00f0ff">
-                <rect x="5" y="32" width="18" height="42" rx="3"/>
-                <rect x="77" y="32" width="18" height="42" rx="3"/>
-                <rect x="8" y="70" width="84" height="6" rx="1"/>
-                <path d="M 12 63 L 40 68 L 40 70 L 12 68 Z"/>
-                <path d="M 88 63 L 60 68 L 60 70 L 88 68 Z"/>
-                <path d="M 40 70 L 43 35 L 57 35 L 60 70 Z"/>
-                <circle cx="50" cy="30" r="5"/>
-                <path d="M 42 26 C 42 18, 58 18, 58 26 L 55 33 L 45 33 Z" fill="none" stroke="#00f0ff" stroke-width="2"/>
-                <rect x="30" y="12" width="40" height="5"/>
-                <line x1="33" y1="17" x2="33" y2="28" stroke="#00f0ff" stroke-width="3"/>
-                <line x1="67" y1="17" x2="67" y2="28" stroke="#00f0ff" stroke-width="3"/>
-                <line x1="23" y1="42" x2="42" y2="48" stroke="#00f0ff" stroke-width="2"/>
-                <line x1="23" y1="58" x2="42" y2="52" stroke="#00f0ff" stroke-width="2"/>
-                <line x1="77" y1="42" x2="58" y2="48" stroke="#00f0ff" stroke-width="2"/>
-                <line x1="77" y1="58" x2="58" y2="52" stroke="#00f0ff" stroke-width="2"/>
-              </svg>
-            </div>
-            <div class="boxes-container" id="row-body"></div>
-          </div>
-        </div>
-      </div>
-
-      <div class="board-row">
-        <div class="comp-block-wrapper">
-          <div class="board-side">
-            <div class="boxes-container" id="row-brakes"></div>
-            <div class="icon-box-center arrow-left" title="Freni">
-              <svg viewBox="0 0 100 100" fill="#00f0ff">
-                <rect x="15" y="80" width="70" height="6" rx="2"/>
-                <path d="M 24 80 L 42 55 L 49 59 L 30 84 Z"/>
-                <rect x="33" y="47" width="28" height="10" transform="rotate(-32 47 52)" rx="3"/>
-                <path d="M 33 46 C 30 38 42 34 56 42 C 64 47 70 57 65 67 C 60 74 52 74 52 74 L 80 52 C 86 47 78 35 72 26 L 60 34 L 75 12 L 56 2 Z"/>
-                <line x1="44" y1="43" x2="47" y2="40" stroke="#0f1522" stroke-width="2.5" stroke-linecap="round"/>
-                <line x1="48" y1="45" x2="51" y2="42" stroke="#0f1522" stroke-width="2.5" stroke-linecap="round"/>
-                <line x1="52" y1="48" x2="55" y2="45" stroke="#0f1522" stroke-width="2.5" stroke-linecap="round"/>
-                <line x1="60" y1="34" x2="72" y2="26" stroke="#0f1522" stroke-width="2"/>
-              </svg>
-            </div>
-          </div>
-        </div>
-        
-        <div style="display: flex; flex-direction: column; align-items: center;">
-          <small class="comp-title-label" style="margin-bottom:2px;">KERS</small>
-          <div id="box-kers" class="box" onclick="interactKers()"></div>
-        </div>
-
-        <div class="comp-block-wrapper align-right">
-          <div class="board-side right-side">
-            <div class="icon-box-center arrow-right" title="Motore">
-              <svg viewBox="0 0 100 100" fill="#00f0ff">
-                <g transform="rotate(-25 32 38)">
-                  <rect x="18" y="15" width="28" height="12" rx="3"/>
-                  <rect x="20" y="29" width="24" height="22"/>
-                  <line x1="16" y1="33" x2="48" y2="33" stroke="#0f1522" stroke-width="2"/>
-                  <line x1="16" y1="39" x2="48" y2="39" stroke="#0f1522" stroke-width="2"/>
-                  <line x1="16" y1="45" x2="48" y2="45" stroke="#0f1522" stroke-width="2"/>
-                </g>
-                <g transform="rotate(25 68 38)">
-                  <rect x="54" y="15" width="28" height="12" rx="3"/>
-                  <rect x="56" y="29" width="24" height="22"/>
-                  <line x1="52" y1="33" x2="84" y2="33" stroke="#0f1522" stroke-width="2"/>
-                  <line x1="52" y1="39" x2="84" y2="39" stroke="#0f1522" stroke-width="2"/>
-                  <line x1="52" y1="45" x2="84" y2="45" stroke="#0f1522" stroke-width="2"/>
-                </g>
-                <circle cx="50" cy="35" r="14" fill="#00f0ff" stroke="#0f1522" stroke-width="2"/>
-                <circle cx="50" cy="35" r="6" fill="#0f1522"/>
-                <path d="M 22 62 L 78 62 L 72 88 L 28 88 Z"/>
-                <line x1="32" y1="70" x2="68" y2="70" stroke="#0f1522" stroke-width="3"/>
-                <line x1="32" y1="78" x2="68" y2="78" stroke="#0f1522" stroke-width="3"/>
-              </svg>
-            </div>
-            <div class="boxes-container" id="row-engine"></div>
-          </div>
-        </div>
-      </div>
-
-      <div class="board-row">
-        <div class="comp-block-wrapper">
-          <div class="board-side">
-            <div class="fuel-container-wrapper">
-              <div class="fuel-mov-label"><span id="fuel-mov-prefix">+</span><span id="fuel-mov-val" class="mov-num-val">0</span> MOV</div>
-              <div class="boxes-container" id="row-fuel"></div>
-            </div>
-            <div class="icon-box-center arrow-left" title="Carburante">
-              <svg viewBox="0 0 100 100" fill="#00f0ff">
-                <rect x="30" y="12" width="48" height="76" rx="6"/>
-                <rect x="38" y="22" width="32" height="24" fill="#0f1522" rx="2"/>
-                <path d="M 30 35 C 10 35, 8 60, 20 80" fill="none" stroke="#00f0ff" stroke-width="6" stroke-linecap="round"/>
-                <rect x="14" y="70" width="10" height="14" rx="2"/>
-              </svg>
-            </div>
-          </div>
-        </div>
-
-        <div style="display: flex; flex-direction: column; align-items: center;">
-          <small class="comp-title-label" style="margin-bottom:2px;">ALETTONE</small>
-          <div id="box-wing" class="box" onclick="toggleWing()"></div>
-        </div>
-
-        <div class="comp-block-wrapper align-right">
-          <div class="board-side right-side">
-            <div class="icon-box-center arrow-right" title="Sospensioni">
-              <svg viewBox="0 0 100 100" fill="#00f0ff">
-                <rect x="12" y="25" width="26" height="62" rx="8"/>
-                <path d="M 18 35 L 32 32 M 18 45 L 32 42 M 18 55 L 32 52 M 18 65 L 32 62 M 18 75 L 32 72" stroke="#0f1522" stroke-width="3"/>
-                <g transform="rotate(30 60 45)">
-                  <rect x="52" y="12" width="12" height="10" rx="2"/>
-                  <path d="M 52 24 Q 68 28 52 32 Q 68 36 52 40 Q 68 44 52 48 Q 68 52 52 56 L 64 56 L 64 24 Z"/>
-                  <rect x="54" y="58" width="8" height="18"/>
-                </g>
-                <rect x="38" y="48" width="16" height="12"/>
-                <line x1="38" y1="68" x2="68" y2="75" stroke="#0f1522" stroke-width="4"/>
-              </svg>
-            </div>
-            <div class="boxes-container" id="row-suspension"></div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- VISTA AVVERSARI / PILOTI IN GARA CON PULSANTE AGGIORNA -->
-    <div class="opponents-list" id="opponents-container">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-        <h3 style="font-size: 1rem; margin:0;">Piloti in Gara (Clicca per ispezionare)</h3>
-        <button class="btn-refresh-list" onclick="refreshOpponentsList()" title="Aggiorna stato piloti">&#8635; Aggiorna</button>
-      </div>
+    <div style="margin-top:15px;">
+      <h3>Piloti in Gara</h3>
       <div id="opponents-list-items"></div>
-    </div>
-  </div>
-
-  <!-- TUTORIAL -->
-  <div id="screen-tutorial" class="screen">
-    <h2>Tutorial & Regolamento</h2>
-    <div style="max-width: 500px; margin: 0 auto;">
-      <p>1. <strong>Setup</strong>: Seleziona la mescola di partenza e distribuisci i 13 punti.</p>
-      <p>2. <strong>Giri & Pit Stop</strong>: Spunta i giri 1, 2, 3 in base ai tuoi stint.</p>
-      <p>3. <strong>Consumo e Danni</strong>: Barra le caselle utilizzate durante la corsa.</p>
-      <button class="btn btn-secondary" onclick="showScreen('screen-home')">Torna al Menu</button>
     </div>
   </div>
 
@@ -925,192 +235,35 @@
 <div id="modal-load-game" class="modal">
   <div class="modal-content">
     <h3>Riprendi Partita</h3>
-    <p style="color: #a0aec0; font-size: 0.85rem;">Seleziona la sessione e il pilota da caricare:</p>
-    <div id="load-games-list-container" style="max-height: 200px; overflow-y: auto; margin-bottom: 12px; text-align: left;"></div>
-    <button class="btn btn-secondary" onclick="closeModal('modal-load-game')">Annulla</button>
+    <div id="load-games-list-container" style="max-height:200px; overflow-y:auto; margin-bottom:12px;"></div>
+    <button class="btn" onclick="closeModal('modal-load-game')">Annulla</button>
   </div>
 </div>
 
 <div id="modal-pitstop-confirm" class="modal">
   <div class="modal-content">
-    <h3>Entrata ai Box (Pit Stop)</h3>
-    <p style="color: #a0aec0;">Vuoi procedere con l'ingresso ai box per cambio gomme e riparazioni?</p>
-    <button class="btn btn-success" onclick="confirmEnterPitStop()">Entra</button>
-    <button class="btn btn-secondary" onclick="closeModal('modal-pitstop-confirm')">Non ancora</button>
-  </div>
-</div>
-
-<div id="modal-weather" class="modal">
-  <div class="modal-content">
-    <h3>Evoluzione Meteo Variabile</h3>
-    <div class="status-check-box">
-      <strong style="color:#ffb700;">STATO ATTUALE ASFALTO:</strong> 
-      <div id="modal-current-weather-text" style="color:#00f0ff; font-weight:bold; font-size:1.1rem; margin-top:2px;">Variabile Asciutto</div>
-      <div id="modal-check-history" style="font-size:0.85rem; margin-top:6px; color:#cbd5e1;">Ultimo Check: Nessuno</div>
-    </div>
-    <p style="color: #a0aec0; font-size:0.85rem;" id="modal-instruction-text">Registra l'esito dell'ultimo tiro di dado per il controllo meteo:</p>
-    <div id="modal-check-buttons" style="display: flex; flex-direction: column; gap: 8px;"></div>
-    <hr style="border-color: #2e3d52; margin: 15px 0;">
-    <button class="btn btn-secondary" onclick="closeModal('modal-weather')">Annulla</button>
-  </div>
-</div>
-
-<div id="modal-kers" class="modal">
-  <div class="modal-content">
-  <h3>Gestione Uso KERS</h3>
-    <p style="color: #a0aec0;">Hai utilizzato il KERS! Qual Ã¨ stato l'esito del tiro?</p>
-    <button class="btn btn-success" onclick="resolveKers(false)">Esito OK (Svuota KERS)</button>
-    <button class="btn btn-danger" onclick="resolveKers(true)">Danneggiato (X Rossa)</button>
-    <button class="btn btn-secondary" onclick="closeModal('modal-kers')">Annulla</button>
+    <h3>Entrata ai Box</h3>
+    <button class="btn" onclick="confirmEnterPitStop()">Conferma</button>
+    <button class="btn" onclick="closeModal('modal-pitstop-confirm')">Annulla</button>
   </div>
 </div>
 
 <script>
   let gameState = {
     code: null, circuit: '', host: '', date: '', playerName: '', playerId: '',
-    theme: 'ironman',
-    isSetupMode: false, isRaceMode: false, isEditingAllowed: false, isPitStopActive: false,
-    weather: 'var_dry', budget: 13,
-    weatherLastCheck: null,
-    selectedTyre: 'Prime', tyreLaps: { Prime: [], Option: [], Intermedie: [], Pioggia: [] },
-    wingActive: false, kersState: 'empty',
-    previousKersState: null,
+    theme: 'ironman', isSetupMode: false, isRaceMode: false, isEditingAllowed: false, isPitStopActive: false,
+    budget: 13, selectedTyre: 'Prime', tyreLaps: { Prime: [], Option: [], Intermedie: [], Pioggia: [] },
     baseValues: { tyres: 4, brakes: 2, fuel: 2, body: 2, engine: 2, suspension: 1 },
     allocations: { tyres: 0, brakes: 0, fuel: 0, body: 0, engine: 0, suspension: 0 },
     markedUsages: { tyres: [], brakes: [], fuel: [], body: [], engine: [], suspension: [] },
-    savedTyresUsages: [],
-    workshopUsages: [],
-    workshopStartCount: 0,
-    pitStopStartLap: null,
-    isReady: false
+    workshopUsages: []
   };
 
-  let inspectingPilotId = null; 
-  let activeTheme = 'ironman';
-  let myPlayerId = ''; 
-  let selectedRoomCodeForJoin = null;
-  let tempStateBackup = null;
-  let remoteLobbiesCache = {};
-
-  const spinSvgIcon = `<svg viewBox="0 0 100 100" style="width:20px;height:20px;color:currentColor;"><path d="M 50 15 A 35 35 0 1 1 20 60" fill="none" stroke="currentColor" stroke-width="8" stroke-dasharray="6,4"/><polygon points="12,50 25,65 30,45" fill="currentColor"/><text x="50" y="62" font-size="34" font-weight="bold" text-anchor="middle" fill="currentColor" font-family="Orbitron">1</text></svg>`;
-  const arcReactorSvgIcon = `<svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" style="width:22px;height:22px;"><circle cx="50" cy="50" r="44" stroke-width="6"/><circle cx="50" cy="50" r="32" stroke-width="4"/><line x1="50" y1="6" x2="50" y2="18" stroke-width="7"/><line x1="50" y1="82" x2="50" y2="94" stroke-width="7"/><line x1="6" y1="50" x2="18" y2="50" stroke-width="7"/><line x1="82" y1="50" x2="94" y2="50" stroke-width="7"/><line x1="19" y1="19" x2="28" y2="28" stroke-width="7"/><line x1="72" y1="72" x2="81" y2="81" stroke-width="7"/><line x1="19" y1="81" x2="28" y2="72" stroke-width="7"/><line x1="72" y1="28" x2="81" y2="19" stroke-width="7"/><circle cx="50" cy="50" r="20" stroke-width="4"/><circle cx="50" cy="50" r="10" fill="currentColor"/></svg>`;
-  const powerSvgIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="width:20px;height:20px;"><path d="M18.36 6.64a9 9 0 1 1-12.73 0" /><line x1="12" y1="2" x2="12" y2="12" /></svg>`;
-  const f1WingSvgIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;"><path d="M 2 6 L 22 6 L 20 10 L 4 10 Z" fill="currentColor" fill-opacity="0.2"/><path d="M 2 4 L 4 14 L 2 14 Z" /><path d="M 22 4 L 20 14 L 22 14 Z" /><line x1="9" y1="10" x2="9" y2="17" /><line x1="15" y1="10" x2="15" y2="17" /></svg>`;
-
-  document.addEventListener('DOMContentLoaded', () => {
-    const select = document.getElementById('theme-select');
-    activeTheme = select ? select.value : 'ironman';
-    changeTheme(activeTheme);
-  });
-
-  function saveCurrentPilotToLobby() {
-    if (!gameState.code || !gameState.playerId) return;
-    let lobbies = JSON.parse(localStorage.getItem('lotus_lobbies') || '{}');
-    if (!lobbies[gameState.code]) {
-      lobbies[gameState.code] = {
-        code: gameState.code,
-        circuit: gameState.circuit,
-        host: gameState.host,
-        weather: gameState.weather,
-        date: gameState.date,
-        pilots: {}
-      };
-    }
-    gameState.theme = activeTheme;
-    let currentStatus = gameState.isRaceMode ? 'Pronto' : 'In Compilazione';
-
-    lobbies[gameState.code].pilots[gameState.playerId] = {
-      id: gameState.playerId,
-      name: gameState.playerName,
-      status: currentStatus,
-      data: gameState
-    };
-    localStorage.setItem('lotus_lobbies', JSON.stringify(lobbies));
-    localStorage.setItem(`lotus_game_${gameState.code}_${gameState.playerId}`, JSON.stringify(gameState));
-  }
-
-  function pushSchedaToServer() {
-    saveCurrentPilotToLobby();
-    if (typeof socket !== 'undefined' && socket.connected) {
-      socket.emit('aggiorna-scheda', gameState);
-    }
-  }
-
-  function saveGameState() {
-    saveCurrentPilotToLobby();
-  }
-
-  function loadSavedGameModal() {
-    let lobbies = JSON.parse(localStorage.getItem('lotus_lobbies') || '{}');
-    let container = document.getElementById('load-games-list-container');
-    container.innerHTML = '';
-
-    let keys = Object.keys(lobbies);
-    if (keys.length === 0) {
-      container.innerHTML = `<small style="color:#a0aec0;">Nessuna partita salvata trovata.</small>`;
-    } else {
-      keys.forEach(code => {
-        let room = lobbies[code];
-        let roomDiv = document.createElement('div');
-        roomDiv.style.cssText = "margin-bottom: 12px; border-bottom: 1px solid #2e3d52; padding-bottom: 8px;";
-        roomDiv.innerHTML = `
-          <strong style="color:#00f0ff; display:block;">${room.circuit} (Room: ${room.code})</strong>
-          <small style="color:#a0aec0; display:block; margin-bottom:6px;">Data: ${room.date}</small>
-        `;
-        
-        let foundLocalPilot = false;
-        Object.keys(room.pilots).forEach(pId => {
-          let pilotObj = room.pilots[pId];
-          if (localStorage.getItem(`lotus_game_${code}_${pId}`)) {
-            foundLocalPilot = true;
-            let pilotBtn = document.createElement('button');
-            pilotBtn.className = 'btn btn-secondary';
-            pilotBtn.style.cssText = "margin: 4px 0; padding: 6px; font-size: 0.8rem; width: 100%; text-align: left; text-transform: none !important;";
-            pilotBtn.innerHTML = `Pilota: <b>${pilotObj.name}</b> (${pilotObj.status})`;
-            pilotBtn.onclick = () => {
-              myPlayerId = pilotObj.id;
-              gameState = JSON.parse(localStorage.getItem(`lotus_game_${code}_${pId}`));
-              activeTheme = gameState.theme || 'ironman';
-              document.getElementById('theme-select').value = activeTheme;
-              changeTheme(activeTheme);
-              closeModal('modal-load-game');
-              inspectingPilotId = null;
-              initSetupScreen();
-            };
-            roomDiv.appendChild(pilotBtn);
-          }
-        });
-
-        if (foundLocalPilot) {
-          container.appendChild(roomDiv);
-        }
-      });
-      
-      if (container.children.length === 0) {
-        container.innerHTML = `<small style="color:#a0aec0;">Nessuna partita salvata trovata su questo dispositivo.</small>`;
-      }
-    }
-    document.getElementById('modal-load-game').style.display = 'flex';
-  }
+  let inspectingPilotId = null, myPlayerId = '', selectedRoomCodeForJoin = null, remoteLobbiesCache = {};
 
   function changeTheme(themeName) {
-    activeTheme = themeName;
-    document.body.className = '';
-    if (themeName === 'cyberpunk') {
-      document.body.classList.add('theme-cyberpunk');
-    } else {
-      document.body.classList.add('theme-ironman');
-    }
-
-    const select = document.getElementById('theme-select');
-    if (select && select.value !== themeName) {
-      select.value = themeName;
-    }
-
-    if (document.getElementById('screen-setup').classList.contains('active')) {
-      renderBoard();
-      renderTyreDeck();
-    }
+    document.body.className = `theme-${themeName}`;
+    gameState.theme = themeName;
   }
 
   function showScreen(screenId) {
@@ -1118,1226 +271,305 @@
     document.getElementById(screenId).classList.add('active');
   }
 
-  function openJoinGameScreen() {
-    const lobbies = JSON.parse(localStorage.getItem('lotus_lobbies') || '{}');
-    let combinedLobbies = { ...remoteLobbiesCache };
-    Object.keys(lobbies).forEach(code => {
-      if (!combinedLobbies[code]) combinedLobbies[code] = lobbies[code];
-    });
-    renderLobbiesListHTML(combinedLobbies);
-    showScreen('screen-join-game');
-    if (typeof socket !== 'undefined' && socket.connected) {
-      socket.emit('richiedi-stanze');
-    }
-  }
-
-  function renderLobbiesListHTML(lobbiesObj) {
-    const lobbiesContainer = document.getElementById('lobbies-list-container');
-    lobbiesContainer.innerHTML = '';
-
-    let keys = Object.keys(lobbiesObj);
-
-    if (keys.length === 0) {
-      lobbiesContainer.innerHTML = `<small style="color: #a0aec0; display:block; text-align:center; padding:8px; border:1px dashed #2e3d52; border-radius:4px;">Nessuna gara attiva trovata.</small>`;
-    } else {
-      keys.forEach(code => {
-        let l = lobbiesObj[code];
-        let card = document.createElement('div');
-        card.className = 'lobby-card';
-        card.id = `lobby-card-${code}`;
-
-        let isHost = false;
-        if (gameState.code == code && gameState.playerName === l.host) {
-          isHost = true;
-        } else {
-          let localLobbies = JSON.parse(localStorage.getItem('lotus_lobbies') || '{}');
-          if (localLobbies[code] && localLobbies[code].host === l.host) {
-            isHost = true;
-          }
-        }
-
-        let deleteBtnHtml = isHost ? `<button class="btn-delete-room" onclick="deleteRoom(event, '${code}')">Elimina</button>` : '';
-
-        card.innerHTML = `
-          <div style="flex-grow:1; display: flex; flex-direction: column; gap: 3px; text-align: left; cursor: pointer;" onclick="selectLobbyCard('${code}', '${l.circuit}')">
-            <span style="font-size: 0.95rem;"><strong>${l.circuit}</strong> <span style="font-size:0.8rem; color:#a0aec0;">(Host: ${l.host})</span></span>
-            <small style="color:#a0aec0; font-size: 0.75rem;">Data: ${l.date || '-'}</small>
-            <small style="color:#00ffcc; font-family:'Orbitron'; font-size: 0.8rem;">ROOM: ${code}</small>
-          </div>
-          ${deleteBtnHtml}
-        `;
-        lobbiesContainer.appendChild(card);
-      });
-    }
-  }
-
-  function selectLobbyCard(code, circuitName) {
-    document.querySelectorAll('.lobby-card').forEach(c => c.classList.remove('selected'));
-    const selectedCard = document.getElementById(`lobby-card-${code}`);
-    if (selectedCard) selectedCard.classList.add('selected');
-
-    selectedRoomCodeForJoin = code;
-    document.getElementById('selected-room-label').innerText = `${circuitName} (ROOM: ${code})`;
-    document.getElementById('join-form-section').style.display = 'block';
-  }
-
-  function deleteRoom(event, code) {
-    event.stopPropagation();
-    if (confirm(`Sei l'Host. Vuoi chiudere e rimuovere la stanza ROOM: ${code} per tutti i partecipanti?`)) {
-      if (typeof socket !== 'undefined' && socket.connected) {
-        socket.emit('elimina-stanza-globale', code);
-      }
-      executeLocalRoomDeletion(code);
-    }
-  }
-
-  function executeLocalRoomDeletion(code) {
+  function saveGameState() {
+    if (!gameState.code || !gameState.playerId) return;
     let lobbies = JSON.parse(localStorage.getItem('lotus_lobbies') || '{}');
-    if (lobbies[code] && lobbies[code].pilots) {
-      Object.keys(lobbies[code].pilots).forEach(pId => {
-        localStorage.removeItem(`lotus_game_${code}_${pId}`);
-      });
+    if (!lobbies[gameState.code]) {
+      lobbies[gameState.code] = { code: gameState.code, circuit: gameState.circuit, host: gameState.host, pilots: {} };
     }
-    delete lobbies[code];
+    lobbies[gameState.code].pilots[gameState.playerId] = { id: gameState.playerId, name: gameState.playerName, data: gameState };
     localStorage.setItem('lotus_lobbies', JSON.stringify(lobbies));
-    
-    if (remoteLobbiesCache[code]) {
-      delete remoteLobbiesCache[code];
-    }
+    localStorage.setItem(`lotus_game_${gameState.code}_${gameState.playerId}`, JSON.stringify(gameState));
+  }
 
-    if (gameState.code == code) {
-      alert("La partita Ã¨ stata chiusa.");
-      gameState.code = null;
-      showScreen('screen-home');
-    } else if (document.getElementById('screen-join-game').classList.contains('active')) {
-      openJoinGameScreen();
+  function pushSchedaToServer() {
+    saveGameState();
+    if (typeof socket !== 'undefined' && socket.connected) {
+      socket.emit('aggiorna-scheda', gameState);
     }
   }
 
   function createGame() {
     const circuit = document.getElementById('input-circuit').value.trim() || 'Monza';
     const host = document.getElementById('input-host').value.trim() || 'Pilota 1';
-    const weatherSelect = document.getElementById('input-weather');
-    const weather = weatherSelect.value;
-    
-    if (!weather) {
-      alert("Seleziona prima una condizione meteo valida per la gara!");
-      return;
-    }
-
-    const nowFormatted = new Date().toLocaleString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
-
     myPlayerId = '01';
-    gameState = {
-      code: Math.floor(1000 + Math.random() * 9000),
-      circuit: circuit,
-      host: host,
-      date: nowFormatted,
-      playerName: host,
-      playerId: myPlayerId,
-      theme: activeTheme,
-      isSetupMode: false,
-      isRaceMode: false,
-      isEditingAllowed: false,
-      isPitStopActive: false,
-      weather: weather,
-      budget: 13,
-      weatherLastCheck: null,
-      selectedTyre: (weather === 'rain' || weather === 'var_wet') ? 'Intermedie' : 'Prime',
-      tyreLaps: { Prime: [], Option: [], Intermedie: [], Pioggia: [] },
-      wingActive: false,
-      kersState: 'empty',
-      previousKersState: null,
-      baseValues: { tyres: 4, brakes: 2, fuel: 2, body: 2, engine: 2, suspension: 1 },
-      allocations: { tyres: 0, brakes: 0, fuel: 0, body: 0, engine: 0, suspension: 0 },
-      markedUsages: { tyres: [], brakes: [], fuel: [], body: [], engine: [], suspension: [] },
-      savedTyresUsages: [],
-      workshopUsages: [],
-      workshopStartCount: 0,
-      pitStopStartLap: null,
-      isReady: false
-    };
-
+    gameState.code = Math.floor(1000 + Math.random() * 9000);
+    gameState.circuit = circuit;
+    gameState.host = host;
+    gameState.playerName = host;
+    gameState.playerId = myPlayerId;
     saveGameState();
-    
-    const roomMetaPayload = {
-      code: gameState.code,
-      circuit: gameState.circuit,
-      host: gameState.host,
-      weather: gameState.weather,
-      date: gameState.date
-    };
-
-    remoteLobbiesCache[gameState.code] = roomMetaPayload;
-
-    if (typeof socket !== 'undefined' && socket.connected) {
-      socket.emit('crea-stanza', roomMetaPayload);
-      socket.emit('aggiorna-scheda', gameState);
-    }
-
-    inspectingPilotId = null;
     initSetupScreen();
+  }
+
+  function openJoinGameScreen() {
+    let lobbies = JSON.parse(localStorage.getItem('lotus_lobbies') || '{}');
+    const container = document.getElementById('lobbies-list-container');
+    container.innerHTML = '';
+    Object.keys(lobbies).forEach(code => {
+      let l = lobbies[code];
+      container.innerHTML += `<div class="lobby-card" onclick="selectLobbyCard('${code}', '${l.circuit}')"><span>${l.circuit} (Host: ${l.host})</span></div>`;
+    });
+    showScreen('screen-join-game');
+  }
+
+  function selectLobbyCard(code, circuitName) {
+    selectedRoomCodeForJoin = code;
+    document.getElementById('join-form-section').style.display = 'block';
   }
 
   function joinGame() {
     const code = selectedRoomCodeForJoin;
     const name = document.getElementById('input-player-name').value.trim();
-    
-    if(!code) { alert('Seleziona una gara dalla lista soprastante!'); return; }
-    if(!name) { alert('Inserisci il nome del tuo pilota'); return; }
-
+    if (!code || !name) return;
     let lobbies = JSON.parse(localStorage.getItem('lotus_lobbies') || '{}');
-    let roomMeta = lobbies[code] || remoteLobbiesCache[code];
-
-    if (!roomMeta) {
-      alert("Stanza non trovata o scaduta!");
-      return;
-    }
-
-    if (!lobbies[code]) {
-      lobbies[code] = {
-        code: roomMeta.code,
-        circuit: roomMeta.circuit,
-        host: roomMeta.host,
-        weather: roomMeta.weather,
-        date: roomMeta.date,
-        pilots: {}
-      };
-    }
-
-    let room = lobbies[code];
-    let existingPilotId = null;
-    Object.keys(room.pilots).forEach(pId => {
-      if (room.pilots[pId].name === name) {
-        existingPilotId = pId;
-      }
-    });
-
-    if (existingPilotId) {
-      myPlayerId = existingPilotId;
-      gameState = room.pilots[existingPilotId].data;
-    } else {
-      let nextIdNum = Object.keys(room.pilots).length + 1;
-      myPlayerId = nextIdNum < 10 ? '0' + nextIdNum : '' + nextIdNum;
-
-      gameState = {
-        code: room.code,
-        circuit: room.circuit,
-        host: room.host,
-        date: room.date,
-        playerName: name,
-        playerId: myPlayerId,
-        theme: activeTheme,
-        isSetupMode: false,
-        isRaceMode: false,
-        isEditingAllowed: false,
-        isPitStopActive: false,
-        weather: room.weather,
-        budget: 13,
-        weatherLastCheck: null,
-        selectedTyre: (room.weather === 'rain' || room.weather === 'var_wet') ? 'Intermedie' : 'Prime',
-        tyreLaps: { Prime: [], Option: [], Intermedie: [], Pioggia: [] },
-        wingActive: false,
-        kersState: 'empty',
-        previousKersState: null,
-        baseValues: { tyres: 4, brakes: 2, fuel: 2, body: 2, engine: 2, suspension: 1 },
-        allocations: { tyres: 0, brakes: 0, fuel: 0, body: 0, engine: 0, suspension: 0 },
-        markedUsages: { tyres: [], brakes: [], fuel: [], body: [], engine: [], suspension: [] },
-        savedTyresUsages: [],
-        workshopUsages: [],
-        workshopStartCount: 0,
-        pitStopStartLap: null,
-        isReady: false
-      };
-    }
-
+    myPlayerId = '02';
+    gameState.code = code;
+    gameState.circuit = lobbies[code].circuit;
+    gameState.host = lobbies[code].host;
+    gameState.playerName = name;
+    gameState.playerId = myPlayerId;
     saveGameState();
-    inspectingPilotId = null;
+    initSetupScreen();
+  }
+
+  function loadSavedGameModal() {
+    let lobbies = JSON.parse(localStorage.getItem('lotus_lobbies') || '{}');
+    let container = document.getElementById('load-games-list-container');
+    container.innerHTML = '';
+    Object.keys(lobbies).forEach(code => {
+      Object.keys(lobbies[code].pilots).forEach(pId => {
+        let p = lobbies[code].pilots[pId];
+        container.innerHTML += `<button class="btn" onclick="loadPilot('${code}', '${pId}')">${p.name} - ${lobbies[code].circuit}</button>`;
+      });
+    });
+    document.getElementById('modal-load-game').style.display = 'flex';
+  }
+
+  function loadPilot(code, pId) {
+    gameState = JSON.parse(localStorage.getItem(`lotus_game_${code}_${pId}`));
+    myPlayerId = pId;
+    changeTheme(gameState.theme || 'ironman');
+    closeModal('modal-load-game');
     initSetupScreen();
   }
 
   function initSetupScreen() {
     document.getElementById('display-circuit').innerText = gameState.circuit;
-    document.getElementById('display-meta').innerText = `Data: ${gameState.date} | Pilota: ${gameState.playerName}`;
     document.getElementById('display-code').innerText = gameState.code;
+    document.getElementById('display-meta').innerText = `Pilota: ${gameState.playerName}`;
     
-    const startConfigBtn = document.getElementById('btn-start-config');
-    const lockSetupBtn = document.getElementById('btn-lock-setup');
-    const raceControls = document.getElementById('race-controls');
+    document.getElementById('btn-start-config').style.display = gameState.isRaceMode ? 'none' : (gameState.isSetupMode ? 'none' : 'block');
+    document.getElementById('btn-lock-setup').style.display = gameState.isSetupMode ? 'block' : 'none';
+    document.getElementById('race-controls').style.display = gameState.isRaceMode ? 'flex' : 'none';
+    document.getElementById('budget-bar').style.display = gameState.isSetupMode ? 'block' : 'none';
 
-    if (gameState.isRaceMode) {
-      startConfigBtn.style.display = 'none';
-      lockSetupBtn.style.display = 'none';
-      raceControls.style.display = 'flex';
-    } else if (gameState.isSetupMode) {
-      startConfigBtn.style.display = 'none';
-      lockSetupBtn.style.display = 'block';
-      raceControls.style.display = 'none';
-    } else {
-      startConfigBtn.style.display = 'block';
-      lockSetupBtn.style.display = 'none';
-      raceControls.style.display = 'none';
-    }
-    
-    updateWeatherUI();
-    renderOpponentsList();
     renderTyreDeck();
     renderBoard();
-    updateEditButtonUI();
-    
-    const isInspecting = inspectingPilotId !== null;
-    document.getElementById('inspection-banner').style.display = isInspecting ? 'block' : 'none';
-    
-    if (isInspecting) {
-      let lobbies = JSON.parse(localStorage.getItem('lotus_lobbies') || '{}');
-      if (lobbies[gameState.code] && lobbies[gameState.code].pilots[inspectingPilotId]) {
-        let inspectedObj = lobbies[gameState.code].pilots[inspectingPilotId];
-        document.getElementById('inspecting-pilot-name').innerText = `${inspectedObj.name}`;
-      }
-      document.getElementById('actions-container-wrapper').style.display = 'none';
-    } else {
-      document.getElementById('actions-container-wrapper').style.display = 'block';
-    }
-
+    renderOpponentsList();
     showScreen('screen-setup');
   }
 
-  function returnToMyBoard() {
-    inspectingPilotId = null;
-    let lobbies = JSON.parse(localStorage.getItem('lotus_lobbies') || '{}');
-    if (lobbies[gameState.code] && lobbies[gameState.code].pilots[myPlayerId]) {
-      gameState = lobbies[gameState.code].pilots[myPlayerId].data;
-    }
-    activeTheme = gameState.theme || 'ironman';
-    document.getElementById('theme-select').value = activeTheme;
-    changeTheme(activeTheme);
+  function startConfiguration() {
+    gameState.isSetupMode = true;
     initSetupScreen();
   }
 
-  function inspectPilotBoard(pilotId) {
-    if (pilotId === myPlayerId) return;
-
-    let lobbies = JSON.parse(localStorage.getItem('lotus_lobbies') || '{}');
-    if (lobbies[gameState.code] && lobbies[gameState.code].pilots[pilotId]) {
-      inspectingPilotId = pilotId;
-      let targetData = lobbies[gameState.code].pilots[pilotId].data;
-      
-      gameState = targetData;
-      let targetTheme = gameState.theme || 'ironman';
-      changeTheme(targetTheme);
-      
-      initSetupScreen();
-    }
-  }
-
-  function updateWeatherUI() {
-    const badgeIcon = document.getElementById('weather-icon');
-    const badgeText = document.getElementById('weather-text');
-    
-    if (gameState.weather === 'rain') {
-      badgeIcon.innerHTML = '&#127783;&#65039;';
-      badgeText.innerText = 'Pioggia Fissa';
-    } else if (gameState.weather === 'sun') {
-      badgeIcon.innerHTML = '&#9728;&#65039;';
-      badgeText.innerText = 'Sole Fisso';
-    } else if (gameState.weather === 'var_dry') {
-      badgeIcon.innerHTML = '&#9925;';
-      let checkTag = gameState.weatherLastCheck ? ` [ULTIMO: ${gameState.weatherLastCheck === 'sun' ? '&#9728;&#65039;' : '&#127783;&#65039;'}]` : '';
-      badgeText.innerHTML = `VARIABILE ASCIUTTO${checkTag}`;
-    } else if (gameState.weather === 'var_wet') {
-      badgeIcon.innerHTML = '&#127783;&#65039;';
-      let checkTag = gameState.weatherLastCheck ? ` [ULTIMO: ${gameState.weatherLastCheck === 'sun' ? '&#9728;&#65039;' : '&#127783;&#65039;'}]` : '';
-      badgeText.innerHTML = `VARIABILE BAGNATO${checkTag}`;
-    }
-  }
-
-  function openWeatherModal() {
-    if (inspectingPilotId !== null) return;
-    if (gameState.weather === 'var_dry' || gameState.weather === 'var_wet') {
-      const modalText = document.getElementById('modal-current-weather-text');
-      const historyText = document.getElementById('modal-check-history');
-      const buttonsContainer = document.getElementById('modal-check-buttons');
-
-      const isDry = gameState.weather === 'var_dry';
-      modalText.innerText = isDry ? 'Variabile Asciutto' : 'Variabile Bagnato';
-
-      buttonsContainer.innerHTML = '';
-
-      if (!gameState.weatherLastCheck) {
-        historyText.innerText = "Ultimo Check: Nessuno";
-        buttonsContainer.innerHTML = `
-          <button class="btn btn-secondary" onclick="processWeatherCheck('sun')">&#9728;&#65039; Tiro Check: SOLE</button>
-          <button class="btn btn-secondary" onclick="processWeatherCheck('rain')">&#127783;&#65039; Tiro Check: PIOGGIA</button>
-        `;
-      } else {
-        const lastSymbol = gameState.weatherLastCheck === 'sun' ? '&#9728;&#65039; Sole' : '&#127783;&#65039; Pioggia';
-        historyText.innerHTML = `<strong style="color:#00f0ff;">Ultimo tiro registrato:</strong> ${lastSymbol}`;
-
-        let btnSunText = gameState.weatherLastCheck === 'sun'
-          ? '&#9728;&#65039; Tiro Check: SOLE (Stabilizza su SOLE FISSO!)'
-          : '&#9728;&#65039; Tiro Check: SOLE (Asfalto passa ad Asciutto)';
-
-        let btnRainText = gameState.weatherLastCheck === 'rain'
-          ? '&#127783;&#65039; Tiro Check: PIOGGIA (Stabilizza su PIOGGIA FISSA!)'
-          : '&#127783;&#65039; Tiro Check: PIOGGIA (Asfalto passa a Bagnato)';
-
-        buttonsContainer.innerHTML = `
-          <button class="btn btn-secondary" onclick="processWeatherCheck('sun')">${btnSunText}</button>
-          <button class="btn btn-secondary" onclick="processWeatherCheck('rain')">${btnRainText}</button>
-        `;
-      }
-
-      document.getElementById('modal-weather').style.display = 'flex';
-    }
-  }
-
-  function processWeatherCheck(newCheck) {
-    if (!gameState.weatherLastCheck) {
-      gameState.weatherLastCheck = newCheck;
-    } else {
-      if (newCheck === gameState.weatherLastCheck) {
-        if (newCheck === 'sun') {
-          gameState.weather = 'sun';
-        } else {
-          gameState.weather = 'rain';
-        }
-        gameState.weatherLastCheck = null;
-      } else {
-        gameState.weatherLastCheck = newCheck;
-        gameState.weather = (newCheck === 'sun') ? 'var_dry' : 'var_wet';
-      }
-    }
-
-    const isAsphaltWet = isCurrentAsphaltWet();
-    if (!isAsphaltWet && gameState.selectedTyre === 'Pioggia') {
-      gameState.selectedTyre = 'Prime';
-    }
-
-    updateWeatherUI();
-    closeModal('modal-weather');
-    updateEditButtonUI();
-    renderTyreDeck();
-    renderBoard();
-    saveGameState();
-  }
-
-  function isCurrentAsphaltWet() {
-    if (gameState.weather === 'rain') return true;
-    if (gameState.weather === 'sun') return false;
-    if (gameState.weather === 'var_wet') {
-      if (gameState.weatherLastCheck === 'sun') return false;
-      return true;
-    }
-    if (gameState.weather === 'var_dry') {
-      if (gameState.weatherLastCheck === 'rain') return true;
-      return false;
-    }
-    return false;
-  }
-
-  function renderOpponentsList() {
-    const list = document.getElementById('opponents-list-items');
-    list.innerHTML = '';
-    
-    let lobbies = JSON.parse(localStorage.getItem('lotus_lobbies') || '{}');
-    let room = lobbies[gameState.code];
-
-    if (room && room.pilots) {
-      let pilotIds = Object.keys(room.pilots);
-      
-      pilotIds.sort((a, b) => {
-        if (a === myPlayerId) return -1;
-        if (b === myPlayerId) return 1;
-        return a.localeCompare(b);
-      });
-
-      pilotIds.forEach(pId => {
-        let p = room.pilots[pId];
-        let isMe = (pId === myPlayerId);
-        
-        let itemClass = isMe ? "opp-item" : "opp-item clickable-opp";
-        let clickAction = isMe ? "" : `onclick="inspectPilotBoard('${pId}')"`;
-        
-        let displayStatus = p.status;
-        if (p.data && p.data.isRaceMode) {
-          displayStatus = 'Pronto';
-        }
-
-        list.innerHTML += `<div class="${itemClass}" ${clickAction}>
-          <span><strong>${p.name}</strong> ${isMe ? '(Tu)' : ''}</span>
-          <small style="color:${displayStatus === 'Pronto' ? '#00ffcc' : '#a0aec0'}">${displayStatus}</small>
-        </div>`;
-      });
-    }
-  }
-
-  function refreshOpponentsList() {
-    let lobbies = JSON.parse(localStorage.getItem('lotus_lobbies') || '{}');
-    if (lobbies[gameState.code] && lobbies[gameState.code].pilots[myPlayerId]) {
-      saveCurrentPilotToLobby();
-    }
-    renderOpponentsList();
-  }
-
-  function isLapMarkedAnywhere(lap) {
-    return Object.keys(gameState.tyreLaps).some(t => gameState.tyreLaps[t].includes(lap));
-  }
-
-  function renderTyreDeck() {
-    const container = document.getElementById('tyres-deck-container');
-    container.innerHTML = '';
-    const tyres = ['Prime', 'Option', 'Intermedie', 'Pioggia'];
-
-    const isWet = isCurrentAsphaltWet();
-    const isInspecting = inspectingPilotId !== null;
-
-    tyres.forEach(t => {
-      const isSelected = gameState.selectedTyre === t;
-      let isDisabledByWeather = false;
-
-      if (t === 'Intermedie') {
-        isDisabledByWeather = false;
-      } else if (gameState.weather === 'sun') {
-        if (t === 'Pioggia') isDisabledByWeather = true;
-      } else if (gameState.weather === 'rain') {
-        if (t === 'Prime' || t === 'Option') isDisabledByWeather = true;
-      } else {
-        if (isWet) {
-          if (t === 'Prime' || t === 'Option') isDisabledByWeather = true;
-        } else {
-          if (t === 'Pioggia') isDisabledByWeather = true;
-        }
-      }
-
-      const card = document.createElement('div');
-      card.className = `tyre-card ${isSelected ? 'active' : ''} ${isDisabledByWeather ? 'disabled-weather' : ''}`;
-
-      let lapsHtml = '';
-      [1, 2, 3].forEach(lap => {
-        const isMarked = gameState.tyreLaps[t].includes(lap);
-        const lapUsedAnywhere = isLapMarkedAnywhere(lap);
-        let isClickable = false;
-        let isPreSelectedStyle = false;
-
-        if (!isInspecting) {
-          if ((!gameState.isRaceMode || gameState.isSetupMode) && isSelected && lap === 1) {
-            isPreSelectedStyle = true;
-          }
-
-          if (gameState.isSetupMode) {
-            if (lap === 1 && isSelected) {
-              if (!lapUsedAnywhere || isMarked) isClickable = true;
-            }
-          } else if (gameState.isRaceMode) {
-            if (gameState.isPitStopActive && isSelected) {
-              if (lap !== 1) {
-                if (!lapUsedAnywhere || isMarked) isClickable = true;
-              }
-            }
-          }
-        }
-
-        const classList = [
-          'lap-box',
-          isMarked ? 'marked' : '',
-          (!isMarked && isPreSelectedStyle) ? 'pre-selected' : '',
-          isClickable ? 'clickable' : 'disabled'
-        ].filter(Boolean).join(' ');
-
-        lapsHtml += `<div class="${classList}" ${isClickable ? `onclick="toggleTyreLap('${t}', ${lap})"` : ''}>${lap}</div>`;
-      });
-
-      card.innerHTML = `
-        <button class="tyre-title-btn" ${(!isDisabledByWeather && !isInspecting) ? `onclick="selectTyre('${t}')"` : ''}>${t}</button>
-        <div class="laps-container">${lapsHtml}</div>
-      `;
-      container.appendChild(card);
-    });
-  }
-
-  function selectTyre(type) {
-    if (inspectingPilotId !== null) return;
-    const isWet = isCurrentAsphaltWet();
-
-    if (type !== 'Intermedie') {
-      if (gameState.weather === 'sun' && type === 'Pioggia') return;
-      if (gameState.weather === 'rain' && (type === 'Prime' || type === 'Option')) return;
-      if (isWet && (type === 'Prime' || type === 'Option')) return;
-      if (!isWet && type === 'Pioggia') return;
-    }
-    
-    if (gameState.isSetupMode || gameState.isPitStopActive) {
-      gameState.selectedTyre = type;
-      renderTyreDeck();
-      renderBoard();
-      saveGameState();
-    }
-  }
-
-  function toggleTyreLap(type, lap) {
-    if (inspectingPilotId !== null) return;
-    if (gameState.isSetupMode) {
-      if (type !== gameState.selectedTyre || lap !== 1) return;
-    } else if (gameState.isRaceMode) {
-      if (!gameState.isPitStopActive || type !== gameState.selectedTyre || lap === 1) return;
-    } else {
-      return;
-    }
-
-    const list = gameState.tyreLaps[type];
-    const pos = list.indexOf(lap);
-    
-    if (pos > -1) {
-      list.splice(pos, 1);
-      if (gameState.savedTyresUsages && gameState.savedTyresUsages.length > 0) {
-        gameState.markedUsages.tyres = [...gameState.savedTyresUsages];
-        gameState.savedTyresUsages = [];
-      }
-    } else {
-      list.push(lap);
-      if (gameState.markedUsages.tyres.length > 0) {
-        gameState.savedTyresUsages = [...gameState.markedUsages.tyres];
-      }
-      gameState.markedUsages.tyres = [];
-    }
-
-    renderTyreDeck();
-    renderBoard();
-    saveGameState();
-  }
-
-  function startConfiguration() {
-    if (inspectingPilotId !== null) return;
-    gameState.isSetupMode = true;
-    document.getElementById('btn-start-config').style.display = 'none';
-    document.getElementById('budget-bar').style.display = 'block';
-    document.getElementById('btn-lock-setup').style.display = 'block';
-    renderTyreDeck();
-    renderBoard();
-  }
-
-  function renderBoard() {
-    const totalEnginePoints = gameState.baseValues.engine + gameState.allocations.engine;
-    const engineUsed = gameState.markedUsages.engine.length;
-    const engineRemaining = totalEnginePoints - engineUsed;
-
-    if (engineRemaining === 0) {
-      if (gameState.kersState !== 'engine_fault') {
-        gameState.previousKersState = gameState.kersState;
-        gameState.kersState = 'engine_fault';
-      }
-    } else if (gameState.kersState === 'engine_fault') {
-      if (gameState.previousKersState === 'damaged') {
-        gameState.kersState = 'damaged';
-      } else {
-        gameState.kersState = 'empty';
-      }
-      gameState.previousKersState = null;
-    }
-
-    const components = ['tyres', 'brakes', 'fuel', 'body', 'engine', 'suspension'];
-    const rightAligned = ['body', 'engine', 'suspension'];
-    const isInspecting = inspectingPilotId !== null;
-    
-    components.forEach(comp => {
-      const container = document.getElementById(`row-${comp}`);
-      container.innerHTML = '';
-      
-      const totalBoxes = (comp === 'tyres') ? 10 : 6;
-      const baseVal = gameState.baseValues[comp];
-      const addedVal = gameState.allocations[comp];
-      const totalPoints = baseVal + addedVal;
-      const isRight = rightAligned.includes(comp);
-
-      const wingBoxIndex = totalBoxes - totalPoints;
-
-      for (let i = 0; i < totalBoxes; i++) {
-        const box = document.createElement('div');
-        box.className = 'box';
-
-        if (!isRight) {
-          if (comp === 'tyres' && i === 0) {
-            box.innerHTML = spinSvgIcon;
-          } else if (i < baseVal) {
-            box.innerText = '1';
-          } else if (i < totalPoints) {
-            box.innerText = '1';
-            if (gameState.isSetupMode && !isInspecting) {
-              box.classList.add('clickable');
-              box.onclick = () => removeBudgetPoint(comp);
-            }
-          } else {
-            box.innerText = '';
-            if (gameState.isSetupMode && !isInspecting) {
-              if (gameState.budget > 0) {
-                box.classList.add('box-setup-highlight', 'clickable');
-                box.onclick = () => addBudgetPoint(comp);
-              } else {
-                box.classList.add('box-setup-disabled');
-              }
-            } else {
-              box.style.animation = 'none';
-            }
-          }
-        } else {
-          const fromRight = totalBoxes - 1 - i;
-
-          if (comp === 'body' && gameState.wingActive && i === wingBoxIndex) {
-            box.innerText = 'X';
-            box.classList.add('x-black');
-          } 
-          else if (fromRight < baseVal) {
-            box.innerText = '1';
-          } 
-          else if (fromRight < totalPoints) {
-            box.innerText = '1';
-            if (gameState.isSetupMode && !isInspecting) {
-              box.classList.add('clickable');
-              box.onclick = () => removeBudgetPoint(comp);
-            }
-          } 
-          else {
-            box.innerText = '';
-            if (gameState.isSetupMode && !isInspecting) {
-              if (gameState.budget > 0) {
-                box.classList.add('box-setup-highlight', 'clickable');
-                box.onclick = () => addBudgetPoint(comp);
-              } else {
-                box.classList.add('box-setup-disabled');
-              }
-            } else {
-              box.style.animation = 'none';
-            }
-          }
-        }
-
-        if (gameState.isRaceMode) {
-          if (gameState.markedUsages[comp].includes(i)) {
-            box.innerText = 'X';
-            box.classList.add('x-red');
-          }
-
-          let isClickableBox = (gameState.isEditingAllowed || gameState.isPitStopActive) && !isInspecting;
-
-          if (isClickableBox) {
-            box.classList.add('clickable');
-            box.onclick = () => handleComponentClick(comp, i);
-          }
-        }
-
-        container.appendChild(box);
-      }
-    });
-
-    const workshopContainer = document.getElementById('row-workshop');
-    workshopContainer.innerHTML = '';
-    for (let i = 0; i < 3; i++) {
-      const box = document.createElement('div');
-      box.className = 'box';
-      if (gameState.workshopUsages.includes(i)) {
-        box.innerText = 'X';
-        box.classList.add('x-red');
-      } else {
-        box.innerText = '1';
-      }
-      if (gameState.isRaceMode && gameState.isPitStopActive && !isInspecting) {
-        box.classList.add('clickable');
-        box.onclick = () => toggleWorkshopPoint(i);
-      }
-      workshopContainer.appendChild(box);
-    }
-
-    const wingBox = document.getElementById('box-wing');
-    wingBox.className = 'box';
-    if (gameState.wingActive) {
-      if (isBodyCompletelyDestroyed()) {
-        wingBox.innerText = 'X';
-        wingBox.classList.add('x-red');
-      } else {
-        wingBox.innerHTML = f1WingSvgIcon;
-        wingBox.classList.add('circle-green');
-      }
-    } else {
-      wingBox.innerText = '';
-    }
-    if (gameState.isSetupMode && !isInspecting) wingBox.classList.add('clickable');
-
-    const kersBox = document.getElementById('box-kers');
-    kersBox.className = 'box';
-    
-    if (gameState.kersState === 'charged') {
-      const isCyberpunk = (activeTheme === 'cyberpunk');
-      kersBox.innerHTML = isCyberpunk ? powerSvgIcon : arcReactorSvgIcon;
-      kersBox.classList.add('circle-kers');
-
-      if (gameState.isRaceMode && gameState.isEditingAllowed && engineRemaining > 0 && !isInspecting) {
-        kersBox.classList.add('clickable');
-      }
-    } else if (gameState.kersState === 'damaged' || gameState.kersState === 'engine_fault') {
-      kersBox.innerText = 'X';
-      kersBox.classList.add('x-red');
-    } else {
-      kersBox.innerText = '';
-    }
-
-    const totalFuelPoints = gameState.baseValues.fuel + gameState.allocations.fuel;
-    const fuelUsed = gameState.markedUsages.fuel.length;
-    const fuelRemaining = totalFuelPoints - fuelUsed;
-    const fuelValSpan = document.getElementById('fuel-mov-val');
-    const fuelPrefixSpan = document.getElementById('fuel-mov-prefix');
-
-    fuelValSpan.classList.remove('mov-num-active', 'mov-num-penalty');
-
-    if (gameState.isPitStopActive && fuelRemaining > 3) {
-      fuelPrefixSpan.innerText = '-';
-      fuelValSpan.innerText = '2';
-      fuelValSpan.classList.add('mov-num-penalty');
-    } else if (fuelRemaining <= 3 && gameState.isRaceMode) {
-      fuelPrefixSpan.innerText = '+';
-      fuelValSpan.innerText = '1';
-      fuelValSpan.classList.add('mov-num-active');
-    } else {
-      fuelPrefixSpan.innerText = '+';
-      fuelValSpan.innerText = '0';
-    }
-
-    const workshopValSpan = document.getElementById('workshop-mov-val');
-    
-    if (gameState.isRaceMode && (gameState.isEditingAllowed || gameState.isPitStopActive)) {
-      const currentWorkshopCount = gameState.workshopUsages.length;
-      const newRepairsThisSession = Math.max(0, currentWorkshopCount - gameState.workshopStartCount);
-      const movPenalty = newRepairsThisSession * 2;
-
-      workshopValSpan.innerText = `-${movPenalty}`;
-      
-      if (movPenalty > 0) {
-        workshopValSpan.classList.add('mov-num-penalty');
-      } else {
-        workshopValSpan.classList.remove('mov-num-penalty');
-      }
-    } else {
-      workshopValSpan.innerText = '0';
-      workshopValSpan.classList.remove('mov-num-active');
-    }
-
-    document.getElementById('budget-count').innerText = gameState.budget;
-    const lockBtn = document.getElementById('btn-lock-setup');
-    
-    const isIronMan = (activeTheme === 'ironman');
-    if (gameState.budget === 0) {
-      lockBtn.disabled = false;
-      lockBtn.innerText = "Ufficializza Scheda / Inizio Gara";
-    } else {
-      lockBtn.disabled = !isIronMan;
-      lockBtn.innerText = isIronMan 
-        ? `Assegna tutti i 13 Punti per Iniziare (${gameState.budget} rimanenti)`
-        : `Ufficializza Scheda / Inizio Gara (Assegna tutti i 13 Punti)`;
-    }
-  }
-
-  function addBudgetPoint(comp) {
-    if (inspectingPilotId !== null) return;
-    if (gameState.budget > 0) {
-      gameState.allocations[comp]++;
-      gameState.budget--;
-      renderBoard();
-    }
-  }
-
-  function removeBudgetPoint(comp) {
-    if (inspectingPilotId !== null) return;
-    if (gameState.allocations[comp] > 0) {
-      gameState.allocations[comp]--;
-      gameState.budget++;
-      renderBoard();
-    }
-  }
-
-  function toggleWing() {
-    if (inspectingPilotId !== null) return;
-    if (!gameState.isSetupMode) return;
-    gameState.wingActive = !gameState.wingActive;
-    renderBoard();
-  }
-
   function officializeSetup() {
-    if (inspectingPilotId !== null) return;
     if (gameState.budget > 0) return;
-    if (!isLapMarkedAnywhere(1)) {
-      gameState.tyreLaps[gameState.selectedTyre].push(1);
-    }
     gameState.isSetupMode = false;
     gameState.isRaceMode = true;
     gameState.isEditingAllowed = false;
-    gameState.isReady = true;
-
-    document.getElementById('budget-bar').style.display = 'none';
-    document.getElementById('btn-lock-setup').style.display = 'none';
-    
-    document.getElementById('race-controls').style.display = 'flex';
-    updateEditButtonUI();
-
-    renderBoard();
-    renderTyreDeck();
-    renderOpponentsList();
+    initSetupScreen();
     pushSchedaToServer();
   }
 
   function toggleRaceEdit() {
-    if (inspectingPilotId !== null) return;
-    if (gameState.isPitStopActive) return;
-
-    if (!gameState.isEditingAllowed) {
-      tempStateBackup = JSON.parse(JSON.stringify(gameState));
-      gameState.isEditingAllowed = true;
-      gameState.workshopStartCount = gameState.workshopUsages.length;
-    } else {
-      gameState.isEditingAllowed = false;
-      tempStateBackup = null;
-      
-      pushSchedaToServer(); 
-    }
-
-    updateEditButtonUI();
+    gameState.isEditingAllowed = !gameState.isEditingAllowed;
+    document.getElementById('btn-toggle-edit').innerText = gameState.isEditingAllowed ? 'Blocca Edit' : 'Sblocca Edit';
+    document.getElementById('btn-pitstop-action').style.display = gameState.isEditingAllowed ? 'block' : 'none';
     renderBoard();
-    renderTyreDeck();
-    
-    if (!gameState.isEditingAllowed) {
-      let lobbies = JSON.parse(localStorage.getItem('lotus_lobbies') || '{}');
-      if (lobbies[gameState.code] && lobbies[gameState.code].pilots[myPlayerId]) {
-        lobbies[gameState.code].pilots[myPlayerId].data = gameState;
-        localStorage.setItem('lotus_lobbies', JSON.stringify(lobbies));
-      }
-    }
-  }
-
-  function updateEditButtonUI() {
-    const editBtn = document.getElementById('btn-toggle-edit');
-    const pitBtn = document.getElementById('btn-pitstop-action');
-    const weatherTestBtn = document.getElementById('btn-weather-test');
-
-    const isVariableWeather = (gameState.weather === 'var_dry' || gameState.weather === 'var_wet');
-
-    if (gameState.isPitStopActive) {
-      editBtn.innerText = "Sosta ai box in corso...";
-      editBtn.className = 'btn btn-pitstop-mode';
-      pitBtn.innerText = "Ripartenza dai box";
-      pitBtn.style.display = 'block';
-      weatherTestBtn.style.display = 'none';
-    } else if (gameState.isEditingAllowed) {
-      editBtn.innerText = "ModalitÃ  edit attiva (clicca per bloccare)";
-      editBtn.className = 'btn btn-edit-mode';
-      pitBtn.innerText = "Entrata ai Box (Pit Stop)";
-      pitBtn.style.display = 'block';
-      
-      if (isVariableWeather) {
-        weatherTestBtn.style.display = 'block';
-      } else {
-        weatherTestBtn.style.display = 'none';
-      }
-    } else {
-      editBtn.innerText = "ModalitÃ  edit attiva (clicca per sbloccare)";
-      editBtn.className = 'btn btn-read-mode';
-      pitBtn.style.display = 'none';
-      weatherTestBtn.style.display = 'none';
-    }
+    if (!gameState.isEditingAllowed) pushSchedaToServer();
   }
 
   function handlePitStopButtonClick() {
-    if (inspectingPilotId !== null) return;
     if (!gameState.isPitStopActive) {
       document.getElementById('modal-pitstop-confirm').style.display = 'flex';
     } else {
-      let hasSelectedNewLap = false;
-      if (gameState.pitStopStartLap === 1) {
-        hasSelectedNewLap = isLapMarkedAnywhere(2) || isLapMarkedAnywhere(3);
-      } else if (gameState.pitStopStartLap === 2) {
-        hasSelectedNewLap = isLapMarkedAnywhere(3);
-      } else {
-        hasSelectedNewLap = true;
-      }
-
-      if (!hasSelectedNewLap) {
-        alert("ATTENZIONE: Per poter uscire dai box devi prima selezionare a quale inizio giro ti trovi!");
-        return;
-      }
-
-      const currentWorkshopCount = gameState.workshopUsages.length;
-      const newRepairsThisSession = Math.max(0, currentWorkshopCount - gameState.workshopStartCount);
-      const workshopMalus = newRepairsThisSession * 2;
-
-      const totalFuelPoints = gameState.baseValues.fuel + gameState.allocations.fuel;
-      const fuelUsed = gameState.markedUsages.fuel.length;
-      const fuelRemaining = totalFuelPoints - fuelUsed;
-      
-      let fuelPointsEffect = (fuelRemaining <= 3) ? +1 : -2;
-      const netTotalPoints = fuelPointsEffect - workshopMalus;
-
-      alert(`Uscita dai box completata!\nRiparazioni: -${workshopMalus} MOV\nBilancio Carburante: ${fuelPointsEffect >= 0 ? '+' + fuelPointsEffect : fuelPointsEffect} MOV\nTotale Netto: ${netTotalPoints}`);
-
-      gameState.markedUsages.tyres = [];
-      gameState.savedTyresUsages = [];
       gameState.isPitStopActive = false;
-      gameState.isEditingAllowed = false;
-      gameState.pitStopStartLap = null;
-
-      updateEditButtonUI();
+      document.getElementById('btn-pitstop-action').innerText = 'Pit Stop';
       renderBoard();
-      renderTyreDeck();
-      
       pushSchedaToServer();
     }
   }
 
   function confirmEnterPitStop() {
     gameState.isPitStopActive = true;
-    if (isLapMarkedAnywhere(2)) gameState.pitStopStartLap = 2;
-    else if (isLapMarkedAnywhere(1)) gameState.pitStopStartLap = 1;
-    else gameState.pitStopStartLap = 0;
-
+    document.getElementById('btn-pitstop-action').innerText = 'Ripartenza Box';
     closeModal('modal-pitstop-confirm');
-    updateEditButtonUI();
     renderBoard();
+    saveGameState();
+  }
+
+  function renderTyreDeck() {
+    const container = document.getElementById('tyres-deck-container');
+    container.innerHTML = '';
+    ['Prime', 'Option', 'Intermedie', 'Pioggia'].forEach(t => {
+      let isSelected = gameState.selectedTyre === t;
+      let lapsHtml = [1, 2, 3].map(lap => {
+        let isMarked = gameState.tyreLaps[t].includes(lap);
+        let clickable = (!gameState.isRaceMode || gameState.isSetupMode || (gameState.isRaceMode && gameState.isPitStopActive && isSelected && lap !== 1));
+        return `<div class="lap-box ${isMarked ? 'marked' : ''} ${clickable ? 'clickable' : ''}" ${clickable ? `onclick="toggleTyreLap('${t}', ${lap})"` : ''}>${lap}</div>`;
+      }).join('');
+
+      container.innerHTML += `<div class="tyre-card ${isSelected ? 'active' : ''}">
+        <button class="btn" style="padding:4px; margin:0 0 6px 0; font-size:0.8rem;" onclick="selectTyre('${t}')">${t}</button>
+        <div class="laps-container">${lapsHtml}</div>
+      </div>`;
+    });
+  }
+
+  function selectType(t) {
+    if (gameState.isSetupMode || gameState.isPitStopActive) {
+      gameState.selectedTyre = t;
+      renderTyreDeck();
+      saveGameState();
+    }
+  }
+
+  function toggleTyreLap(type, lap) {
+    let list = gameState.tyreLaps[type];
+    let pos = list.indexOf(lap);
+    if (pos > -1) list.splice(pos, 1);
+    else list.push(lap);
     renderTyreDeck();
     saveGameState();
   }
 
+  function renderBoard() {
+    ['tyres', 'brakes', 'fuel', 'body', 'engine', 'suspension'].forEach(comp => {
+      const container = document.getElementById(`row-${comp}`);
+      container.innerHTML = '';
+      const totalBoxes = (comp === 'tyres') ? 10 : 6;
+      const totalPoints = gameState.baseValues[comp] + gameState.allocations[comp];
+
+      for (let i = 0; i < totalBoxes; i++) {
+        const box = document.createElement('div');
+        box.className = 'box';
+
+        if (gameState.isSetupMode && i >= gameState.baseValues[comp] && i < totalPoints) {
+          box.innerText = '1';
+          box.classList.add('clickable');
+          box.onclick = () => removeBudgetPoint(comp);
+        } else if (gameState.isSetupMode && i >= totalPoints) {
+          box.innerText = '';
+          if (gameState.budget > 0) {
+            box.classList.add('clickable');
+            box.onclick = () => addBudgetPoint(comp);
+          }
+        } else if (i < totalPoints) {
+          box.innerText = '1';
+        } else {
+          box.innerText = '';
+        }
+
+        if (gameState.isRaceMode && gameState.markedUsages[comp].includes(i)) {
+          box.innerText = 'X';
+          box.classList.add('x-red');
+        }
+
+        if (gameState.isRaceMode && (gameState.isEditingAllowed || gameState.isPitStopActive)) {
+          box.classList.add('clickable');
+          box.onclick = () => handleComponentClick(comp, i);
+        }
+
+        container.appendChild(box);
+      }
+    });
+    document.getElementById('budget-count').innerText = gameState.budget;
+    if (gameState.budget === 0) document.getElementById('btn-lock-setup').removeAttribute('disabled');
+  }
+
+  function addBudgetPoint(comp) {
+    if (gameState.budget > 0) { gameState.allocations[comp]++; gameState.budget--; renderBoard(); }
+  }
+
+  function removeBudgetPoint(comp) {
+    if (gameState.allocations[comp] > 0) { gameState.allocations[comp]--; gameState.budget++; renderBoard(); }
+  }
+
+  // LOGICA SEPARATA EDIT & PIT STOP CON BENZINA DA DESTRA A SINISTRA
   function handleComponentClick(comp, clickedIndex) {
     if (inspectingPilotId !== null) return;
+    if (gameState.isPitStopActive) {
+      handleComponentPitStop(comp, clickedIndex);
+    } else if (gameState.isEditingAllowed) {
+      handleComponentEdit(comp, clickedIndex);
+    }
+  }
+
+  function handleComponentEdit(comp, clickedIndex) {
     const rightAligned = ['body', 'engine', 'suspension'];
-    const repairable = ['brakes', 'body', 'engine', 'suspension'];
     const isRight = rightAligned.includes(comp);
-    
     const totalBoxes = (comp === 'tyres') ? 10 : 6;
     const totalPoints = gameState.baseValues[comp] + gameState.allocations[comp];
-    const wingBoxIndex = totalBoxes - totalPoints;
-
-    if (comp === 'body' && gameState.wingActive && clickedIndex === wingBoxIndex) return;
-
-    if (comp === 'fuel' && gameState.isPitStopActive) {
-      const markedList = gameState.markedUsages.fuel;
-      const totalFuelPoints = gameState.baseValues.fuel + gameState.allocations.fuel;
-      const isClickedMarked = markedList.includes(clickedIndex);
-
-      if (isClickedMarked) {
-        const currentRemaining = totalFuelPoints - markedList.length;
-        if (currentRemaining < 3) {
-          markedList.sort((a, b) => a - b);
-          markedList.shift();
-        } else {
-          gameState.markedUsages.fuel = [];
-        }
-      } else {
-        markedList.push(clickedIndex);
-      }
-
-      renderBoard();
-      saveGameState();
-      return;
-    }
-
     const markedList = gameState.markedUsages[comp];
 
-    if (gameState.isPitStopActive && repairable.includes(comp)) {
-      const isClickedMarked = markedList.includes(clickedIndex);
-
-      if (isClickedMarked) {
-        let availableWorkshopIndex = -1;
-        for (let w = 0; w < 3; w++) {
-          if (!gameState.workshopUsages.includes(w)) { availableWorkshopIndex = w; break; }
-        }
-        if (availableWorkshopIndex === -1) return;
-
-        if (!isRight) { markedList.sort((a, b) => a - b); markedList.shift(); }
-        else { markedList.sort((a, b) => b - a); markedList.shift(); }
-
-        gameState.workshopUsages.push(availableWorkshopIndex);
-      } else {
-        let targetIndex = -1;
-        if (!isRight) {
-          if (comp === 'fuel') {
-            for (let i = totalPoints - 1; i >= 0; i--) { if (!markedList.includes(i)) { targetIndex = i; break; } }
-          } else {
-            for (let i = totalPoints - 1; i >= 0; i--) { if (!markedList.includes(i)) { targetIndex = i; break; } }
-          }
-        } else {
-          for (let i = totalBoxes - totalPoints; i < totalBoxes; i++) {
-            if (comp === 'body' && gameState.wingActive && i === wingBoxIndex) continue;
-            if (!markedList.includes(i)) { targetIndex = i; break; }
-          }
-        }
-        if (targetIndex !== -1) {
-          markedList.push(targetIndex);
-          if (gameState.workshopUsages.length > 0) gameState.workshopUsages.pop();
-        }
-      }
+    if (markedList.includes(clickedIndex)) {
+      markedList.splice(markedList.indexOf(clickedIndex), 1);
     } else {
-      const isClickedMarked = markedList.includes(clickedIndex);
-      if (isClickedMarked) {
-        if (!isRight) { 
-          if (comp === 'fuel') {
-            markedList.sort((a, b) => b - a); markedList.shift(); 
-          } else {
-            markedList.sort((a, b) => a - b); markedList.shift(); 
-          }
-        } else { 
-          markedList.sort((a, b) => b - a); markedList.shift(); 
+      let targetIndex = -1;
+      if (!isRight) {
+        if (comp === 'fuel') {
+          for (let i = totalPoints - 1; i >= 0; i--) { if (!markedList.includes(i)) { targetIndex = i; break; } }
+        } else {
+          for (let i = 0; i < totalPoints; i++) { if (!markedList.includes(i)) { targetIndex = i; break; } }
         }
       } else {
-        let targetIndex = -1;
-        if (!isRight) {
-          if (comp === 'fuel') {
-            for (let i = totalPoints - 1; i >= 0; i--) { if (!markedList.includes(i)) { targetIndex = i; break; } }
-          } else {
-            for (let i = 0; i < totalPoints; i++) { if (!markedList.includes(i)) { targetIndex = i; break; } }
-          }
-        } else {
-          for (let i = totalBoxes - totalPoints; i < totalBoxes; i++) {
-            if (comp === 'body' && gameState.wingActive && i === wingBoxIndex) continue;
-            if (!markedList.includes(i)) { targetIndex = i; break; }
-          }
+        for (let i = totalBoxes - totalPoints; i < totalBoxes; i++) {
+          if (!markedList.includes(i)) { targetIndex = i; break; }
         }
-        if (targetIndex !== -1) {
-          markedList.push(targetIndex);
-          const totalEng = gameState.baseValues.engine + gameState.allocations.engine;
-          const engUsed = gameState.markedUsages.engine.length;
-          if (comp === 'brakes' && gameState.kersState === 'empty' && (totalEng - engUsed > 0)) {
-            gameState.kersState = 'charged';
-          }
-        }
-      }
-    }
-
-    renderBoard();
-    saveGameState();
-  }
-
-  function toggleWorkshopPoint(index) {
-    if (inspectingPilotId !== null) return;
-    if (!gameState.isPitStopActive) return;
-
-    const pos = gameState.workshopUsages.indexOf(index);
-    if (pos > -1) gameState.workshopUsages.splice(pos, 1);
-    else gameState.workshopUsages.push(index);
-    renderBoard();
-    saveGameState();
-  }
-
-  function isBodyCompletelyDestroyed() {
-    const totalAvailable = gameState.baseValues.body + gameState.allocations.body;
-    const userMarked = gameState.markedUsages.body.length;
-    return userMarked >= (totalAvailable - 1);
-  }
-
-  function interactKers() {
-    if (inspectingPilotId !== null) return;
-    const totalEng = gameState.baseValues.engine + gameState.allocations.engine;
-    const engUsed = gameState.markedUsages.engine.length;
-
-    if (gameState.isRaceMode && gameState.isEditingAllowed && gameState.kersState === 'charged' && (totalEng - engUsed > 0)) {
-      document.getElementById('modal-kers').style.display = 'flex';
-    }
-  }
-
-  function resolveKers(isDamaged) {
-    if (isDamaged) {
-      gameState.kersState = 'damaged';
-      const totalBoxes = 6;
-      const totalEnginePoints = gameState.baseValues.engine + gameState.allocations.engine;
-      const markedList = gameState.markedUsages.engine;
-      let targetIndex = -1;
-      for (let i = totalBoxes - totalEnginePoints; i < totalBoxes; i++) {
-        if (!markedList.includes(i)) { targetIndex = i; break; }
       }
       if (targetIndex !== -1) markedList.push(targetIndex);
-    } else {
-      gameState.kersState = 'empty';
     }
-    closeModal('modal-kers');
     renderBoard();
     saveGameState();
   }
 
-  function closeModal(modalId) {
-    document.getElementById(modalId).style.display = 'none';
+  function handleComponentPitStop(comp, clickedIndex) {
+    const markedList = gameState.markedUsages[comp];
+    const totalPoints = gameState.baseValues[comp] + gameState.allocations[comp];
+
+    if (comp === 'fuel') {
+      if (markedList.includes(clickedIndex)) {
+        markedList.splice(markedList.indexOf(clickedIndex), 1);
+      } else {
+        let targetIndex = -1;
+        for (let i = totalPoints - 1; i >= 0; i--) { if (!markedList.includes(i)) { targetIndex = i; break; } }
+        if (targetIndex !== -1) markedList.push(targetIndex);
+      }
+    } else {
+      if (markedList.includes(clickedIndex)) {
+        markedList.splice(markedList.indexOf(clickedIndex), 1);
+      } else {
+        let targetIndex = -1;
+        for (let i = 0; i < totalPoints; i++) { if (!markedList.includes(i)) { targetIndex = i; break; } }
+        if (targetIndex !== -1) markedList.push(targetIndex);
+      }
+    }
+    renderBoard();
+    saveGameState();
   }
 
-  // ----------------------------------------------------
-  // SOCKET.IO REAL-TIME SYNCHRONIZATION SETUP
-  // ----------------------------------------------------
+  function renderOpponentsList() {
+    let list = document.getElementById('opponents-list-items');
+    list.innerHTML = `<div style="padding:6px; background:rgba(0,0,0,0.2); border-radius:4px;">${gameState.playerName} (Tu)</div>`;
+  }
+
+  function closeModal(modalId) { document.getElementById(modalId).style.display = 'none'; }
+
   const socket = io('https://lotus-cup-server.onrender.com');
-
-  socket.on('connect', () => {
-    console.log('Connesso al server di sincronizzazione!');
-    socket.emit('richiedi-stanze');
-    if (gameState.code) {
-      saveCurrentPilotToLobby();
-    }
-  });
-
-  socket.on('lista-stanze', (stanzeObj) => {
-    remoteLobbiesCache = stanzeObj || {};
-    if (document.getElementById('screen-join-game').classList.contains('active')) {
-      let combinedLobbies = { ...remoteLobbiesCache };
-      let localLobbies = JSON.parse(localStorage.getItem('lotus_lobbies') || '{}');
-      Object.keys(localLobbies).forEach(code => {
-        if (!combinedLobbies[code]) {
-          combinedLobbies[code] = localLobbies[code];
-        }
-      });
-      renderLobbiesListHTML(combinedLobbies);
-    }
-  });
-
-  socket.on('ricevi-scheda', (data) => {
-    console.log("Aggiornamento ricevuto dal server per la stanza:", data.code);
-    
-    let lobbies = JSON.parse(localStorage.getItem('lotus_lobbies') || '{}');
-    if (!lobbies[data.code]) {
-      lobbies[data.code] = {
-        code: data.code,
-        circuit: data.circuit,
-        host: data.host,
-        weather: data.weather,
-        date: data.date,
-        pilots: {}
-      };
-    }
-    if (!lobbies[data.code].pilots) lobbies[data.code].pilots = {};
-    
-    let currentStatus = data.isRaceMode ? 'Pronto' : 'In Compilazione';
-    lobbies[data.code].pilots[data.playerId] = {
-      id: data.playerId,
-      name: data.playerName,
-      status: currentStatus,
-      data: data
-    };
-    
-    localStorage.setItem('lotus_lobbies', JSON.stringify(lobbies));
-    localStorage.setItem(`lotus_game_${data.code}_${data.playerId}`, JSON.stringify(data));
-
-    if (document.getElementById('screen-join-game').classList.contains('active')) {
-      socket.emit('richiedi-stanze');
-      let combinedLobbies = { ...remoteLobbiesCache };
-      Object.keys(lobbies).forEach(code => {
-        if (!combinedLobbies[code]) combinedLobbies[code] = lobbies[code];
-      });
-      renderLobbiesListHTML(combinedLobbies);
-    }
-
-    if (gameState.code === data.code && inspectingPilotId === data.playerId) {
-      gameState = data;
-      initSetupScreen();
-    } else {
-      renderOpponentsList();
-    }
-  });
-
-  // Ricezione evento globale di cancellazione stanza da parte dell'Host
-  socket.on('stanza-eliminata-globale', (code) => {
-    console.log("Stanza eliminata globalmente dal server:", code);
-    executeLocalRoomDeletion(code);
-  });
+  socket.on('connect', () => { if (gameState.code) pushSchedaToServer(); });
 </script>
 
 </body>
