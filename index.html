@@ -299,7 +299,7 @@
       margin-bottom: 15px; 
       max-height: 250px; 
       overflow-y: auto; 
-      padding-right: 6px; /* Spazio per evitare che la scrollbar copra le card */
+      padding-right: 6px;
     }
 
     .lobby-card {
@@ -1016,7 +1016,12 @@
     };
     localStorage.setItem('lotus_lobbies', JSON.stringify(lobbies));
     localStorage.setItem(`lotus_game_${gameState.code}_${gameState.playerId}`, JSON.stringify(gameState));
+    // NOTA: Rimossa la chiamata socket.emit diretta da qui per evitare il real-time su ogni singolo click.
+  }
 
+  // Nuova funzione per l'invio del pacchetto definitivo al server
+  function pushSchedaToServer() {
+    saveCurrentPilotToLobby();
     if (typeof socket !== 'undefined' && socket.connected) {
       socket.emit('aggiorna-scheda', gameState);
     }
@@ -1132,7 +1137,6 @@
         card.className = 'lobby-card';
         card.id = `lobby-card-${code}`;
 
-        // Controllo Host migliorato: se il client corrente Ã¨ l'host registrato nella stanza
         let isHost = false;
         if (gameState.code == code && gameState.playerName === l.host) {
           isHost = true;
@@ -1967,7 +1971,7 @@
     renderBoard();
     renderTyreDeck();
     renderOpponentsList();
-    saveGameState();
+    pushSchedaToServer();
   }
 
   function toggleRaceEdit() {
@@ -1981,7 +1985,9 @@
     } else {
       gameState.isEditingAllowed = false;
       tempStateBackup = null;
-      saveGameState(); 
+      
+      // INVIA IL PACCHETTO DEFINITIVO AL SERVER QUI (quando blocchi l'edit)
+      pushSchedaToServer(); 
     }
 
     updateEditButtonUI();
@@ -2070,7 +2076,9 @@
       updateEditButtonUI();
       renderBoard();
       renderTyreDeck();
-      saveGameState();
+      
+      // INVIA IL PACCHETTO DEFINITIVO AL SERVER QUI (quando esci dai box)
+      pushSchedaToServer();
     }
   }
 
