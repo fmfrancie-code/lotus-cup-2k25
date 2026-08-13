@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta class="apple-mobile-web-app-capable" content="yes">
-  <meta class="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta class="apple-mobile-web-app-title" content="Lotus Cup">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Lotus Cup">
   <link rel="apple-touch-icon" href="https://via.placeholder.com/180/000000/ffffff?text=LOTUS">
 
   <title>Lotus Cup 2k25 - Telemetria & Setup System</title>
@@ -2102,48 +2102,121 @@
     saveGameState();
   }
 
-  // APPLICAZIONE RIGIDA DELLE REGOLE SPECULARI PER LA GESTIONE DELLE X (SINISTRA DA DESTRA A SINISTRA / DESTRA DA SINISTRA A DESTRA)
   function handleComponentClick(comp, clickedIndex) {
     if (inspectingPilotId !== null) return;
-    
     const rightAligned = ['body', 'engine', 'suspension'];
     const isRight = rightAligned.includes(comp);
+    
     const totalBoxes = (comp === 'tyres') ? 10 : 6;
     const totalPoints = gameState.baseValues[comp] + gameState.allocations[comp];
+    const wingBoxIndex = totalBoxes - totalPoints;
+
+    if (comp === 'body' && gameState.wingActive && clickedIndex === wingBoxIndex) return;
+
+    if (comp === 'fuel' && gameState.isPitStopActive) {
+      const markedList = gameState.markedUsages.fuel;
+      const totalFuelPoints = gameState.baseValues.fuel + gameState.allocations.fuel;
+      const isClickedMarked = markedList.includes(clickedIndex);
+
+      if (isClickedMarked) {
+        const currentRemaining = totalFuelPoints - markedList.length;
+        if (currentRemaining < 3) {
+          markedList.sort((a, b) => a - b);
+          markedList.shift();
+        } else {
+          gameState.markedUsages.fuel = [];
+        }
+      } else {
+        markedList.push(clickedIndex);
+      }
+
+      renderBoard();
+      saveGameState();
+      return;
+    }
+
     const markedList = gameState.markedUsages[comp];
+    const isLeftSection = ['tyres', 'brakes', 'fuel'].includes(comp);
+
     const isClickedMarked = markedList.includes(clickedIndex);
 
     if (isClickedMarked) {
-      if (!isRight) {
-        // Sinistra (Pneumatici, Freni, Benzina): rimozione da sinistra a destra (ordine crescente)
+      if (isLeftSection) {
         markedList.sort((a, b) => a - b);
-        markedList.shift();
+        let targetRemoveIndex = markedList.indexOf(clickedIndex);
+        if (targetRemoveIndex > -1) {
+          markedList.splice(targetRemoveIndex, 1);
+        }
       } else {
-        // Destra (Telaio, Motore, Sospensioni): rimozione da destra a sinistra (ordine decrescente)
         markedList.sort((a, b) => b - a);
-        markedList.shift();
+        let targetRemoveIndex = markedList.indexOf(clickedIndex);
+        if (targetRemoveIndex > -1) {
+          markedList.splice(targetRemoveIndex, 1);
+        }
+        
+        if (comp !== 'body' && comp !== 'engine' && comp !== 'suspension') {
+        } else {
+          let firstWorkshopAvailable = -1;
+          for (let w = 0; w < 3; w++) {
+            if (gameState.workshopUsages.includes(w)) {
+              firstWorkshopAvailable = w;
+              break;
+            }
+          }
+          if (firstWorkshopAvailable !== -1) {
+            let wPos = gameState.workshopUsages.indexOf(firstWorkshopAvailable);
+            if (wPos > -1) {
+              gameState.workshopUsages.splice(wPos, 1);
+            }
+          }
+        }
       }
     } else {
-      let targetIndex = -1;
-      if (!isRight) {
-        // Sinistra (Pneumatici, Freni, Benzina): inserimento da destra a sinistra (dall'indice piÃ¹ alto a 0)
-        for (let i = totalPoints - 1; i >= 0; i--) { 
-          if (!markedList.includes(i)) { targetIndex = i; break; } 
+      if (isLeftSection) {
+        let targetIndex = -1;
+        for (let i = totalPoints - 1; i >= 0; i--) {
+          if (!markedList.includes(i)) {
+            targetIndex = i;
+            break;
+          }
+        }
+        if (targetIndex !== -1) {
+          markedList.push(targetIndex);
         }
       } else {
-        // Destra (Telaio, Motore, Sospensioni): inserimento da sinistra a destra (dall'indice piÃ¹ basso a salire)
+        let targetIndex = -1;
         for (let i = totalBoxes - totalPoints; i < totalBoxes; i++) {
-          if (comp === 'body' && gameState.wingActive && i === (totalBoxes - totalPoints)) continue;
-          if (!markedList.includes(i)) { targetIndex = i; break; }
+          if (comp === 'body' && gameState.wingActive && i === wingBoxIndex) continue;
+          if (!markedList.includes(i)) {
+            targetIndex = i;
+            break;
+          }
         }
-      }
+        if (targetIndex !== -1) {
+          markedList.push(targetIndex);
+          
+          if (comp === 'brakes' || comp === 'body' || comp === 'engine' || comp === 'suspension') {
+            let availableWorkshopIndex = -1;
+            for (let w = 0; w < 3; w++) {
+              if (!gameState.workshopUsages.includes(w)) {
+                availableWorkshopIndex = w;
+                break;
+              }
+            }
+            if (availableWorkshopIndex === -1) {
+              markedList.pop();
+              alert("Non hai piÃ¹ punti officina disponibili");
+            } else {
+              gameState.workshopUsages.push(availableWorkshopIndex);
+              gameState.workshopUsages.sort((a, b) => a - b);
+            }
+          }
 
-      if (targetIndex !== -1) {
-        markedList.push(targetIndex);
-        const totalEng = gameState.baseValues.engine + gameState.allocations.engine;
-        const engUsed = gameState.markedUsages.engine.length;
-        if (comp === 'brakes' && gameState.kersState === 'empty' && (totalEng - engUsed > 0)) {
-          gameState.kersState = 'charged';
+          const totalEng = gameState.baseValues.engine + gameState.allocations.engine;
+          const engUsed = gameState.markedUsages.engine.length;
+          if (comp === 'brakes' && gameState.kersState === 'empty' && (totalEng - engUsed > 0)) {
+            gameState.kersState = 'charged';
+          }
         }
       }
     }
