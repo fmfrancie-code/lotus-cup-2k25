@@ -727,7 +727,7 @@
       
       <div id="race-controls" style="display: none; gap: 8px; flex-direction: column;">
         <div style="display: flex; gap: 8px;">
-          <button id="btn-toggle-edit" class="btn btn-read-mode" onclick="toggleRaceEdit()" style="flex:1; margin:0; text-transform:none !important;">ModalitÃ  edit attiva (clicca per sbloccare)</button>
+          <button id="btn-toggle-edit" class="btn btn-read-mode" onclick="toggleRaceEdit()" style="flex:1; margin:0; text-transform:none !important;">Modalità edit attiva (clicca per sbloccare)</button>
           <button id="btn-pitstop-action" class="btn btn-pitstop-mode" onclick="handlePitStopButtonClick()" style="display: none; flex:1; margin:0; text-transform:none !important;">Entrata ai Box (Pit Stop)</button>
         </div>
         <button id="btn-weather-test" class="btn btn-weather-test" onclick="openWeatherModal()" style="display: none; margin: 4px 0 0 0;">Test Motore / Controllo Meteo</button>
@@ -958,7 +958,7 @@
 <div id="modal-kers" class="modal">
   <div class="modal-content">
   <h3>Gestione Uso KERS</h3>
-    <p style="color: #a0aec0;">Hai utilizzato il KERS! Qual Ã¨ stato l'esito del tiro?</p>
+    <p style="color: #a0aec0;">Hai utilizzato il KERS! Qual è stato l'esito del tiro?</p>
     <button class="btn btn-success" onclick="resolveKers(false)">Esito OK (Svuota KERS)</button>
     <button class="btn btn-danger" onclick="resolveKers(true)">Danneggiato (X Rossa)</button>
     <button class="btn btn-secondary" onclick="closeModal('modal-kers')">Annulla</button>
@@ -1206,7 +1206,7 @@
     }
 
     if (gameState.code == code) {
-      alert("La partita Ã¨ stata chiusa.");
+      alert("La partita è stata chiusa.");
       gameState.code = null;
       showScreen('screen-home');
     } else if (document.getElementById('screen-join-game').classList.contains('active')) {
@@ -2025,7 +2025,7 @@
       pitBtn.style.display = 'block';
       weatherTestBtn.style.display = 'none';
     } else if (gameState.isEditingAllowed) {
-      editBtn.innerText = "ModalitÃ  edit attiva (clicca per bloccare)";
+      editBtn.innerText = "Modalità edit attiva (clicca per bloccare)";
       editBtn.className = 'btn btn-edit-mode';
       pitBtn.innerText = "Entrata ai Box (Pit Stop)";
       pitBtn.style.display = 'block';
@@ -2036,7 +2036,7 @@
         weatherTestBtn.style.display = 'none';
       }
     } else {
-      editBtn.innerText = "ModalitÃ  edit attiva (clicca per sbloccare)";
+      editBtn.innerText = "Modalità edit attiva (clicca per sbloccare)";
       editBtn.className = 'btn btn-read-mode';
       pitBtn.style.display = 'none';
       weatherTestBtn.style.display = 'none';
@@ -2105,6 +2105,7 @@
   function handleComponentClick(comp, clickedIndex) {
     if (inspectingPilotId !== null) return;
     const rightAligned = ['body', 'engine', 'suspension'];
+    const repairable = ['brakes', 'body', 'engine', 'suspension'];
     const isRight = rightAligned.includes(comp);
     
     const totalBoxes = (comp === 'tyres') ? 10 : 6;
@@ -2136,82 +2137,53 @@
     }
 
     const markedList = gameState.markedUsages[comp];
-    const isLeftSection = ['tyres', 'brakes', 'fuel'].includes(comp);
 
-    const isClickedMarked = markedList.includes(clickedIndex);
+    if (gameState.isPitStopActive && repairable.includes(comp)) {
+      const isClickedMarked = markedList.includes(clickedIndex);
 
-    if (isClickedMarked) {
-      if (isLeftSection) {
-        markedList.sort((a, b) => a - b);
-        let targetRemoveIndex = markedList.indexOf(clickedIndex);
-        if (targetRemoveIndex > -1) {
-          markedList.splice(targetRemoveIndex, 1);
+      if (isClickedMarked) {
+        let availableWorkshopIndex = -1;
+        for (let w = 0; w < 3; w++) {
+          if (!gameState.workshopUsages.includes(w)) { availableWorkshopIndex = w; break; }
         }
+        if (availableWorkshopIndex === -1) return;
+
+        if (!isRight) { markedList.sort((a, b) => a - b); markedList.shift(); }
+        else { markedList.sort((a, b) => b - a); markedList.shift(); }
+
+        gameState.workshopUsages.push(availableWorkshopIndex);
       } else {
-        markedList.sort((a, b) => b - a);
-        let targetRemoveIndex = markedList.indexOf(clickedIndex);
-        if (targetRemoveIndex > -1) {
-          markedList.splice(targetRemoveIndex, 1);
-        }
-        
-        if (comp !== 'body' && comp !== 'engine' && comp !== 'suspension') {
+        let targetIndex = -1;
+        if (!isRight) {
+          for (let i = totalPoints - 1; i >= 0; i--) { if (!markedList.includes(i)) { targetIndex = i; break; } }
         } else {
-          let firstWorkshopAvailable = -1;
-          for (let w = 0; w < 3; w++) {
-            if (gameState.workshopUsages.includes(w)) {
-              firstWorkshopAvailable = w;
-              break;
-            }
+          for (let i = totalBoxes - totalPoints; i < totalBoxes; i++) {
+            if (comp === 'body' && gameState.wingActive && i === wingBoxIndex) continue;
+            if (!markedList.includes(i)) { targetIndex = i; break; }
           }
-          if (firstWorkshopAvailable !== -1) {
-            let wPos = gameState.workshopUsages.indexOf(firstWorkshopAvailable);
-            if (wPos > -1) {
-              gameState.workshopUsages.splice(wPos, 1);
-            }
-          }
+        }
+        if (targetIndex !== -1) {
+          markedList.push(targetIndex);
+          if (gameState.workshopUsages.length > 0) gameState.workshopUsages.pop();
         }
       }
     } else {
-      if (isLeftSection) {
-        let targetIndex = -1;
-        for (let i = totalPoints - 1; i >= 0; i--) {
-          if (!markedList.includes(i)) {
-            targetIndex = i;
-            break;
-          }
-        }
-        if (targetIndex !== -1) {
-          markedList.push(targetIndex);
-        }
+      const isClickedMarked = markedList.includes(clickedIndex);
+      if (isClickedMarked) {
+        if (!isRight) { markedList.sort((a, b) => a - b); markedList.shift(); }
+        else { markedList.sort((a, b) => b - a); markedList.shift(); }
       } else {
         let targetIndex = -1;
-        for (let i = totalBoxes - totalPoints; i < totalBoxes; i++) {
-          if (comp === 'body' && gameState.wingActive && i === wingBoxIndex) continue;
-          if (!markedList.includes(i)) {
-            targetIndex = i;
-            break;
+        if (!isRight) {
+          for (let i = totalPoints - 1; i >= 0; i--) { if (!markedList.includes(i)) { targetIndex = i; break; } }
+        } else {
+          for (let i = totalBoxes - totalPoints; i < totalBoxes; i++) {
+            if (comp === 'body' && gameState.wingActive && i === wingBoxIndex) continue;
+            if (!markedList.includes(i)) { targetIndex = i; break; }
           }
         }
         if (targetIndex !== -1) {
           markedList.push(targetIndex);
-          
-          if (comp === 'brakes' || comp === 'body' || comp === 'engine' || comp === 'suspension') {
-            let availableWorkshopIndex = -1;
-            for (let w = 0; w < 3; w++) {
-              if (!gameState.workshopUsages.includes(w)) {
-                availableWorkshopIndex = w;
-                break;
-              }
-            }
-            if (availableWorkshopIndex === -1) {
-              markedList.pop();
-              alert("Non hai piÃ¹ punti officina disponibili");
-            } else {
-              gameState.workshopUsages.push(availableWorkshopIndex);
-              gameState.workshopUsages.sort((a, b) => a - b);
-            }
-          }
-
           const totalEng = gameState.baseValues.engine + gameState.allocations.engine;
           const engUsed = gameState.markedUsages.engine.length;
           if (comp === 'brakes' && gameState.kersState === 'empty' && (totalEng - engUsed > 0)) {
