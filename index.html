@@ -2114,7 +2114,7 @@
 
     if (comp === 'body' && gameState.wingActive && clickedIndex === wingBoxIndex) return;
 
-    iif (componente === 'fuel' && gameState.isPitStopActive) {
+    if (componente === 'fuel' && gameState.isPitStopActive) {
       const listaIndiciBenzinaSegnati = gameState.markedUsages.fuel;
       const puntiTotaliBenzina = gameState.baseValues.fuel + gameState.allocations.fuel;
       const casellaCliccataHaLaCroce = listaIndiciBenzinaSegnati.includes(clickedIndex);
