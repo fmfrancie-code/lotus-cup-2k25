@@ -50,17 +50,12 @@
       background-size: 30px 30px;
       color: #e0e6ed;
     }
-
     body.theme-cyberpunk .app-container {
       background: rgba(18, 24, 38, 0.85);
       border: 1px solid rgba(0, 240, 255, 0.35);
-      box-shadow: 0 0 25px rgba(0, 240, 255, 0.12), inset 0 0 15px rgba(0, 0, 0, 0.8);
+      box-shadow: 0 0 25px rgba(0, 240, 255, 0.12);
     }
-
-    body.theme-cyberpunk h1, body.theme-cyberpunk h2, body.theme-cyberpunk h3 {
-      color: #00f0ff;
-      text-shadow: 0 0 12px #00f0ff;
-    }
+    body.theme-cyberpunk h1, body.theme-cyberpunk h2, body.theme-cyberpunk h3 { color: #00f0ff; text-shadow: 0 0 12px #00f0ff; }
 
     /* IRONMAN THEME */
     body.theme-ironman {
@@ -69,19 +64,13 @@
       background-size: 30px 30px;
       color: #ffffff;
     }
-
     body.theme-ironman .app-container {
       background: rgba(92, 0, 3, 0.92);
       border: 2px solid #e5b839;
       box-shadow: 0 0 30px rgba(0, 0, 0, 0.8);
     }
+    body.theme-ironman h1, body.theme-ironman h2, body.theme-ironman h3 { color: #f5d061; text-shadow: 0 0 10px rgba(0,0,0,0.8); }
 
-    body.theme-ironman h1, body.theme-ironman h2, body.theme-ironman h3 {
-      color: #f5d061;
-      text-shadow: 0 0 10px rgba(0, 0, 0, 0.8), 0 0 5px #f5d061;
-    }
-
-    /* BOTTONI E INPUT GENERALI */
     .btn {
       font-family: 'Orbitron', sans-serif;
       padding: 14px 20px;
@@ -93,14 +82,12 @@
       margin: 10px 0;
       transition: all 0.2s ease-in-out;
     }
-
     body.theme-ironman .btn {
       background: linear-gradient(180deg, #fff2bd 0%, #e5b839 40%, #c49618 100%);
       color: #520003;
       border: 2px solid #000000;
       font-weight: 900;
     }
-
     body.theme-cyberpunk .btn {
       background-color: #0f1522;
       color: #00f0ff;
@@ -140,6 +127,20 @@
       margin-bottom: 15px;
     }
 
+    .weather-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(15, 21, 34, 0.8);
+      border: 1px solid #00f0ff;
+      border-radius: 4px;
+      padding: 4px 8px;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.8rem;
+      color: #00f0ff;
+      margin-left: 10px;
+    }
+
     .tyres-deck {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
@@ -149,7 +150,6 @@
       padding: 8px;
       border-radius: 6px;
     }
-
     .tyre-card {
       background-color: #0f1522;
       border: 1px solid rgba(0, 240, 255, 0.15);
@@ -160,7 +160,6 @@
     .tyre-card.active { border-color: #00f0ff !important; box-shadow: 0 0 10px #00f0ff; }
     
     .laps-container { display: flex; justify-content: center; gap: 6px; }
-
     .lap-box {
       width: 28px; height: 28px;
       background-color: #0f1522;
@@ -204,7 +203,7 @@
 
 <div class="app-container">
 
-  <!-- HOME MENU -->
+  <!-- 1. HOME MENU -->
   <div id="screen-home" class="screen active">
     <h1>LOTUS CUP 2K25</h1>
     <p style="text-align: center; font-family: 'Orbitron'; font-size: 0.85rem;">TELEMETRIA & SETUP SYSTEM</p>
@@ -219,38 +218,50 @@
     </div>
   </div>
 
-  <!-- CREA PARTITA -->
+  <!-- 2. CREA PARTITA -->
   <div id="screen-new-game" class="screen">
     <h2>Crea Nuova Partita</h2>
     <div style="max-width: 500px; margin: 0 auto;">
-      <label>Circuito:</label>
-      <input type="text" id="input-circuit" placeholder="Monza">
-      <label>Host:</label>
-      <input type="text" id="input-host" placeholder="Nome Pilota">
+      <label>Nome Gara / Circuito:</label>
+      <input type="text" id="input-circuit" placeholder="es. Monza, Spa...">
+      <label>Nome Pilota / Host:</label>
+      <input type="text" id="input-host" placeholder="Il tuo nome...">
+      <label>Meteo Iniziale:</label>
+      <select id="input-weather">
+        <option value="sun">â˜€ï¸ Sole Fisso</option>
+        <option value="rain">ðŸŒ§ï¸ Pioggia Fissa</option>
+        <option value="var_dry" selected>ðŸŒ¤ï¸ Variabile Asciutto</option>
+        <option value="var_wet">ðŸŒ§ï¸ Variabile Bagnato</option>
+      </select>
       <button class="btn" onclick="createGame()">Genera Stanza</button>
       <button class="btn" onclick="showScreen('screen-home')">Indietro</button>
     </div>
   </div>
 
-  <!-- UNISCITI -->
+  <!-- 3. UNISCITI -->
   <div id="screen-join-game" class="screen">
     <h2>Unisciti a una Partita</h2>
     <div style="max-width: 500px; margin: 0 auto;">
       <div id="lobbies-list-container"></div>
       <div id="join-form-section" style="display:none;">
-        <label>Nome Pilota:</label>
+        <label>Inserisci il tuo Nome Pilota:</label>
         <input type="text" id="input-player-name">
-        <button class="btn" onclick="joinGame()">Entra</button>
+        <button class="btn" onclick="joinGame()">Entra nella Gara</button>
       </div>
       <button class="btn" onclick="showScreen('screen-home')">Indietro</button>
     </div>
   </div>
 
-  <!-- DASHBOARD -->
+  <!-- 4. DASHBOARD GARA -->
   <div id="screen-setup" class="screen">
     <div class="sheet-header">
       <div>
-        <h3 id="display-circuit" style="margin:0;">CIRCUITO</h3>
+        <h3 style="margin:0; display:flex; align-items:center;">
+          <span id="display-circuit">CIRCUITO</span>
+          <div id="weather-badge" class="weather-badge">
+            <span id="weather-icon">â˜€ï¸</span> <small id="weather-text">Sole</small>
+          </div>
+        </h3>
         <small id="display-meta">-</small>
       </div>
       <div><strong>ROOM: <span id="display-code">0000</span></strong></div>
@@ -262,16 +273,28 @@
       <div id="race-controls" style="display:none; gap:8px;">
         <button id="btn-toggle-edit" class="btn" onclick="toggleRaceEdit()">Sblocca Edit</button>
         <button id="btn-pitstop-action" class="btn" onclick="handlePitStopButtonClick()" style="display:none;">Pit Stop</button>
+        <button id="btn-weather-test" class="btn" onclick="openWeatherModal()" style="display:none;">Controllo Meteo</button>
       </div>
     </div>
 
     <div class="tyres-deck" id="tyres-deck-container"></div>
     <div id="budget-bar" style="display:none; text-align:center; font-family:'Orbitron'; margin-bottom:10px;">Punti Setup: <span id="budget-count">13</span>/13</div>
 
-    <!-- RIGHE COMPONENTI -->
-    <div class="board-row"><div class="board-side"><div class="boxes-container" id="row-tyres"></div></div><div class="board-side"><div class="boxes-container" id="row-body"></div></div></div>
-    <div class="board-row"><div class="board-side"><div class="boxes-container" id="row-brakes"></div></div><div class="board-side"><div class="boxes-container" id="row-engine"></div></div></div>
-    <div class="board-row"><div class="board-side"><div class="boxes-container" id="row-fuel"></div></div><div class="board-side"><div class="boxes-container" id="row-suspension"></div></div></div>
+    <!-- COMPONENTI PRINCIPALI -->
+    <div class="board-row">
+      <div class="board-side"><div class="boxes-container" id="row-tyres"></div></div>
+      <div class="board-side"><div class="boxes-container" id="row-body"></div></div>
+    </div>
+    <div class="board-row">
+      <div class="board-side"><div class="boxes-container" id="row-brakes"></div></div>
+      <div style="text-align:center;"><small>KERS</small><div id="box-kers" class="box" onclick="interactKers()"></div></div>
+      <div class="board-side"><div class="boxes-container" id="row-engine"></div></div>
+    </div>
+    <div class="board-row">
+      <div class="board-side"><div class="boxes-container" id="row-fuel"></div></div>
+      <div style="text-align:center;"><small>ALETTONE</small><div id="box-wing" class="box" onclick="toggleWing()"></div></div>
+      <div class="board-side"><div class="boxes-container" id="row-suspension"></div></div>
+    </div>
 
     <div style="margin-top:15px;">
       <h3>Piloti in Gara</h3>
@@ -298,11 +321,22 @@
   </div>
 </div>
 
+<div id="modal-weather" class="modal">
+  <div class="modal-content">
+    <h3>Controllo Meteo</h3>
+    <button class="btn" onclick="processWeatherCheck('sun')">Tiro: Sole</button>
+    <button class="btn" onclick="processWeatherCheck('rain')">Tiro: Pioggia</button>
+    <button class="btn" onclick="closeModal('modal-weather')">Annulla</button>
+  </div>
+</div>
+
 <script>
   let gameState = {
     code: null, circuit: '', host: '', date: '', playerName: '', playerId: '',
     theme: 'ironman', isSetupMode: false, isRaceMode: false, isEditingAllowed: false, isPitStopActive: false,
-    budget: 13, selectedTyre: 'Prime', tyreLaps: { Prime: [], Option: [], Intermedie: [], Pioggia: [] },
+    weather: 'var_dry', budget: 13, selectedTyre: 'Prime', 
+    tyreLaps: { Prime: [], Option: [], Intermedie: [], Pioggia: [] },
+    wingActive: false, kersState: 'empty',
     baseValues: { tyres: 4, brakes: 2, fuel: 2, body: 2, engine: 2, suspension: 1 },
     allocations: { tyres: 0, brakes: 0, fuel: 0, body: 0, engine: 0, suspension: 0 },
     markedUsages: { tyres: [], brakes: [], fuel: [], body: [], engine: [], suspension: [] },
@@ -327,7 +361,7 @@
     if (!gameState.code || !gameState.playerId) return;
     let lobbies = JSON.parse(localStorage.getItem('lotus_lobbies') || '{}');
     if (!lobbies[gameState.code]) {
-      lobbies[gameState.code] = { code: gameState.code, circuit: gameState.circuit, host: gameState.host, pilots: {} };
+      lobbies[gameState.code] = { code: gameState.code, circuit: gameState.circuit, host: gameState.host, weather: gameState.weather, pilots: {} };
     }
     lobbies[gameState.code].pilots[gameState.playerId] = { id: gameState.playerId, name: gameState.playerName, data: gameState };
     localStorage.setItem('lotus_lobbies', JSON.stringify(lobbies));
@@ -344,12 +378,14 @@
   function createGame() {
     const circuit = document.getElementById('input-circuit').value.trim() || 'Monza';
     const host = document.getElementById('input-host').value.trim() || 'Pilota 1';
+    const weather = document.getElementById('input-weather').value;
     myPlayerId = '01';
     gameState.code = Math.floor(1000 + Math.random() * 9000);
     gameState.circuit = circuit;
     gameState.host = host;
     gameState.playerName = host;
     gameState.playerId = myPlayerId;
+    gameState.weather = weather;
     saveGameState();
     initSetupScreen();
   }
@@ -379,6 +415,7 @@
     gameState.code = code;
     gameState.circuit = lobbies[code].circuit;
     gameState.host = lobbies[code].host;
+    gameState.weather = lobbies[code].weather || 'var_dry';
     gameState.playerName = name;
     gameState.playerId = myPlayerId;
     saveGameState();
@@ -416,10 +453,18 @@
     document.getElementById('race-controls').style.display = gameState.isRaceMode ? 'flex' : 'none';
     document.getElementById('budget-bar').style.display = gameState.isSetupMode ? 'block' : 'none';
 
+    updateWeatherUI();
     renderTyreDeck();
     renderBoard();
     renderOpponentsList();
     showScreen('screen-setup');
+  }
+
+  function updateWeatherUI() {
+    const text = document.getElementById('weather-text');
+    if (gameState.weather === 'sun') text.innerText = 'Sole';
+    else if (gameState.weather === 'rain') text.innerText = 'Pioggia';
+    else text.innerText = 'Variabile';
   }
 
   function startConfiguration() {
@@ -440,6 +485,7 @@
     gameState.isEditingAllowed = !gameState.isEditingAllowed;
     document.getElementById('btn-toggle-edit').innerText = gameState.isEditingAllowed ? 'Blocca Edit' : 'Sblocca Edit';
     document.getElementById('btn-pitstop-action').style.display = gameState.isEditingAllowed ? 'block' : 'none';
+    document.getElementById('btn-weather-test').style.display = (gameState.isEditingAllowed && gameState.weather.includes('var')) ? 'block' : 'none';
     renderBoard();
     if (!gameState.isEditingAllowed) pushSchedaToServer();
   }
@@ -462,6 +508,9 @@
     renderBoard();
     saveGameState();
   }
+
+  function openWeatherModal() { document.getElementById('modal-weather').style.display = 'flex'; }
+  function processWeatherCheck(val) { gameState.weather = val; updateWeatherUI(); closeModal('modal-weather'); saveGameState(); }
 
   function renderTyreDeck() {
     const container = document.getElementById('tyres-deck-container');
@@ -538,6 +587,13 @@
         container.appendChild(box);
       }
     });
+
+    // KERS e Alettone
+    const kersBox = document.getElementById('box-kers');
+    kersBox.innerText = gameState.kersState === 'charged' ? 'âš¡' : (gameState.kersState === 'damaged' ? 'X' : '');
+    const wingBox = document.getElementById('box-wing');
+    wingBox.innerText = gameState.wingActive ? 'ìœ™' : '';
+
     document.getElementById('budget-count').innerText = gameState.budget;
     if (gameState.budget === 0) document.getElementById('btn-lock-setup').removeAttribute('disabled');
   }
@@ -550,7 +606,10 @@
     if (gameState.allocations[comp] > 0) { gameState.allocations[comp]--; gameState.budget++; renderBoard(); }
   }
 
-  // GESTIONE DELLE X SECONDO LE REGOLE SPECULARI RICHIESTE
+  function toggleWing() { if (gameState.isSetupMode) { gameState.wingActive = !gameState.wingActive; renderBoard(); } }
+  function interactKers() { if (gameState.isRaceMode && gameState.isEditingAllowed) { gameState.kersState = gameState.kersState === 'charged' ? 'empty' : 'charged'; renderBoard(); saveGameState(); } }
+
+  // GESTIONE DELLE X CON LE REGOLE SPECULARI PER SINISTRA E DESTRA
   function handleComponentClick(comp, clickedIndex) {
     if (inspectingPilotId !== null) return;
     
@@ -562,7 +621,6 @@
     const isClickedMarked = markedList.includes(clickedIndex);
 
     if (isClickedMarked) {
-      // 2 & 4: RIMOZIONE X -> Sinistra da sinistra a destra, Destra da destra a sinistra
       if (!isRight) {
         markedList.sort((a, b) => a - b);
         markedList.shift();
@@ -571,7 +629,6 @@
         markedList.shift();
       }
     } else {
-      // 1 & 3: INSERIMENTO X -> Sinistra da destra a sinistra, Destra da sinistra a destra
       let targetIndex = -1;
       if (!isRight) {
         for (let i = totalPoints - 1; i >= 0; i--) { 
