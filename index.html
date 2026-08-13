@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta class="apple-mobile-web-app-capable" content="yes">
-  <meta class="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta class="apple-mobile-web-app-title" content="Lotus Cup">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Lotus Cup">
   <link rel="apple-touch-icon" href="https://via.placeholder.com/180/000000/ffffff?text=LOTUS">
 
   <title>Lotus Cup 2k25 - Telemetria & Setup System</title>
@@ -727,7 +727,7 @@
       
       <div id="race-controls" style="display: none; gap: 8px; flex-direction: column;">
         <div style="display: flex; gap: 8px;">
-          <button id="btn-toggle-edit" class="btn btn-read-mode" onclick="toggleRaceEdit()" style="flex:1; margin:0; text-transform:none !important;">ModalitÃ Â edit attiva (clicca per sbloccare)</button>
+          <button id="btn-toggle-edit" class="btn btn-read-mode" onclick="toggleRaceEdit()" style="flex:1; margin:0; text-transform:none !important;">Modalità edit attiva (clicca per sbloccare)</button>
           <button id="btn-pitstop-action" class="btn btn-pitstop-mode" onclick="handlePitStopButtonClick()" style="display: none; flex:1; margin:0; text-transform:none !important;">Entrata ai Box (Pit Stop)</button>
         </div>
         <button id="btn-weather-test" class="btn btn-weather-test" onclick="openWeatherModal()" style="display: none; margin: 4px 0 0 0;">Test Motore / Controllo Meteo</button>
@@ -958,7 +958,7 @@
 <div id="modal-kers" class="modal">
   <div class="modal-content">
   <h3>Gestione Uso KERS</h3>
-    <p style="color: #a0aec0;">Hai utilizzato il KERS! Qual ÃƒÂ¨ stato l'esito del tiro?</p>
+    <p style="color: #a0aec0;">Hai utilizzato il KERS! Qual è stato l'esito del tiro?</p>
     <button class="btn btn-success" onclick="resolveKers(false)">Esito OK (Svuota KERS)</button>
     <button class="btn btn-danger" onclick="resolveKers(true)">Danneggiato (X Rossa)</button>
     <button class="btn btn-secondary" onclick="closeModal('modal-kers')">Annulla</button>
@@ -1206,7 +1206,7 @@
     }
 
     if (gameState.code == code) {
-      alert("La partita ÃƒÂ¨ stata chiusa.");
+      alert("La partita è stata chiusa.");
       gameState.code = null;
       showScreen('screen-home');
     } else if (document.getElementById('screen-join-game').classList.contains('active')) {
@@ -2025,7 +2025,7 @@
       pitBtn.style.display = 'block';
       weatherTestBtn.style.display = 'none';
     } else if (gameState.isEditingAllowed) {
-      editBtn.innerText = "ModalitÃ Â edit attiva (clicca per bloccare)";
+      editBtn.innerText = "ModalitÃ  edit attiva (clicca per bloccare)";
       editBtn.className = 'btn btn-edit-mode';
       pitBtn.innerText = "Entrata ai Box (Pit Stop)";
       pitBtn.style.display = 'block';
@@ -2036,7 +2036,7 @@
         weatherTestBtn.style.display = 'none';
       }
     } else {
-      editBtn.innerText = "ModalitÃ Â edit attiva (clicca per sbloccare)";
+      editBtn.innerText = "Modalita edit attiva (clicca per sbloccare)";
       editBtn.className = 'btn btn-read-mode';
       pitBtn.style.display = 'none';
       weatherTestBtn.style.display = 'none';
@@ -2114,40 +2114,23 @@
 
     if (comp === 'body' && gameState.wingActive && clickedIndex === wingBoxIndex) return;
 
-    if (componente === 'fuel' && gameState.isPitStopActive) {
-      const listaIndiciBenzinaSegnati = gameState.markedUsages.fuel;
-      const puntiTotaliBenzina = gameState.baseValues.fuel + gameState.allocations.fuel;
-      const casellaCliccataHaLaCroce = listaIndiciBenzinaSegnati.includes(clickedIndex);
+    if (comp === 'fuel' && gameState.isPitStopActive) {
+      const markedList = gameState.markedUsages.fuel;
+      const totalFuelPoints = gameState.baseValues.fuel + gameState.allocations.fuel;
+      const isClickedMarked = markedList.includes(clickedIndex);
 
-      if (casellaCliccataHaLaCroce) {
-        listaIndiciBenzinaSegnati.sort(function(indiceA, indiceB) {
-          return indiceA - indiceB;
-        });
-        
-        const puntiLiberiDopoLaRimozione = (puntiTotaliBenzina - listaIndiciBenzinaSegnati.length) + 1;
-        if (puntiLiberiDopoLaRimozione > 3) {
-          gameState.markedUsages.fuel = [];
+      if (isClickedMarked) {
+        const currentRemaining = totalFuelPoints - markedList.length;
+        if (currentRemaining < 3) {
+          markedList.sort((a, b) => a - b);
+          markedList.shift();
         } else {
-          listaIndiciBenzinaSegnati.shift();
+          gameState.markedUsages.fuel = [];
         }
-
       } else {
-          
-        let indiceCasellaDaSegnare = -1;
-        
-        for (let indiceCorrente = puntiTotaliBenzina - 1; indiceCorrente >= 0; indiceCorrente--) {
-          if (!listaIndiciBenzinaSegnati.includes(indiceCorrente)) {
-            indiceCasellaDaSegnare = indiceCorrente;
-            break; // Trovata la casella, usciamo dal ciclo
-          }
-        }
-        
-        if (indiceCasellaDaSegnare !== -1) {
-          listaIndiciBenzinaSegnati.push(indiceCasellaDaSegnare);
-        }
+        markedList.push(clickedIndex);
       }
 
-      // Aggiorniamo la schermata e salviamo i dati
       renderBoard();
       saveGameState();
       return;
