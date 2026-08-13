@@ -35,7 +35,7 @@
       border-radius: 8px;
       padding: 12px;
       backdrop-filter: blur(10px);
-      position: relative; /* Necessario per posizionare la versione dentro la home */
+      position: relative;
     }
 
     .screen { display: none; }
@@ -84,6 +84,7 @@
       margin: 10px 0;
       transition: all 0.25s ease-in-out;
       box-shadow: 0 0 10px rgba(0, 240, 255, 0.2);
+      text-transform: none !important;
     }
 
     body.theme-cyberpunk .btn:hover:not(:disabled) {
@@ -208,6 +209,7 @@
       transition: all 0.2s ease-in-out;
       box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
       text-shadow: none !important;
+      text-transform: none !important;
     }
 
     body.theme-ironman .btn:hover:not(:disabled) {
@@ -336,6 +338,7 @@
       cursor: pointer;
       font-family: 'Orbitron', sans-serif;
       flex-shrink: 0;
+      text-transform: none !important;
     }
     .btn-delete-room:hover {
       background: #ff0055;
@@ -424,6 +427,7 @@
       border-radius: 4px;
       cursor: pointer;
       margin-bottom: 6px;
+      text-transform: none !important;
     }
     .tyre-card.active .tyre-title-btn { 
       background: #00f0ff; 
@@ -580,6 +584,7 @@
       cursor: pointer;
       font-family: 'Orbitron', sans-serif;
       margin-left: 10px;
+      text-transform: none !important;
     }
     .btn-refresh-list:hover {
       background: #00f0ff;
