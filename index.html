@@ -13,6 +13,7 @@
 
   <style>
     * { box-sizing: border-box; }
+    
     body {
       font-family: 'Rajdhani', sans-serif;
       margin: 0;
@@ -21,6 +22,7 @@
       justify-content: center;
       transition: background 0.3s ease, color 0.3s ease;
     }
+
     .app-container {
       width: 100%;
       max-width: 950px;
@@ -29,8 +31,10 @@
       backdrop-filter: blur(10px);
       position: relative;
     }
+
     .screen { display: none; }
     .screen.active { display: block; }
+
     h1, h2, h3 { 
       font-family: 'Orbitron', sans-serif;
       text-align: center; 
@@ -38,24 +42,46 @@
       text-transform: uppercase;
       letter-spacing: 2px;
     }
+
+    /* CYBER-PUNK THEME */
     body.theme-cyberpunk {
       background-color: #080b10;
+      background-image: linear-gradient(rgba(0, 240, 255, 0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 240, 255, 0.04) 1px, transparent 1px);
+      background-size: 30px 30px;
       color: #e0e6ed;
     }
+
     body.theme-cyberpunk .app-container {
       background: rgba(18, 24, 38, 0.85);
       border: 1px solid rgba(0, 240, 255, 0.35);
+      box-shadow: 0 0 25px rgba(0, 240, 255, 0.12), inset 0 0 15px rgba(0, 0, 0, 0.8);
     }
-    body.theme-cyberpunk h1, body.theme-cyberpunk h2, body.theme-cyberpunk h3 { color: #00f0ff; }
+
+    body.theme-cyberpunk h1, body.theme-cyberpunk h2, body.theme-cyberpunk h3 {
+      color: #00f0ff;
+      text-shadow: 0 0 12px #00f0ff;
+    }
+
+    /* IRONMAN THEME */
     body.theme-ironman {
       background-color: #050203;
+      background-image: radial-gradient(circle at center, rgba(229, 184, 57, 0.08) 0%, transparent 70%), linear-gradient(rgba(229, 184, 57, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(229, 184, 57, 0.05) 1px, transparent 1px);
+      background-size: 30px 30px;
       color: #ffffff;
     }
+
     body.theme-ironman .app-container {
       background: rgba(92, 0, 3, 0.92);
       border: 2px solid #e5b839;
+      box-shadow: 0 0 30px rgba(0, 0, 0, 0.8);
     }
-    body.theme-ironman h1, body.theme-ironman h2, body.theme-ironman h3 { color: #f5d061; }
+
+    body.theme-ironman h1, body.theme-ironman h2, body.theme-ironman h3 {
+      color: #f5d061;
+      text-shadow: 0 0 10px rgba(0, 0, 0, 0.8), 0 0 5px #f5d061;
+    }
+
+    /* BOTTONI E INPUT GENERALI */
     .btn {
       font-family: 'Orbitron', sans-serif;
       padding: 14px 20px;
@@ -65,7 +91,22 @@
       cursor: pointer;
       width: 100%;
       margin: 10px 0;
+      transition: all 0.2s ease-in-out;
     }
+
+    body.theme-ironman .btn {
+      background: linear-gradient(180deg, #fff2bd 0%, #e5b839 40%, #c49618 100%);
+      color: #520003;
+      border: 2px solid #000000;
+      font-weight: 900;
+    }
+
+    body.theme-cyberpunk .btn {
+      background-color: #0f1522;
+      color: #00f0ff;
+      border: 1px solid #00f0ff;
+    }
+
     input, select {
       width: 100%;
       padding: 10px;
@@ -77,6 +118,7 @@
       font-size: 1rem;
       font-family: 'Rajdhani', sans-serif;
     }
+
     .lobby-card {
       background: rgba(15, 21, 34, 0.9);
       border: 1px solid #00f0ff;
@@ -88,6 +130,7 @@
       justify-content: space-between;
       align-items: center;
     }
+
     .sheet-header {
       display: flex;
       justify-content: space-between;
@@ -96,6 +139,7 @@
       padding-bottom: 10px;
       margin-bottom: 15px;
     }
+
     .tyres-deck {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
@@ -105,6 +149,7 @@
       padding: 8px;
       border-radius: 6px;
     }
+
     .tyre-card {
       background-color: #0f1522;
       border: 1px solid rgba(0, 240, 255, 0.15);
@@ -112,8 +157,10 @@
       padding: 6px;
       text-align: center;
     }
-    .tyre-card.active { border-color: #00f0ff !important; }
+    .tyre-card.active { border-color: #00f0ff !important; box-shadow: 0 0 10px #00f0ff; }
+    
     .laps-container { display: flex; justify-content: center; gap: 6px; }
+
     .lap-box {
       width: 28px; height: 28px;
       background-color: #0f1522;
@@ -126,6 +173,7 @@
     }
     .lap-box.marked { background-color: #00f0ff !important; color: #000 !important; font-weight: 900 !important; }
     .lap-box.clickable { cursor: pointer; }
+
     .board-row {
       display: flex; align-items: flex-end; justify-content: space-between; gap: 4px;
       margin-bottom: 12px; padding: 6px;
@@ -133,14 +181,16 @@
     }
     .board-side { display: flex; align-items: flex-end; gap: 4px; }
     .boxes-container { display: flex; gap: 2px; }
+
     .box {
       width: 30px; height: 34px;
       font-family: 'Orbitron', sans-serif; font-weight: 700; font-size: 1rem;
       display: flex; align-items: center; justify-content: center;
       border-radius: 3px; background: #0f1522; color: #00ffcc; border: 1px solid #00f0ff;
     }
-    .box.x-red { background: rgba(255, 0, 85, 0.2) !important; color: #ff0055 !important; border: 1px solid #ff0055 !important; }
+    .box.x-red { background: rgba(255, 0, 85, 0.2) !important; color: #ff0055 !important; border: 1px solid #ff0055 !important; font-weight: 900; }
     .box.clickable { cursor: pointer; }
+
     .modal {
       display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
       background: rgba(0,0,0,0.85); justify-content: center; align-items: center; z-index: 100;
@@ -209,7 +259,7 @@
     <div style="margin-bottom: 15px;">
       <button id="btn-start-config" class="btn" onclick="startConfiguration()">Inizia Configurazione (13 Punti)</button>
       <button id="btn-lock-setup" class="btn" onclick="officializeSetup()" style="display:none;" disabled>Inizia Gara</button>
-      <div id="race-controls" style="display:none; gap:8px; display:flex;">
+      <div id="race-controls" style="display:none; gap:8px;">
         <button id="btn-toggle-edit" class="btn" onclick="toggleRaceEdit()">Sblocca Edit</button>
         <button id="btn-pitstop-action" class="btn" onclick="handlePitStopButtonClick()" style="display:none;">Pit Stop</button>
       </div>
@@ -264,6 +314,8 @@
   function changeTheme(themeName) {
     document.body.className = `theme-${themeName}`;
     gameState.theme = themeName;
+    const select = document.getElementById('theme-select');
+    if (select) select.value = themeName;
   }
 
   function showScreen(screenId) {
@@ -498,7 +550,7 @@
     if (gameState.allocations[comp] > 0) { gameState.allocations[comp]--; gameState.budget++; renderBoard(); }
   }
 
-  // REGOLE UNIFICATE E SPECULARI PER LA GESTIONE DELLE X (EDIT E PIT STOP)
+  // GESTIONE DELLE X SECONDO LE REGOLE SPECULARI RICHIESTE
   function handleComponentClick(comp, clickedIndex) {
     if (inspectingPilotId !== null) return;
     
@@ -510,7 +562,7 @@
     const isClickedMarked = markedList.includes(clickedIndex);
 
     if (isClickedMarked) {
-      // RIMOZIONE X: Sinistra da sinistra a destra, Destra da destra a sinistra
+      // 2 & 4: RIMOZIONE X -> Sinistra da sinistra a destra, Destra da destra a sinistra
       if (!isRight) {
         markedList.sort((a, b) => a - b);
         markedList.shift();
@@ -519,7 +571,7 @@
         markedList.shift();
       }
     } else {
-      // INSERIMENTO X: Sinistra da destra a sinistra, Destra da sinistra a destra
+      // 1 & 3: INSERIMENTO X -> Sinistra da destra a sinistra, Destra da sinistra a destra
       let targetIndex = -1;
       if (!isRight) {
         for (let i = totalPoints - 1; i >= 0; i--) { 
