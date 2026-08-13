@@ -429,7 +429,7 @@
     });
   }
 
-  function selectType(t) {
+  function selectTyre(t) {
     if (gameState.isSetupMode || gameState.isPitStopActive) {
       gameState.selectedTyre = t;
       renderTyreDeck();
@@ -498,65 +498,44 @@
     if (gameState.allocations[comp] > 0) { gameState.allocations[comp]--; gameState.budget++; renderBoard(); }
   }
 
-  // LOGICA SEPARATA EDIT & PIT STOP CON BENZINA DA DESTRA A SINISTRA
+  // REGOLE UNIFICATE E SPECULARI PER LA GESTIONE DELLE X (EDIT E PIT STOP)
   function handleComponentClick(comp, clickedIndex) {
     if (inspectingPilotId !== null) return;
-    if (gameState.isPitStopActive) {
-      handleComponentPitStop(comp, clickedIndex);
-    } else if (gameState.isEditingAllowed) {
-      handleComponentEdit(comp, clickedIndex);
-    }
-  }
-
-  function handleComponentEdit(comp, clickedIndex) {
+    
     const rightAligned = ['body', 'engine', 'suspension'];
     const isRight = rightAligned.includes(comp);
     const totalBoxes = (comp === 'tyres') ? 10 : 6;
     const totalPoints = gameState.baseValues[comp] + gameState.allocations[comp];
     const markedList = gameState.markedUsages[comp];
+    const isClickedMarked = markedList.includes(clickedIndex);
 
-    if (markedList.includes(clickedIndex)) {
-      markedList.splice(markedList.indexOf(clickedIndex), 1);
+    if (isClickedMarked) {
+      // RIMOZIONE X: Sinistra da sinistra a destra, Destra da destra a sinistra
+      if (!isRight) {
+        markedList.sort((a, b) => a - b);
+        markedList.shift();
+      } else {
+        markedList.sort((a, b) => b - a);
+        markedList.shift();
+      }
     } else {
+      // INSERIMENTO X: Sinistra da destra a sinistra, Destra da sinistra a destra
       let targetIndex = -1;
       if (!isRight) {
-        if (comp === 'fuel') {
-          for (let i = totalPoints - 1; i >= 0; i--) { if (!markedList.includes(i)) { targetIndex = i; break; } }
-        } else {
-          for (let i = 0; i < totalPoints; i++) { if (!markedList.includes(i)) { targetIndex = i; break; } }
+        for (let i = totalPoints - 1; i >= 0; i--) { 
+          if (!markedList.includes(i)) { targetIndex = i; break; } 
         }
       } else {
         for (let i = totalBoxes - totalPoints; i < totalBoxes; i++) {
           if (!markedList.includes(i)) { targetIndex = i; break; }
         }
       }
-      if (targetIndex !== -1) markedList.push(targetIndex);
-    }
-    renderBoard();
-    saveGameState();
-  }
 
-  function handleComponentPitStop(comp, clickedIndex) {
-    const markedList = gameState.markedUsages[comp];
-    const totalPoints = gameState.baseValues[comp] + gameState.allocations[comp];
-
-    if (comp === 'fuel') {
-      if (markedList.includes(clickedIndex)) {
-        markedList.splice(markedList.indexOf(clickedIndex), 1);
-      } else {
-        let targetIndex = -1;
-        for (let i = totalPoints - 1; i >= 0; i--) { if (!markedList.includes(i)) { targetIndex = i; break; } }
-        if (targetIndex !== -1) markedList.push(targetIndex);
-      }
-    } else {
-      if (markedList.includes(clickedIndex)) {
-        markedList.splice(markedList.indexOf(clickedIndex), 1);
-      } else {
-        let targetIndex = -1;
-        for (let i = 0; i < totalPoints; i++) { if (!markedList.includes(i)) { targetIndex = i; break; } }
-        if (targetIndex !== -1) markedList.push(targetIndex);
+      if (targetIndex !== -1) {
+        markedList.push(targetIndex);
       }
     }
+
     renderBoard();
     saveGameState();
   }
