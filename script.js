@@ -12,7 +12,6 @@ import { gestisciModificaUsuraFreniETrafilamentoKers } from './brakesKers.js';
 import { gestisciUsuraTelaio } from './chassis.js';
 import { gestisciUsuraMotore } from './engine.js';
 import { gestisciUsuraSospensioni } from './suspension.js';
-import { eseguiRiparazioneConPuntiOfficina } from './chassisEngineSuspensionWorkshop.js';
 
 // --- ESPORTAZIONE GLOBALE PER I PULSANTI HTML (onclick) ---
 
