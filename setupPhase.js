@@ -47,13 +47,13 @@ export function assegnaPuntoBudgetSetup(tipoComponenteDaPotenziare) {
  */
 export function ottieniMescoleAbilitatePerSetupMeteo(condizioneMeteoGara) {
     if (condizioneMeteoGara === 'sun') {
-        return ['Prime', 'Option', 'Intermedie'];[cite: 2]
+        return ['Prime', 'Option', 'Intermedie'];
     } else if (condizioneMeteoGara === 'rain') {
-        return ['Intermedie', 'Pioggia'];[cite: 2]
+        return ['Intermedie', 'Pioggia'];
     } else if (condizioneMeteoGara === 'var_dry') {
-        return ['Prime', 'Option', 'Intermedie'];[cite: 2]
+        return ['Prime', 'Option', 'Intermedie'];
     } else if (condizioneMeteoGara === 'var_wet') {
-        return ['Intermedie', 'Pioggia'];[cite: 2]
+        return ['Intermedie', 'Pioggia'];
     }
     return ['Prime', 'Option', 'Intermedie'];
 }
