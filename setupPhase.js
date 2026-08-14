@@ -40,8 +40,7 @@ export function assegnaPuntoBudgetSetup(tipoComponenteDaPotenziare) {
 }
 
 /**
- * Restituisce le mescole abilitabili in fase di setup in base alla condizione meteo fissa o variabile.
- * 
+ * Restituisce le mescole abilitabili in fase di setup in base alla condizione meteo fissa o variabile
  * @param {string} condizioneMeteoGara - Stato meteo corrente ('sun', 'rain', 'var_dry', 'var_wet')
  * @returns {Array<string>} - Elenco delle mescole permesse
  */
