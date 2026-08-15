@@ -368,7 +368,7 @@
 
     .tyres-deck {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
       gap: 8px;
       margin-bottom: 15px;
       background-color: rgba(15, 21, 34, 0.6);
@@ -402,7 +402,7 @@
       color: #ffffff;
       border: 1px solid #2e3d52;
       font-family: 'Orbitron', sans-serif;
-      font-size: 0.8rem;
+      font-size: 0.75rem;
       font-weight: bold;
       border-radius: 4px;
       cursor: pointer;
@@ -414,16 +414,16 @@
       border-color: #00f0ff;
     }
 
-    .laps-container { display: flex; justify-content: center; gap: 6px; }
+    .laps-container { display: flex; justify-content: center; gap: 4px; }
 
     .lap-box {
-      width: 28px; height: 28px;
+      width: 26px; height: 26px;
       background-color: #0f1522;
       color: #cbd5e1;
       border: 1px solid #2e3d52;
       border-radius: 3px;
       font-family: 'Orbitron', sans-serif;
-      font-size: 0.9rem;
+      font-size: 0.85rem;
       font-weight: bold;
       display: flex; align-items: center; justify-content: center;
       user-select: none; opacity: 0.6;
@@ -516,8 +516,8 @@
     .boxes-container { display: flex; gap: 2px; }
 
     .box {
-      width: 30px; height: 34px;
-      font-family: 'Orbitron', sans-serif; font-weight: 700; font-size: 1rem;
+      width: 28px; height: 32px;
+      font-family: 'Orbitron', sans-serif; font-weight: 700; font-size: 0.95rem;
       display: flex; align-items: center; justify-content: center;
       user-select: none; border-radius: 3px; position: relative; flex-shrink: 0;
     }
@@ -672,7 +672,7 @@
       </div>
     </div>
 
-    <!-- DECK MESCOLE CON I NUMERI DEI GIRI -->
+    <!-- DECK MESCOLE SEPARATE CON LAPS BOX -->
     <div class="tyres-deck" id="tyres-deck-container">
       <div class="tyre-card">
         <button class="tyre-title-btn">1 - Prime</button>
@@ -691,7 +691,15 @@
         </div>
       </div>
       <div class="tyre-card">
-        <button class="tyre-title-btn">3 - Intermedie / Pioggia</button>
+        <button class="tyre-title-btn">3 - Intermedie</button>
+        <div class="laps-container">
+          <div class="lap-box">1</div>
+          <div class="lap-box">2</div>
+          <div class="lap-box">3</div>
+        </div>
+      </div>
+      <div class="tyre-card">
+        <button class="tyre-title-btn">4 - Pioggia</button>
         <div class="laps-container">
           <div class="lap-box">1</div>
           <div class="lap-box">2</div>
@@ -708,7 +716,7 @@
         <div class="workshop-boxes-wrapper">
           <div class="workshop-label"><span id="workshop-mov-val" class="mov-num-val">0</span> MOV</div>
           <div class="boxes-container" id="row-workshop">
-            <div class="box"></div><div class="box"></div><div class="box"></div>
+            <div class="box">1</div><div class="box">1</div><div class="box">1</div>
           </div>
         </div>
       </div>
@@ -719,11 +727,14 @@
     </div>
 
     <div>
+      <!-- PNEUMATICI (10 caselle) -->
       <div class="board-row">
         <div class="comp-block-wrapper">
           <div class="board-side">
             <div class="boxes-container" id="row-tyres">
-              <div class="box"></div><div class="box"></div><div class="box"></div><div class="box"></div><div class="box"></div><div class="box"></div>
+              <div class="box">1</div><div class="box">1</div><div class="box">1</div>
+              <div class="box"></div><div class="box"></div><div class="box"></div>
+              <div class="box"></div><div class="box"></div><div class="box"></div><div class="box"></div>
             </div>
             <div class="icon-box-center arrow-left" title="Pneumatici">
               <svg viewBox="0 0 100 100" fill="none" stroke="#00f0ff">
@@ -735,13 +746,14 @@
                 <line x1="54" y1="50" x2="44" y2="50" stroke="#00f0ff" stroke-width="3"/>
                 <line x1="70" y1="50" x2="80" y2="50" stroke="#00f0ff" stroke-width="3"/>
                 <line x1="56" y1="42" x2="48" y2="30" stroke="#00f0ff" stroke-width="3"/>
-                <line x1="68" y1="58" x2="76" y2="70" stroke="#00f0ff" stroke-width="3"/>
+                <line x1="68" y1="58" x2="76" y2="70" stroke="#0f1522" stroke-width="3"/>
                 <path d="M 22 25 L 35 22 M 20 38 L 35 34 M 19 50 L 35 48 M 22 75 L 35 78" stroke="#0f1522" stroke-width="3"/>
               </svg>
             </div>
           </div>
         </div>
 
+        <!-- TELAIO (6 caselle) -->
         <div class="comp-block-wrapper align-right">
           <div class="board-side right-side">
             <div class="icon-box-center arrow-right" title="Telaio">
@@ -764,16 +776,19 @@
               </svg>
             </div>
             <div class="boxes-container" id="row-body">
-              <div class="box"></div><div class="box"></div><div class="box"></div>
+              <div class="box">1</div><div class="box">1</div>
+              <div class="box"></div><div class="box"></div><div class="box"></div><div class="box"></div>
             </div>
           </div>
         </div>
       </div>
 
+      <!-- FRENI & MOTORE (6 caselle ciascuno) -->
       <div class="board-row">
         <div class="comp-block-wrapper">
           <div class="board-side">
             <div class="boxes-container" id="row-brakes">
+              <div class="box">1</div><div class="box">1</div>
               <div class="box"></div><div class="box"></div><div class="box"></div><div class="box"></div>
             </div>
             <div class="icon-box-center arrow-left" title="Freni">
@@ -822,19 +837,22 @@
               </svg>
             </div>
             <div class="boxes-container" id="row-engine">
-              <div class="box"></div><div class="box"></div><div class="box"></div>
+              <div class="box">1</div><div class="box">1</div>
+              <div class="box"></div><div class="box"></div><div class="box"></div><div class="box"></div>
             </div>
           </div>
         </div>
       </div>
 
+      <!-- CARBURANTE & SOSPENSIONI (6 caselle ciascuno) -->
       <div class="board-row">
         <div class="comp-block-wrapper">
           <div class="board-side">
             <div class="fuel-container-wrapper">
               <div class="fuel-mov-label"><span id="fuel-mov-prefix">+</span><span id="fuel-mov-val" class="mov-num-val">0</span> MOV</div>
               <div class="boxes-container" id="row-fuel">
-                <div class="box"></div><div class="box"></div><div class="box"></div><div class="box"></div><div class="box"></div>
+                <div class="box">1</div><div class="box">1</div>
+                <div class="box"></div><div class="box"></div><div class="box"></div><div class="box"></div>
               </div>
             </div>
             <div class="icon-box-center arrow-left" title="Carburante">
@@ -869,7 +887,8 @@
               </svg>
             </div>
             <div class="boxes-container" id="row-suspension">
-              <div class="box"></div><div class="box"></div><div class="box"></div>
+              <div class="box">1</div><div class="box">1</div>
+              <div class="box"></div><div class="box"></div><div class="box"></div><div class="box"></div>
             </div>
           </div>
         </div>
