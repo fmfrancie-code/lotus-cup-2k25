@@ -79,3 +79,9 @@ window.closeModal = function(modalId) {
 
 // Funzioni di test rapido per verificare il caricamento dei moduli
 console.log("Lotus Cup 2k25: Script ponte caricato correttamente con tutti i moduli attivi.");
+
+// Inizializzazione automatica al caricamento della pagina
+document.addEventListener("DOMContentLoaded", () => {
+    document.body.classList.add('theme-ironman');
+    console.log("Tema iniziale Iron-Man applicato.");
+});
