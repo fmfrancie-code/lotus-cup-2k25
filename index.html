@@ -672,8 +672,33 @@
       </div>
     </div>
 
-    <!-- DECK MESCOLE ORIGINALE CON I NUMERI DEI GIRI -->
-    <div class="tyres-deck" id="tyres-deck-container"></div>
+    <!-- DECK MESCOLE CON I NUMERI DEI GIRI -->
+    <div class="tyres-deck" id="tyres-deck-container">
+      <div class="tyre-card">
+        <button class="tyre-title-btn">1 - Prime</button>
+        <div class="laps-container">
+          <div class="lap-box">1</div>
+          <div class="lap-box">2</div>
+          <div class="lap-box">3</div>
+        </div>
+      </div>
+      <div class="tyre-card">
+        <button class="tyre-title-btn">2 - Option</button>
+        <div class="laps-container">
+          <div class="lap-box">1</div>
+          <div class="lap-box">2</div>
+          <div class="lap-box">3</div>
+        </div>
+      </div>
+      <div class="tyre-card">
+        <button class="tyre-title-btn">3 - Intermedie / Pioggia</button>
+        <div class="laps-container">
+          <div class="lap-box">1</div>
+          <div class="lap-box">2</div>
+          <div class="lap-box">3</div>
+        </div>
+      </div>
+    </div>
 
     <div style="display: flex; justify-content: flex-end; margin-bottom: 10px;">
       <div class="workshop-block">
@@ -682,7 +707,9 @@
         </div>
         <div class="workshop-boxes-wrapper">
           <div class="workshop-label"><span id="workshop-mov-val" class="mov-num-val">0</span> MOV</div>
-          <div class="boxes-container" id="row-workshop"></div>
+          <div class="boxes-container" id="row-workshop">
+            <div class="box"></div><div class="box"></div><div class="box"></div>
+          </div>
         </div>
       </div>
     </div>
@@ -695,7 +722,9 @@
       <div class="board-row">
         <div class="comp-block-wrapper">
           <div class="board-side">
-            <div class="boxes-container" id="row-tyres"></div>
+            <div class="boxes-container" id="row-tyres">
+              <div class="box"></div><div class="box"></div><div class="box"></div><div class="box"></div><div class="box"></div><div class="box"></div>
+            </div>
             <div class="icon-box-center arrow-left" title="Pneumatici">
               <svg viewBox="0 0 100 100" fill="none" stroke="#00f0ff">
                 <path d="M 45 12 Q 22 18 18 50 Q 22 82 45 88 Q 85 88 85 50 Q 85 12 45 12 Z" fill="#00f0ff"/>
@@ -729,12 +758,14 @@
                 <line x1="33" y1="17" x2="33" y2="28" stroke="#00f0ff" stroke-width="3"/>
                 <line x1="67" y1="17" x2="67" y2="28" stroke="#0f1522" stroke-width="3"/>
                 <line x1="23" y1="42" x2="42" y2="48" stroke="#00f0ff" stroke-width="2"/>
-                <line x1="23" y1="58" x2="42" y2="52" stroke="#0f1522" stroke-width="2"/>
-                <line x1="77" y1="42" x2="58" y2="48" stroke="#0f1522" stroke-width="2"/>
-                <line x1="77" y1="58" x2="58" y2="52" stroke="#0f1522" stroke-width="2"/>
+                <line x1="23" y1="58" x2="42" y2="52" stroke="#00f0ff" stroke-width="2"/>
+                <line x1="77" y1="42" x2="58" y2="48" stroke="#00f0ff" stroke-width="2"/>
+                <line x1="77" y1="58" x2="58" y2="52" stroke="#00f0ff" stroke-width="2"/>
               </svg>
             </div>
-            <div class="boxes-container" id="row-body"></div>
+            <div class="boxes-container" id="row-body">
+              <div class="box"></div><div class="box"></div><div class="box"></div>
+            </div>
           </div>
         </div>
       </div>
@@ -742,7 +773,9 @@
       <div class="board-row">
         <div class="comp-block-wrapper">
           <div class="board-side">
-            <div class="boxes-container" id="row-brakes"></div>
+            <div class="boxes-container" id="row-brakes">
+              <div class="box"></div><div class="box"></div><div class="box"></div><div class="box"></div>
+            </div>
             <div class="icon-box-center arrow-left" title="Freni">
               <svg viewBox="0 0 100 100" fill="#00f0ff">
                 <rect x="15" y="80" width="70" height="6" rx="2"/>
@@ -788,7 +821,9 @@
                 <line x1="32" y1="78" x2="68" y2="78" stroke="#0f1522" stroke-width="3"/>
               </svg>
             </div>
-            <div class="boxes-container" id="row-engine"></div>
+            <div class="boxes-container" id="row-engine">
+              <div class="box"></div><div class="box"></div><div class="box"></div>
+            </div>
           </div>
         </div>
       </div>
@@ -798,7 +833,9 @@
           <div class="board-side">
             <div class="fuel-container-wrapper">
               <div class="fuel-mov-label"><span id="fuel-mov-prefix">+</span><span id="fuel-mov-val" class="mov-num-val">0</span> MOV</div>
-              <div class="boxes-container" id="row-fuel"></div>
+              <div class="boxes-container" id="row-fuel">
+                <div class="box"></div><div class="box"></div><div class="box"></div><div class="box"></div><div class="box"></div>
+              </div>
             </div>
             <div class="icon-box-center arrow-left" title="Carburante">
               <svg viewBox="0 0 100 100" fill="#00f0ff">
@@ -831,7 +868,9 @@
                 <line x1="38" y1="68" x2="68" y2="75" stroke="#0f1522" stroke-width="4"/>
               </svg>
             </div>
-            <div class="boxes-container" id="row-suspension"></div>
+            <div class="boxes-container" id="row-suspension">
+              <div class="box"></div><div class="box"></div><div class="box"></div>
+            </div>
           </div>
         </div>
       </div>
