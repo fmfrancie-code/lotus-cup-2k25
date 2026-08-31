@@ -16,6 +16,7 @@ import { inizializzaSchedaPilota, gestisciAssegnazioneBudget, ufficializzaScheda
 
 window.changeTheme = function(themeName) {
     applyTheme(themeName);
+    updateGameState({ theme: themeName });
 };
 
 window.showScreen = function(screenId) {
