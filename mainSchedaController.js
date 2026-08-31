@@ -4,7 +4,12 @@
 // ==========================================
 
 import { gameState, updateGameState } from './state.js';
-import { applyTheme } from './layout.js';
+import { assegnaPuntoBudgetSetup } from './setupPhase.js';
+import { gestisciConsumoBenzinaEModifica } from './fuel.js';
+import { gestisciUsuraMotore } from './engine.js';
+import { gestisciModificaUsuraFreniETrafilamentoKers } from './brakesKers.js';
+import { gestisciUsuraTelaio } from './chassis.js';
+import { gestisciUsuraSospensioni } from './suspension.js';
 
 /**
  * Inizializza la scheda del pilota caricando le preferenze e impostando il tema grafico.
@@ -16,10 +21,17 @@ export function inizializzaSchedaPilota(datiInizialiPilota) {
         code: datiInizialiPilota.code,
         playerName: datiInizialiPilota.playerName,
         playerId: datiInizialiPilota.playerId,
-        theme: datiInizialiPilota.theme || 'ironman'
+        theme: datiInizialiPilota.theme,
+        budget: 13,
+        allocations: {
+            tyres: 0,
+            brakes: 0,
+            fuel: 0,
+            body: 0,
+            engine: 0,
+            suspension: 0
+        }
     });
-
-    applyTheme(gameState.theme);
 }
 
 /**
