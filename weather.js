@@ -120,3 +120,22 @@ export function ottieniMescoleAbilitatePerAsfaltoCorrente() {
         return ['Prime', 'Option', 'Intermedie'];
     }
 }
+
+
+/**
+ * Gestisce l'aggiornamento, la simulazione o la lettura delle condizioni meteo correnti.
+ * 
+ * @returns {Object} Stato corrente del meteo e temperatura della pista
+ */
+export function gestisciMeteo() {
+    // Logica di gestione del meteo integrata con lo stato globale
+    const meteoAttuale = gameState.weather || "Soleggiato";
+    const temperaturaPista = gameState.trackTemp || 28;
+
+    return {
+        meteoAttuale,
+        temperaturaPista,
+        operazioneRiuscita: true,
+        messaggioDescrittivo: `Condizioni meteo stabili: ${meteoAttuale} (${temperaturaPista}°C)`
+    };
+}
