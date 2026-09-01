@@ -180,14 +180,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 });
 
-/**
- * Inizializza gli elementi visivi del layout all'avvio dell'applicazione
- */
-export function inizializzaLayout() {
-    if (gameState && gameState.theme) {
-        applyTheme(gameState.theme);
-    }
-}
 
 // Funzioni di test rapido per verificare il caricamento dei moduli
 console.log("Lotus Cup 2k25: Script Main orchestrato correttamente.");
