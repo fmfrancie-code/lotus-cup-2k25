@@ -40,7 +40,7 @@ export function formattaEOrdinaGrigliaPiloti(elencoPilotiConnessiStanza) {
 }
 
 /**
- * Attiva la modalità  di ispezione (scouting) di un avversario in sola lettura.
+ * Attiva la modalità di ispezione scouting) di un avversario in sola lettura.
  * 
  * @param {string} idPilotaDaIspezionare - ID del pilota avversario selezionato nella griglia
  * @param {Array<Object>} elencoPilotiConnessiStanza - Lista completa dei partecipanti
@@ -62,4 +62,37 @@ export function attivaModalitaIspezioneAvversario(idPilotaDaIspezionare, elencoP
         schedaInSolaLettura: pilotaTarget.boardData,
         messaggioDescrittivo: `Stai ispezionando la scheda di ${pilotaTarget.name} in modalità  sola lettura.`
     };
+}
+
+
+/**
+ * Aggiorna la vista della telemetria e la griglia dei piloti in gara.
+ * * @param {Array<Object>} elencoPilotiAggiornato - Lista aggiornata ricevuta dal server
+ */
+export function aggiornaTelemetria(elencoPilotiAggiornato) {
+    const containerItems = document.getElementById('opponents-list-items');
+    if (!containerItems) return;
+
+    // Formatta la griglia usando la funzione dedicata
+    const grigliaFormattata = formattaEOrdinaGrigliaPiloti(elencoPilotiAggiornato);
+    
+    // Pulisce e ricostruisce la lista visiva degli avversari
+    containerItems.innerHTML = '';
+    
+    grigliaFormattata.forEach(pilota => {
+        const elementoDiv = document.createElement('div');
+        elementoDiv.className = 'opp-item';
+        elementoDiv.innerHTML = `
+            <span><strong>${pilota.nomeVisualizzato}</strong></span>
+            <span style="font-size: 0.85rem; color: #00f0ff;">${pilota.statoScheda}</span>
+        `;
+        
+        // Se non è il proprio profilo, permette il click per l'ispezione (scouting)
+        if (!pilota.eIlProprioProfilo) {
+            elementoDiv.style.cursor = 'pointer';
+            elementoDiv.onclick = () => inspectPilotBoard(pilota.id);
+        }
+        
+        containerItems.appendChild(elementoDiv);
+    });
 }
