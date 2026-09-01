@@ -7,7 +7,7 @@ import { gameState } from './state.js';
 
 /**
  * Ordina e prepara la lista dei piloti connessi posizionando in cima il proprio profilo
- * contrassegnato da "(Tu)" e ordinando al anagrafica i restanti partecipanti[cite: 2].
+ * contrassegnato da "(Tu)" e ordinando al anagrafica i restanti partecipanti.
  * 
  * @param {Array<Object>} elencoPilotiConnessiStanza - Lista grezza dei piloti dal server
  * @returns {Array<Object>} - Lista ordinata e formattata per la griglia di telemetria
@@ -24,10 +24,10 @@ export function formattaEOrdinaGrigliaPiloti(elencoPilotiConnessiStanza) {
 
     return elencoOrdinato.map(pilotaCorrente => {
         const eIlGiocatoreLocale = (pilotaCorrente.id === idGiocatoreLocale);
-        const etichettaNomeVisualizzato = eIlGiocatoreLocale ? `${pilotaCorrente.name} (Tu)` : pilotaCorrente.name;[cite: 2]
+        const etichettaNomeVisualizzato = eIlGiocatoreLocale ? `${pilotaCorrente.name} (Tu)` : pilotaCorrente.name;
         
-        // Determina lo stato in tempo reale della scheda[cite: 2]
-        const statoSchedaCorrente = pilotaCorrente.isReady ? "Pronto" : "In Compilazione";[cite: 2]
+        // Determina lo stato in tempo reale della scheda
+        const statoSchedaCorrente = pilotaCorrente.isReady ? "Pronto" : "In Compilazione";
 
         return {
             id: pilotaCorrente.id,
@@ -40,7 +40,7 @@ export function formattaEOrdinaGrigliaPiloti(elencoPilotiConnessiStanza) {
 }
 
 /**
- * Attiva la modalità di ispezione (scouting) di un avversario in sola lettura[cite: 2].
+ * Attiva la modalità  di ispezione (scouting) di un avversario in sola lettura.
  * 
  * @param {string} idPilotaDaIspezionare - ID del pilota avversario selezionato nella griglia
  * @param {Array<Object>} elencoPilotiConnessiStanza - Lista completa dei partecipanti
@@ -60,6 +60,6 @@ export function attivaModalitaIspezioneAvversario(idPilotaDaIspezionare, elencoP
         operazioneRiuscita: true,
         nomeAvversarioIspezionato: pilotaTarget.name,
         schedaInSolaLettura: pilotaTarget.boardData,
-        messaggioDescrittivo: `Stai ispezionando la scheda di ${pilotaTarget.name} in modalità sola lettura.`[cite: 2]
+        messaggioDescrittivo: `Stai ispezionando la scheda di ${pilotaTarget.name} in modalità  sola lettura.
     };
 }
