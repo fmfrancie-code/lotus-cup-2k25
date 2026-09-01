@@ -36,7 +36,7 @@ export function inizializzaSchedaPilota(datiInizialiPilota) {
 
 /**
  * Transizione della scheda verso la fase di Ufficializzazione / Gara.
- * Vengono bloccati i punti di setup e attivata la modalità di gara.
+ * Vengono bloccati i punti di setup e attivata la modalitÃ  di gara.
  */
 export function ufficializzaSchedaPerGara() {
     const budgetRimanenteInSetup = gameState.budget;
@@ -59,4 +59,15 @@ export function ufficializzaSchedaPerGara() {
         operazioneRiuscita: true,
         messaggioDescrittivo: "Scheda ufficializzata con successo! La gara è iniziata."
     };
+}
+
+/**
+ * Gestisce l'assegnazione o la modifica di un punto budget per una specifica area della monoposto.
+ * 
+ * @param {string} tipoArea - L'area della scheda (es. 'tyres', 'brakes', ecc.)
+ * @param {number} delta - Quantità da aggiungere o sottrarre (es. +1 o -1)
+ * @returns {Object} Risultato dell'operazione di budget
+ */
+export function gestisciAssegnazioneBudget(tipoArea, delta) {
+    return assegnaPuntoBudgetSetup(tipoArea, delta);
 }
