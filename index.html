@@ -524,16 +524,31 @@
       user-select: none; border-radius: 3px; position: relative; flex-shrink: 0;
     }
     
-    .box:hover, .box.active, .box.pre-selected {
-      box-shadow: 0 0 10px #00f0ff !important;
-      border-color: #00f0ff !important;
+    /* L'effetto hover e il cursore puntatore si attivano solo se il container o la schermata ricevono la classe setup-active */
+    #screen-setup:not(.setup-active) .box:hover {
+      box-shadow: none !important;
+      border-color: rgba(0, 240, 255, 0.35) !important;
+      cursor: default !important;
     }
 
-    body.theme-ironman .box:hover, 
+    #screen-setup.setup-active .box:hover, .box.active, .box.pre-selected {
+      box-shadow: 0 0 10px #00f0ff !important;
+      border-color: #00f0ff !important;
+      cursor: pointer;
+    }
+
+    body.theme-ironman #screen-setup:not(.setup-active) .box:hover {
+      box-shadow: none !important;
+      border-color: #e5b839 !important;
+      cursor: default !important;
+    }
+
+    body.theme-ironman #screen-setup.setup-active .box:hover, 
     body.theme-ironman .box.active, 
     body.theme-ironman .box.pre-selected {
       box-shadow: 0 0 10px #e5b839 !important;
       border-color: #e5b839 !important;
+      cursor: pointer;
     }
 
     .budget-bar {
