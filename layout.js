@@ -29,17 +29,18 @@ const ICONS = {
  * @param {string} themeName - Nome del tema ('ironman' o 'cyberpunk')
  */
 export function applyTheme(themeName) {
-    const validTheme = themeName === 'cyberpunk' ? 'cyberpunk' : 'ironman';
+
+    // Elenco dei temi attuali e futuri delle scuderie
+    const supportedThemes = ['ironman', 'cyberpunk', 'redbull', 'mcdonalds', 'chupachups', 'octan', 'kinder'];
+    // Verifica se il tema scelto è valido, altrimenti usa 'ironman' come default
+    const validTheme = supportedThemes.includes(themeName) ? themeName : 'ironman';
     
     // Aggiorna lo stato globale
     updateGameState({ theme: validTheme });
 
-    const appContainer = document.querySelector('.app-container');
-    if (appContainer) {
-        // Rimuove i vecchi temi e applica il nuovo
-        appContainer.classList.remove('theme-ironman', 'theme-cyberpunk');
-        appContainer.classList.add(`theme-${validTheme}`);
-    }
+    const allThemeClasses = supportedThemes.map(t => `theme-${t}`);
+    document.body.classList.remove(...allThemeClasses);
+    document.body.classList.add(`theme-${validTheme}`);
 
     // Sincronizza l'eventuale selettore nel DOM se presente
     const themeSelect = document.getElementById('theme-select');
@@ -72,4 +73,13 @@ function updateKersIconsVisual(themeName) {
             container.innerHTML = getKersIconHtml(themeName);
         }
     });
+}
+
+/**
+ * Inizializza gli elementi visivi del layout all'avvio dell'applicazione
+ */
+export function inizializzaLayout() {
+    if (gameState && gameState.theme) {
+        applyTheme(gameState.theme);
+    }
 }
