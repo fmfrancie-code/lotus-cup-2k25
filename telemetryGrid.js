@@ -60,6 +60,6 @@ export function attivaModalitaIspezioneAvversario(idPilotaDaIspezionare, elencoP
         operazioneRiuscita: true,
         nomeAvversarioIspezionato: pilotaTarget.name,
         schedaInSolaLettura: pilotaTarget.boardData,
-        messaggioDescrittivo: `Stai ispezionando la scheda di ${pilotaTarget.name} in modalità  sola lettura.
+        messaggioDescrittivo: `Stai ispezionando la scheda di ${pilotaTarget.name} in modalità  sola lettura.`
     };
 }
