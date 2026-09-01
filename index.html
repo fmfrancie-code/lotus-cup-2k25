@@ -32,10 +32,12 @@
     .app-container {
       width: 100%;
       max-width: 950px;
+      margin: 0 auto;
       border-radius: 8px;
       padding: 12px;
       backdrop-filter: blur(10px);
     }
+
 
     .screen { display: none; }
     .screen.active { display: block; }
@@ -520,6 +522,18 @@
       font-family: 'Orbitron', sans-serif; font-weight: 700; font-size: 0.95rem;
       display: flex; align-items: center; justify-content: center;
       user-select: none; border-radius: 3px; position: relative; flex-shrink: 0;
+    }
+    
+    .box:hover, .box.active, .box.pre-selected {
+      box-shadow: 0 0 10px #00f0ff !important;
+      border-color: #00f0ff !important;
+    }
+
+    body.theme-ironman .box:hover, 
+    body.theme-ironman .box.active, 
+    body.theme-ironman .box.pre-selected {
+      box-shadow: 0 0 10px #e5b839 !important;
+      border-color: #e5b839 !important;
     }
 
     .budget-bar {
