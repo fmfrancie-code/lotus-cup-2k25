@@ -25,14 +25,14 @@ export function inizializzaMeteoGara(condizioneMeteorologicaIniziale) {
 export function verificaSeAsfaltoBagnato() {
     const condizioneMeteoCorrente = gameState.weather;
     
-    const corrispondeA-BagnatoFissoO-VariabileBagnato = (condizioneMeteoCorrente === 'rain' || condizioneMeteoCorrente === 'var_wet');
-    const corrispondeA-AsciuttoFissoO-VariabileAsciutto = (condizioneMeteoCorrente === 'sun' || condizioneMeteoCorrente === 'var_dry');
+    const corrispondeABagnatoFissoOVariabileBagnato = (condizioneMeteoCorrente === 'rain' || condizioneMeteoCorrente === 'var_wet');
+    const corrispondeAAsciuttoFissoOVariabileAsciutto = (condizioneMeteoCorrente === 'sun' || conditioneMeteoCorrente === 'var_dry');
     
-    if (corrispondeA-BagnatoFissoO-VariabileBagnato) {
+    if (corrispondeABagnatoFissoOVariabileBagnato) {
         return true;
     }
     
-    if (corrispondeA-AsciuttoFissoO-VariabileAsciutto) {
+    if (corrispondeAAsciuttoFissoOVariabileAsciutto) {
         return false;
     }
     
@@ -89,7 +89,7 @@ export function eseguiControlloMeteoVariabile(esitoTiroDadoMeteo) {
         nuovaCondizioneMeteo = (esitoTiroDadoMeteo === 'rain') ? 'var_wet' : 'var_dry';
         
         updateGameState({
-            weather: nuonvaCondizioneMeteo = nuovaCondizioneMeteo,
+            weather: nuovaCondizioneMeteo,
             weatherLastCheck: esitoTiroDadoMeteo
         });
         
