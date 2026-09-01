@@ -69,13 +69,13 @@ window.createGame = function() {
 };
 
 window.startConfiguration = function() {
-    // Aggiorna lo stato globale per attivare la modalità setup
+    // Aggiorna lo stato globale per attivare la modalitÃ  setup
     updateGameState({
         isSetupMode: true,
         budget: 13 // Inizializza il budget fisso a 13 punti come da regolamento
     });
 
-    // Modifica la visibilità dei pulsanti e della barra budget nell'HTML
+    // Modifica la visibilità  dei pulsanti e della barra budget nell'HTML
     const btnStart = document.getElementById('btn-start-config');
     const btnLock = document.getElementById('btn-lock-setup');
     const budgetBar = document.getElementById('budget-bar');
@@ -84,7 +84,7 @@ window.startConfiguration = function() {
     if (btnStart) btnStart.style.display = 'none';
     if (btnLock) {
         btnLock.style.display = 'block';
-        btnLock.disabled = true; // Si sbloccherà quando arrivi a 0 punti o decidi di ufficializzare
+        btnLock.disabled = true; // Si sbloccherà  quando arrivi a 0 punti o decidi di ufficializzare
     }
     if (budgetBar) budgetBar.style.display = 'block';
     if (budgetCount) budgetCount.innerText = gameState.budget;
@@ -147,6 +147,10 @@ document.addEventListener("DOMContentLoaded", () => {
         'row-fuel': 'fuel',
         'row-suspension': 'suspension'
     };
+
+    // Componenti che si riempiono da destra verso sinistra (speculari)
+    const componentiDaDestra = ['body', 'engine', 'suspension'];
+
     Object.keys(righeComponenti).forEach(rowId => {
         const container = document.getElementById(rowId);
         if (container) {
@@ -157,20 +161,53 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (!box) return;
 
                 const tipoComponente = righeComponenti[rowId];
+                const boxesNellaRiga = Array.from(container.querySelectorAll('.box'));
+                const indiceBox = boxesNellaRiga.indexOf(box);
                 
-                // Il Main interpella il Controller per la logica dei punti budget
-                const risultato = gestisciAssegnazioneBudget(tipoComponente);
+                const puntiAttuali = gameState.allocations[tipoComponente] || 0;
+                
+                // Determina la direzione e l'indice logico del punto in base al componente
+                let delta = 1;
+                const isDaDestra = componentiDaDestra.includes(tipoComponente);
+                
+                // Verifica se la casella cliccata è già attiva/pre-selected
+                const eGiaAttiva = box.classList.contains('pre-selected');
+
+                if (eGiaAttiva) {
+                    // Se è già attiva, vogliamo rimuoverla (-1)
+                    delta = -1;
+                } else {
+                    // Controllo sequenzialità: l'utente deve riempire/svuotare in modo ordinato
+                    // (es. il prossimo box valido deve essere adiacente all'ultimo allocato)
+                    const prossimoIndiceValido = isDaDestra 
+                        ? boxesNellaRiga.length - 1 - puntiAttuali 
+                        : puntiAttuali;
+
+                    if (indiceBox !== prossimoIndiceValido) {
+                        // Se clicca una casella fuori sequenza, ignoriamo o gestiamo
+                        return;
+                    }
+                    delta = 1;
+                }
+
+                // Interpella il Controller per la logica dei punti budget
+                const risultato = gestisciAssegnazioneBudget(tipoComponente, delta);
 
                 if (risultato.operazioneRiuscita) {
-                    box.classList.add('pre-selected');
-                    box.innerText = '1';
+                    if (delta > 0) {
+                        box.classList.add('pre-selected');
+                        box.innerText = '1';
+                    } else {
+                        box.classList.remove('pre-selected');
+                        box.innerText = '';
+                    }
                     
                     const budgetCount = document.getElementById('budget-count');
                     if (budgetCount) budgetCount.innerText = risultato.budgetResiduo;
 
-                    if (risultato.budgetResiduo === 0) {
-                        const btnLock = document.getElementById('btn-lock-setup');
-                        if (btnLock) btnLock.disabled = false;
+                    const btnLock = document.getElementById('btn-lock-setup');
+                    if (btnLock) {
+                        btnLock.disabled = (risultato.budgetResiduo > 0);
                     }
                 } else {
                     alert(risultato.messaggioDescrittivo);
