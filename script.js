@@ -69,13 +69,19 @@ window.createGame = function() {
 };
 
 window.startConfiguration = function() {
-    // Aggiorna lo stato globale per attivare la modalitÃ  setup
+    // Aggiorna lo stato globale per attivare la modalità setup
     updateGameState({
         isSetupMode: true,
         budget: 13 // Inizializza il budget fisso a 13 punti come da regolamento
     });
 
-    // Modifica la visibilità  dei pulsanti e della barra budget nell'HTML
+    // Abilita la classe di stato attivo sul contenitore della schermata di setup
+    const setupScreen = document.getElementById('screen-setup');
+    if (setupScreen) {
+        setupScreen.classList.add('setup-active');
+    }
+
+    // Modifica la visibilità dei pulsanti e della barra budget nell'HTML
     const btnStart = document.getElementById('btn-start-config');
     const btnLock = document.getElementById('btn-lock-setup');
     const budgetBar = document.getElementById('budget-bar');
@@ -84,7 +90,7 @@ window.startConfiguration = function() {
     if (btnStart) btnStart.style.display = 'none';
     if (btnLock) {
         btnLock.style.display = 'block';
-        btnLock.disabled = true; // Si sbloccherà  quando arrivi a 0 punti o decidi di ufficializzare
+        btnLock.disabled = true; // Si sbloccherà quando arrivi a 0 punti o decidi di ufficializzare
     }
     if (budgetBar) budgetBar.style.display = 'block';
     if (budgetCount) budgetCount.innerText = gameState.budget;
@@ -148,14 +154,16 @@ document.addEventListener("DOMContentLoaded", () => {
         'row-suspension': 'suspension'
     };
 
-    // Componenti che si riempiono da destra verso sinistra (speculari)
     const componentiDaDestra = ['body', 'engine', 'suspension'];
 
     Object.keys(righeComponenti).forEach(rowId => {
         const container = document.getElementById(rowId);
         if (container) {
             container.addEventListener('click', (e) => {
-                if (!gameState.isSetupMode) return;
+                // CORRETTO: Impedisce qualsiasi interazione se la configurazione non è stata avviata
+                if (!gameState.isSetupMode) {
+                    return;
+                }
                 
                 const box = e.target.closest('.box');
                 if (!box) return;
@@ -166,40 +174,31 @@ document.addEventListener("DOMContentLoaded", () => {
                 
                 const puntiAttuali = gameState.allocations[tipoComponente] || 0;
                 
-                // Determina la direzione e l'indice logico del punto in base al componente
                 let delta = 1;
                 const isDaDestra = componentiDaDestra.includes(tipoComponente);
-                
-                // Verifica se la casella cliccata è già attiva/pre-selected
                 const eGiaAttiva = box.classList.contains('pre-selected');
 
                 if (eGiaAttiva) {
-                    // Se è già attiva, vogliamo rimuoverla (-1)
                     delta = -1;
                 } else {
-                    // Controllo sequenzialità: l'utente deve riempire/svuotare in modo ordinato
-                    // (es. il prossimo box valido deve essere adiacente all'ultimo allocato)
                     const prossimoIndiceValido = isDaDestra 
                         ? boxesNellaRiga.length - 1 - puntiAttuali 
                         : puntiAttuali;
 
                     if (indiceBox !== prossimoIndiceValido) {
-                        // Se clicca una casella fuori sequenza, ignoriamo o gestiamo
                         return;
                     }
                     delta = 1;
                 }
 
-                // Interpella il Controller per la logica dei punti budget
                 const risultato = gestisciAssegnazioneBudget(tipoComponente, delta);
 
                 if (risultato.operazioneRiuscita) {
                     if (delta > 0) {
                         box.classList.add('pre-selected');
-                        box.innerText = '1';
+                        // RIMOSSO: box.innerText = '1'; per evitare di cancellare i numeri interni della casella
                     } else {
                         box.classList.remove('pre-selected');
-                        box.innerText = '';
                     }
                     
                     const budgetCount = document.getElementById('budget-count');
