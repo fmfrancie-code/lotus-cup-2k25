@@ -13,29 +13,62 @@ import { gameState, updateGameState } from './state.js';
  */
 export function assegnaPuntoBudgetSetup(tipoComponenteDaPotenziare) {
     const budgetDisponibileAttuale = gameState.budget;
+    const nuoveAssegnazioniComponenti = { ...gameState.allocations };
+    const valoreAttuale = nuoveAssegnazioniComponenti[tipoComponente] || 0;
 
-    if (budgetDisponibileAttuale <= 0) {
+    // CASO 1: Aggiunta punto (+1)
+    if (delta > 0) {
+        if (budgetDisponibileAttuale <= 0) {
+            return {
+                operazioneRiuscita: false,
+                messaggioDescrittivo: "Budget esaurito! Non puoi assegnare altri punti in fase di setup."
+            };
+        }
+
+        nuoveAssegnazioniComponenti[tipoComponente] = valoreAttuale + 1;
+        const nuovoBudgetRimanente = budgetDisponibileAttuale - 1;
+
+        updateGameState({
+            budget: nuovoBudgetRimanente,
+            allocations: nuoveAssegnazioniComponenti
+        });
+
         return {
-            operazioneRiuscita: false,
-            messaggioDescrittivo: "Budget esaurito! Non puoi assegnare altri punti in fase di setup."
+            operazioneRiuscita: true,
+            budgetResiduo: nuovoBudgetRimanente,
+            assegnazioniAggiornate: nuoveAssegnazioniComponenti,
+            messaggioDescrittivo: `Punto assegnato a [${tipoComponente}]. Budget rimanente: ${nuovoBudgetRimanente}.`
         };
     }
 
-    const nuoveAssegnazioniComponenti = { ...gameState.allocations };
-    nuoveAssegnazioniComponenti[tipoComponenteDaPotenziare] += 1;
+    // CASO 2: Rimozione punto (-1)
+    if (delta < 0) {
+        if (valoreAttuale <= 0) {
+            return {
+                operazioneRiuscita: false,
+                messaggioDescrittivo: `Non ci sono punti da rimuovere su [${tipoComponente}].`
+            };
+        }
 
-    const nuovoBudgetRimanente = budgetDisponibileAttuale - 1;
+        nuoveAssegnazioniComponenti[tipoComponente] = valoreAttuale - 1;
+        const nuovoBudgetRimanente = budgetDisponibileAttuale + 1;
 
-    updateGameState({
-        budget: nuovoBudgetRimanente,
-        allocations: nuoveAssegnazioniComponenti
-    });
+        updateGameState({
+            budget: nuovoBudgetRimanente,
+            allocations: nuoveAssegnazioniComponenti
+        });
+
+        return {
+            operazioneRiuscita: true,
+            budgetResiduo: nuovoBudgetRimanente,
+            assegnazioniAggiornate: nuoveAssegnazioniComponenti,
+            messaggioDescrittivo: `Punto rimosso da [${tipoComponente}]. Budget ripristinato: ${nuovoBudgetRimanente}.`
+        };
+    }
 
     return {
-        operazioneRiuscita: true,
-        budgetResiduo: nuovoBudgetRimanente,
-        assegnazioniAggiornate: nuoveAssegnazioniComponenti,
-        messaggioDescrittivo: `Punto assegnato a [${tipoComponenteDaPotenziare}]. Budget rimanente: ${nuovoBudgetRimanente}.`
+        operazioneRiuscita: false,
+        messaggioDescrittivo: "Operazione non valida."
     };
 }
 
