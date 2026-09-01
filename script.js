@@ -3,12 +3,11 @@
 // Collega l'HTML monolitico ai moduli JavaScript moderni
 // ==========================================
 
-import { applyTheme } from './layout.js';                                // 1. Gestione Tema Grafico
+import { applyTheme, inizializzaLayout } from './layout.js';             // 1. Gestione Tema Grafico
 import { gameState, updateGameState } from './state.js';                 // 2. Gestione Stato Globale
 import { gestisciMeteo } from './weather.js';                            // 3. Gestione Meteo
 import { aggiornaTelemetria } from './telemetryGrid.js';                 // 4. Gestione Telemetria
 import { inizializzaSchedaPilota, gestisciAssegnazioneBudget, ufficializzaSchedaPerGara} from './mainSchedaController.js';
-
 
 
 
@@ -132,6 +131,12 @@ window.closeModal = function(modalId) {
 };
 
 
+// --- INIZIALIZZAZIONE INTERFACCIA ---
+document.addEventListener("DOMContentLoaded", () => {
+    inizializzaLayout();
+});
+
+
 // --- GESTIONE DEI CLICK SULLA PLANCIA (SETUP BUDGET) ---
 document.addEventListener("DOMContentLoaded", () => {
     const righeComponenti = {
@@ -175,7 +180,14 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 });
 
-
+/**
+ * Inizializza gli elementi visivi del layout all'avvio dell'applicazione
+ */
+export function inizializzaLayout() {
+    if (gameState && gameState.theme) {
+        applyTheme(gameState.theme);
+    }
+}
 
 // Funzioni di test rapido per verificare il caricamento dei moduli
 console.log("Lotus Cup 2k25: Script Main orchestrato correttamente.");
