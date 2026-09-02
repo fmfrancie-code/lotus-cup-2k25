@@ -257,8 +257,8 @@ window.toggleWing = function() {
     if (!containerBody) return;
     
     const boxesBody = Array.from(containerBody.querySelectorAll('.box'));
-    // Trova la prima casella della sezione telaio che contiene un punto base (es. '1') per disabilitarla mantenendo il numero
-    const targetBox = boxesBody.find(b => b.innerText.trim() !== '' && !b.classList.contains('wing-disabled'));
+    // Trova la casella base più a sinistra (la prima base della serie)
+    const targetBox = boxesBody.find(b => b.dataset.base === "true" || (b.innerText.trim() !== '' && !b.classList.contains('user-allocated')));
 
     const isAttivo = boxWing.classList.contains('wing-active');
     const wingSvg = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;"><path d="M3 12h18M3 6h18M6 18h12"/></svg>`;
@@ -268,8 +268,8 @@ window.toggleWing = function() {
         boxWing.innerHTML = wingSvg;
         
         if (targetBox) {
+            targetBox.dataset.base = "true";
             targetBox.classList.add('wing-disabled');
-            // Mantiene il numero '1' visibile ma barrato/attenuato come richiesto
             if (targetBox.innerText.trim() === '') targetBox.innerText = '1';
         }
     } else {
@@ -279,6 +279,7 @@ window.toggleWing = function() {
         const disabledBodyBox = boxesBody.find(b => b.classList.contains('wing-disabled'));
         if (disabledBodyBox) {
             disabledBodyBox.classList.remove('wing-disabled');
+            disabledBodyBox.dataset.base = "false";
         }
     }
 };
