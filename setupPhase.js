@@ -6,12 +6,13 @@
 import { gameState, updateGameState } from './state.js';
 
 /**
- * Assegna un punto budget dal fondo di setup a uno specifico componente della plancia.
+ * Assegna o rimuove un punto budget a uno specifico componente della plancia.
  * 
- * @param {string} tipoComponenteDaPotenziare - Componente scelto ('tyres', 'brakes', 'fuel', 'body', 'engine', 'suspension')
+ * @param {string} tipoComponente - Componente scelto ('tyres', 'brakes', 'fuel', 'body', 'engine', 'suspension')
+ * @param {number} delta - Valore di incremento (+1) o decremento (-1)
  * @returns {Object} - Stato aggiornato del budget
  */
-export function assegnaPuntoBudgetSetup(tipoComponenteDaPotenziare) {
+export function assegnaPuntoBudgetSetup(tipoComponente, delta) {
     const budgetDisponibileAttuale = gameState.budget;
     const nuoveAssegnazioniComponenti = { ...gameState.allocations };
     const valoreAttuale = nuoveAssegnazioniComponenti[tipoComponente] || 0;
