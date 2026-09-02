@@ -4,7 +4,7 @@
 // ==========================================
 
 import { gameState, updateGameState } from './state.js';
-import { assegnaPuntoBudgetSetup } from './setupPhase.js';
+import { assegnaPuntoBudgetSetup, gestisciLogicaAlettone } from './setupPhase.js';
 import { gestisciConsumoBenzinaEModifica } from './fuel.js';
 import { gestisciUsuraMotore } from './engine.js';
 import { gestisciModificaUsuraFreniETrafilamentoKers } from './brakesKers.js';
@@ -23,6 +23,7 @@ export function inizializzaSchedaPilota(datiInizialiPilota) {
         playerId: datiInizialiPilota.playerId,
         theme: datiInizialiPilota.theme,
         budget: 13,
+        alettoneAttivo: false,
         allocations: {
             tyres: 0,
             brakes: 0,
@@ -36,7 +37,7 @@ export function inizializzaSchedaPilota(datiInizialiPilota) {
 
 /**
  * Transizione della scheda verso la fase di Ufficializzazione / Gara.
- * Vengono bloccati i punti di setup e attivata la modalitÃ  di gara.
+ * Vengono bloccati i punti di setup e attivata la modalità di gara.
  */
 export function ufficializzaSchedaPerGara() {
     const budgetRimanenteInSetup = gameState.budget;
@@ -70,4 +71,14 @@ export function ufficializzaSchedaPerGara() {
  */
 export function gestisciAssegnazioneBudget(tipoArea, delta) {
     return assegnaPuntoBudgetSetup(tipoArea, delta);
+}
+
+/**
+ * Coordina l'interazione con l'Alettone tramite il modulo di setup.
+ * 
+ * @param {boolean} statoCorrente - Stato attuale dell'alettone
+ * @returns {Object} Risultato dell'operazione
+ */
+export function toggleAlettoneController(statoCorrente) {
+    return gestisciLogicaAlettone(statoCorrente);
 }
