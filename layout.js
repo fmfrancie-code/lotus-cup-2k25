@@ -97,4 +97,13 @@ export function aggiornaInterfacciaBudget(budgetResiduo) {
     if (btnLock) {
         btnLock.disabled = (budgetResiduo > 0);
     }
+
+    const setupScreen = document.getElementById('screen-setup');
+    if (setupScreen) {
+        if (budgetResiduo === 0) {
+            setupScreen.classList.add('budget-zero');
+        } else {
+            setupScreen.classList.remove('budget-zero');
+        }
+    }
 }
