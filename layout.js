@@ -32,7 +32,7 @@ export function applyTheme(themeName) {
 
     // Elenco dei temi attuali e futuri delle scuderie
     const supportedThemes = ['ironman', 'cyberpunk', 'redbull', 'mcdonalds', 'chupachups', 'octan', 'kinder'];
-    // Verifica se il tema scelto è valido, altrimenti usa 'ironman' come default
+    // Verifica se il tema scelto Ã¨ valido, altrimenti usa 'ironman' come default
     const validTheme = supportedThemes.includes(themeName) ? themeName : 'ironman';
     
     // Aggiorna lo stato globale
@@ -68,7 +68,7 @@ export function getKersIconHtml(themeName) {
 function updateKersIconsVisual(themeName) {
     const kersContainers = document.querySelectorAll('.kers-icon-container');
     kersContainers.forEach(container => {
-        // Aggiorna l'icona solo se non è in stato di errore/danno (X rossa)
+        // Aggiorna l'icona solo se non Ã¨ in stato di errore/danno (X rossa)
         if (!container.classList.contains('x-red')) {
             container.innerHTML = getKersIconHtml(themeName);
         }
@@ -81,5 +81,20 @@ function updateKersIconsVisual(themeName) {
 export function inizializzaLayout() {
     if (gameState && gameState.theme) {
         applyTheme(gameState.theme);
+    }
+}
+
+/**
+ * Aggiorna visivamente il contatore del budget residuo e lo stato del pulsante di blocco.
+ * 
+ * @param {number} budgetResiduo - I punti budget rimasti
+ */
+export function aggiornaInterfacciaBudget(budgetResiduo) {
+    const budgetCount = document.getElementById('budget-count');
+    if (budgetCount) budgetCount.innerText = budgetResiduo;
+
+    const btnLock = document.getElementById('btn-lock-setup');
+    if (btnLock) {
+        btnLock.disabled = (budgetResiduo > 0);
     }
 }
