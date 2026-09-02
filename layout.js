@@ -127,10 +127,11 @@ export function inizializzaInterazionePlancia() {
     Object.keys(righeComponenti).forEach(rowId => {
         const container = document.getElementById(rowId);
         if (container && !container.dataset.listenerAttached) {
-            container.dataset.listenerAttached = "true"; // Evita doppie registrazioni
+            container.dataset.listenerAttached = "true";
             
             container.addEventListener('click', (e) => {
                 if (!gameState.isSetupMode) return;
+                e.stopImmediatePropagation(); // Blocca la propagazione multipla dell'evento
                 
                 const box = e.target.closest('.box');
                 if (!box) return;
@@ -148,12 +149,8 @@ export function inizializzaInterazionePlancia() {
                 const caselleAllocate = boxesValide.filter(b => b.classList.contains('user-allocated'));
 
                 if (!isDaDestra) {
-                    // SEZIONI DI SINISTRA (Es: Pneumatici, Freni, Carburante)
-                    // Riempimento da sinistra a destra, rimozione dall'ultima a destra
                     const primaCasellaVuota = boxesValide.find(b => b.innerText.trim() === '');
-
                     if (box.classList.contains('user-allocated')) {
-                        // Rimuove l'ultima allocata dall'utente a destra
                         if (caselleAllocate.length > 0) {
                             delta = -1;
                             targetBox = caselleAllocate[caselleAllocate.length - 1];
@@ -163,13 +160,9 @@ export function inizializzaInterazionePlancia() {
                         targetBox = primaCasellaVuota;
                     }
                 } else {
-                    // SEZIONI DI DESTRA (Es: Telaio, Motore, Sospensioni)
-                    // Riempimento da destra a sinistra, rimozione dall'ultima a sinistra
                     const primeVuoteDaDestra = [...boxesValide].reverse();
                     const primaCasellaVuota = primeVuoteDaDestra.find(b => b.innerText.trim() === '');
-
                     if (box.classList.contains('user-allocated')) {
-                        // Rimuove l'ultima allocata dall'utente a sinistra
                         if (caselleAllocate.length > 0) {
                             delta = -1;
                             targetBox = caselleAllocate[0];
