@@ -74,6 +74,22 @@ export function assegnaPuntoBudgetSetup(tipoComponente, delta) {
 }
 
 /**
+ * Gestisce la logica di attivazione o disattivazione dell'Alettone nello stato di setup.
+ * 
+ * @param {boolean} statoAttuale - Stato corrente dell'alettone
+ * @returns {Object} Risultato logico dell'azione
+ */
+export function gestisciLogicaAlettone(statoAttuale) {
+    const nuovoStato = !statoAttuale;
+    updateGameState({ alettoneAttivo: nuovoStato });
+    return {
+        operazioneRiuscita: true,
+        attivo: nuovoStato,
+        messaggioDescrittivo: nuovoStato ? "Alettone attivato." : "Alettone disattivato."
+    };
+}
+
+/**
  * Restituisce le mescole abilitabili in fase di setup in base alla condizione meteo fissa o variabile.
  * 
  * @param {string} condizioneMeteoGara - Stato meteo corrente ('sun', 'rain', 'var_dry', 'var_wet')
