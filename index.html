@@ -527,8 +527,9 @@
       pointer-events: none !important;
     }
     
-    /* Consente l'interazione sui pulsanti di controllo speciali (Alettone e KERS) */
-    #box-wing, #box-kers {
+    /* Consente l'interazione sui pulsanti di controllo speciali (Alettone e KERS) solo durante il setup */
+    #screen-setup.setup-active #box-wing, 
+    #screen-setup.setup-active #box-kers {
       pointer-events: auto !important;
       cursor: pointer !important;
     }
@@ -555,21 +556,20 @@
       border-color: #e5b839 !important;
     }
 
-    /* Caselle disabilitate dall'Alettone */
+    /* Caselle disabilitate dall'Alettone (mantiene l'1 visibile ma barrato/attenuato) */
     .box.wing-disabled {
-      opacity: 0.25 !important;
+      opacity: 0.35 !important;
       text-decoration: line-through;
       pointer-events: none !important;
     }
 
-    /* Stile uniforme e identico per le caselle allocate in qualsiasi tema */
+    /* Le caselle allocate mantengono rigorosamente lo stile standard senza cambiare colore */
     .box.user-allocated, .box.pre-selected {
       background-color: inherit !important;
       border-color: inherit !important;
       box-shadow: none !important;
       font-weight: 700;
     }
-
     .budget-bar {
       background-color: rgba(15, 21, 34, 0.8); border: 1px solid #ffb700;
       padding: 10px; text-align: center; border-radius: 6px; margin-bottom: 15px;
