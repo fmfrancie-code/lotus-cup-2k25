@@ -228,25 +228,33 @@ window.toggleWing = function() {
     if (!containerBody) return;
     
     const boxesBody = Array.from(containerBody.querySelectorAll('.box'));
-    const targetBox = boxesBody.find(b => b.innerText.trim() === '');
+    // Trova la prima casella della sezione telaio che contiene un punto (es. il primo '1' base)
+    const targetBox = boxesBody.find(b => b.innerText.trim() !== '' && !b.classList.contains('wing-disabled'));
 
-    const isAttivo = boxWing.classList.contains('x-red');
-    const risultato = toggleAlettoneController(isAttivo);
+    const isAttivo = boxWing.classList.contains('wing-active');
 
-    if (risultato.attivo) {
-        boxWing.classList.add('x-red');
-        boxWing.innerText = 'X';
+    // Icona SVG dell'alettone
+    const wingSvg = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;"><path d="M3 12h18M3 6h18M6 18h12"/></svg>`;
+
+    if (!isAttivo) {
+        boxWing.classList.add('wing-active');
+        boxWing.innerHTML = wingSvg;
+        
         if (targetBox) {
-            targetBox.classList.add('x-red');
-            targetBox.innerText = 'X';
+            targetBox.classList.add('wing-disabled');
+            targetBox.dataset.valorePrecedente = targetBox.innerText;
+            targetBox.innerText = ''; // Libera visivamente la casella disabilitata
         }
     } else {
-        boxWing.classList.remove('x-red');
-        boxWing.innerText = '';
-        const markedBodyBox = boxesBody.find(b => b.classList.contains('x-red'));
-        if (markedBodyBox) {
-            markedBodyBox.classList.remove('x-red');
-            markedBodyBox.innerText = '';
+        boxWing.classList.remove('wing-active');
+        boxWing.innerHTML = '';
+
+        // Trova la casella del telaio precedentemente disabilitata e la riabilita
+        const disabledBodyBox = boxesBody.find(b => b.classList.contains('wing-disabled'));
+        if (disabledBodyBox) {
+            disabledBodyBox.classList.remove('wing-disabled');
+            disabledBodyBox.innerText = disabledBodyBox.dataset.valorePrecedente || '1';
+            delete disabledBodyBox.dataset.valorePrecedente;
         }
     }
 };
