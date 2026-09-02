@@ -7,7 +7,7 @@ import { applyTheme, inizializzaLayout } from './layout.js';             // 1. G
 import { gameState, updateGameState } from './state.js';                 // 2. Gestione Stato Globale
 import { gestisciMeteo } from './weather.js';                            // 3. Gestione Meteo
 import { aggiornaTelemetria } from './telemetryGrid.js';                 // 4. Gestione Telemetria
-import { inizializzaSchedaPilota, gestisciAssegnazioneBudget, ufficializzaSchedaPerGara} from './mainSchedaController.js';
+import { inizializzaSchedaPilota, gestisciAssegnazioneBudget, ufficializzaSchedaPerGara, toggleAlettoneController } from './mainSchedaController.js';
 
 
 
@@ -38,7 +38,6 @@ window.createGame = function() {
         return;
     }
 
-    // Genera la data odierna formattata (es. 31/08/2026 o formato esteso)
     const todayFormatted = new Date().toLocaleDateString('it-IT', {
         day: '2-digit',
         month: '2-digit',
@@ -59,29 +58,24 @@ window.createGame = function() {
         isSetupMode: true
     });
 
-    // Passa alla schermata di setup/gioco
     window.showScreen('screen-setup');
     
-    // Aggiorna i testi nell'header della plancia
     document.getElementById('display-circuit').innerText = circuit.toUpperCase();
     document.getElementById('display-meta').innerText = `Data: ${todayFormatted} | Pilota: ${host}`;
     document.getElementById('display-code').innerText = gameState.code;
 };
 
 window.startConfiguration = function() {
-    // Aggiorna lo stato globale per attivare la modalità setup
     updateGameState({
         isSetupMode: true,
-        budget: 13 // Inizializza il budget fisso a 13 punti come da regolamento
+        budget: 13 
     });
 
-    // Abilita la classe di stato attivo sul contenitore della schermata di setup
     const setupScreen = document.getElementById('screen-setup');
     if (setupScreen) {
         setupScreen.classList.add('setup-active');
     }
 
-    // Modifica la visibilità dei pulsanti e della barra budget nell'HTML
     const btnStart = document.getElementById('btn-start-config');
     const btnLock = document.getElementById('btn-lock-setup');
     const budgetBar = document.getElementById('budget-bar');
@@ -90,7 +84,7 @@ window.startConfiguration = function() {
     if (btnStart) btnStart.style.display = 'none';
     if (btnLock) {
         btnLock.style.display = 'block';
-        btnLock.disabled = true; // Si sbloccherà quando arrivi a 0 punti o decidi di ufficializzare
+        btnLock.disabled = true; 
     }
     if (budgetBar) budgetBar.style.display = 'block';
     if (budgetCount) budgetCount.innerText = gameState.budget;
@@ -99,7 +93,6 @@ window.startConfiguration = function() {
 };
 
 window.officializeSetup = function() {
-    // Chiama la funzione di validazione e transizione nel Controller
     const risultato = ufficializzaSchedaPerGara();
 
     if (!risultato.operazioneRiuscita) {
@@ -107,7 +100,6 @@ window.officializeSetup = function() {
         return;
     }
 
-    // Se l'operazione è riuscita, aggiorna l'interfaccia HTML
     const btnLock = document.getElementById('btn-lock-setup');
     const budgetBar = document.getElementById('budget-bar');
     const raceControls = document.getElementById('race-controls');
@@ -123,7 +115,6 @@ window.officializeSetup = function() {
 
 window.openJoinGameScreen = function() {
     window.showScreen('screen-join-game');
-    // Qui collegheremo la logica della lista stanze che faremo subito dopo
 };
 
 window.loadSavedGameModal = function() {
@@ -165,50 +156,39 @@ document.addEventListener("DOMContentLoaded", () => {
                 const box = e.target.closest('.box');
                 if (!box) return;
 
-                // Salta le caselle che contengono già i valori base fissi (es. '1' nativo)
                 if (box.dataset.base === "true" || (box.innerText.trim() !== '' && !box.classList.contains('user-allocated'))) {
                     return;
                 }
 
                 const tipoComponente = righeComponenti[rowId];
                 const boxesNellaRiga = Array.from(container.querySelectorAll('.box'));
-                
-                // Filtra solo le caselle modificabili (escludendo quelle base fisse)
                 const isDaDestra = componentiDaDestra.includes(tipoComponente);
-                
                 const puntiAttuali = gameState.allocations[tipoComponente] || 0;
                 const indiceBox = boxesNellaRiga.indexOf(box);
 
-                // Determina se il box cliccato è quello valido per aggiungere o rimuovere
                 let delta = 0;
-                let indiceTarget;
 
                 if (isDaDestra) {
-                    // Per le sezioni di destra: partono da destra verso sinistra
-                    // Le caselle base sono in fondo (ultime 2), le 4 vuote sono prima
                     const indicePrimoBase = boxesNellaRiga.findIndex(b => b.innerText.trim() !== '' && !b.classList.contains('user-allocated'));
                     const indiceUltimaVuota = indicePrimoBase - 1;
                     const indiceUltimaAllocata = indiceUltimaVuota - puntiAttuali + 1;
 
                     if (box.classList.contains('user-allocated') && indiceBox === indiceUltimaAllocata) {
-                        delta = -1; // Rimozione dell'ultimo punto aggiunto
+                        delta = -1; 
                     } else if (!box.classList.contains('user-allocated') && indiceBox === indiceUltimaVuota - puntiAttuali) {
-                        delta = 1; // Aggiunta del prossimo punto
+                        delta = 1; 
                     } else {
-                        return; // Click non valido secondo la sequenza
+                        return; 
                     }
                 } else {
-                    // Per le sezioni di sinistra: partono da sinistra verso destra
-                    const indicePrimaBase = boxesNellaRiga.findIndex(b => b.innerText.trim() !== '' && !b.classList.contains('user-allocated'));
-                    // Le caselle vuote sono all'inizio o dopo le base
                     const offsetInizio = boxesNellaRiga.findIndex(b => b.innerText.trim() === '');
                     const indiceProssimoDaAggiungere = offsetInizio + puntiAttuali;
                     const indiceUltimoAggiunto = offsetInizio + puntiAttuali - 1;
 
                     if (box.classList.contains('user-allocated') && indiceBox === indiceUltimoAggiunto) {
-                        delta = -1; // Rimozione
+                        delta = -1; 
                     } else if (!box.classList.contains('user-allocated') && indiceBox === indiceProssimoDaAggiungere) {
-                        delta = 1; // Aggiunta
+                        delta = 1; 
                     } else {
                         return;
                     }
@@ -240,6 +220,35 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 });
 
+window.toggleWing = function() {
+    const boxWing = document.getElementById('box-wing');
+    if (!boxWing) return;
 
-// Funzioni di test rapido per verificare il caricamento dei moduli
+    const containerBody = document.getElementById('row-body');
+    if (!containerBody) return;
+    
+    const boxesBody = Array.from(containerBody.querySelectorAll('.box'));
+    const targetBox = boxesBody.find(b => b.innerText.trim() === '');
+
+    const isAttivo = boxWing.classList.contains('x-red');
+    const risultato = toggleAlettoneController(isAttivo);
+
+    if (risultato.attivo) {
+        boxWing.classList.add('x-red');
+        boxWing.innerText = 'X';
+        if (targetBox) {
+            targetBox.classList.add('x-red');
+            targetBox.innerText = 'X';
+        }
+    } else {
+        boxWing.classList.remove('x-red');
+        boxWing.innerText = '';
+        const markedBodyBox = boxesBody.find(b => b.classList.contains('x-red'));
+        if (markedBodyBox) {
+            markedBodyBox.classList.remove('x-red');
+            markedBodyBox.innerText = '';
+        }
+    }
+};
+
 console.log("Lotus Cup 2k25: Script Main orchestrato correttamente.");
