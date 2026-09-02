@@ -522,33 +522,42 @@
       font-family: 'Orbitron', sans-serif; font-weight: 700; font-size: 0.95rem;
       display: flex; align-items: center; justify-content: center;
       user-select: none; border-radius: 3px; position: relative; flex-shrink: 0;
+      cursor: default !important;
     }
     
-    /* L'effetto hover e il cursore puntatore si attivano solo se il container o la schermata ricevono la classe setup-active */
-    #screen-setup:not(.setup-active) .box:hover {
-      box-shadow: none !important;
-      border-color: rgba(0, 240, 255, 0.35) !important;
+    /* Le box precompilate (con valori base fissi) non devono mai illuminarsi o reagire all'hover */
+    .box:not(:empty) {
       cursor: default !important;
+      pointer-events: none !important;
     }
 
-    #screen-setup.setup-active .box:hover, .box.active, .box.pre-selected {
+    /* L'effetto hover e il cursore puntatore si attivano SOLO sulle caselle vuote quando la schermata ha la classe setup-active */
+    #screen-setup.setup-active .box:empty:hover {
       box-shadow: 0 0 10px #00f0ff !important;
       border-color: #00f0ff !important;
-      cursor: pointer;
+      cursor: pointer !important;
     }
 
-    body.theme-ironman #screen-setup:not(.setup-active) .box:hover {
-      box-shadow: none !important;
-      border-color: #e5b839 !important;
-      cursor: default !important;
-    }
-
-    body.theme-ironman #screen-setup.setup-active .box:hover, 
-    body.theme-ironman .box.active, 
-    body.theme-ironman .box.pre-selected {
+    body.theme-ironman #screen-setup.setup-active .box:empty:hover {
       box-shadow: 0 0 10px #e5b839 !important;
       border-color: #e5b839 !important;
-      cursor: pointer;
+      cursor: pointer !important;
+    }
+
+    /* Comportamento universale per le caselle pre-selezionate con il punto budget */
+    .box.pre-selected {
+      background-color: rgba(0, 240, 255, 0.15) !important;
+      border-color: #00f0ff !important;
+      box-shadow: 0 0 10px #00f0ff !important;
+      color: #ffffff !important;
+    }
+
+    /* Adattamento specifico per il tema Iron-Man (accento oro/giallo) sulle caselle selezionate */
+    body.theme-ironman .box.pre-selected {
+      background-color: rgba(229, 184, 57, 0.2) !important;
+      border-color: #e5b839 !important;
+      box-shadow: 0 0 10px #e5b839 !important;
+      color: #f5d061 !important;
     }
 
     .budget-bar {
@@ -699,7 +708,7 @@
       
       <div id="race-controls" style="display: none; gap: 8px; flex-direction: column;">
         <div style="display: flex; gap: 8px;">
-          <button id="btn-toggle-edit" class="btn btn-read-mode" onclick="toggleRaceEdit()" style="flex:1; margin:0; text-transform:none !important;">ModalitÃ  edit attiva (clicca per sbloccare)</button>
+          <button id="btn-toggle-edit" class="btn btn-read-mode" onclick="toggleRaceEdit()" style="flex:1; margin:0; text-transform:none !important;">Modalità edit attiva (clicca per sbloccare)</button>
           <button id="btn-pitstop-action" class="btn btn-pitstop-mode" onclick="handlePitStopButtonClick()" style="display: none; flex:1; margin:0; text-transform:none !important;">Entrata ai Box (Pit Stop)</button>
         </div>
         <button id="btn-weather-test" class="btn btn-weather-test" onclick="openWeatherModal()" style="display: none; margin: 4px 0 0 0;">Test Motore / Controllo Meteo</button>
@@ -787,7 +796,7 @@
           </div>
         </div>
 
-        <!-- TELAIO (6 caselle) -->
+        <!-- TELAIO (6 caselle) - Numeri base spostati sulle 2 caselle a destra -->
         <div class="comp-block-wrapper align-right">
           <div class="board-side right-side">
             <div class="icon-box-center arrow-right" title="Telaio">
@@ -810,8 +819,8 @@
               </svg>
             </div>
             <div class="boxes-container" id="row-body">
-              <div class="box">1</div><div class="box">1</div>
               <div class="box"></div><div class="box"></div><div class="box"></div><div class="box"></div>
+              <div class="box">1</div><div class="box">1</div>
             </div>
           </div>
         </div>
@@ -845,6 +854,7 @@
           <div id="box-kers" class="box" onclick="interactKers()"></div>
         </div>
 
+        <!-- MOTORE (6 caselle) - Numeri base spostati sulle 2 caselle a destra -->
         <div class="comp-block-wrapper align-right">
           <div class="board-side right-side">
             <div class="icon-box-center arrow-right" title="Motore">
@@ -871,8 +881,8 @@
               </svg>
             </div>
             <div class="boxes-container" id="row-engine">
-              <div class="box">1</div><div class="box">1</div>
               <div class="box"></div><div class="box"></div><div class="box"></div><div class="box"></div>
+              <div class="box">1</div><div class="box">1</div>
             </div>
           </div>
         </div>
@@ -905,6 +915,7 @@
           <div id="box-wing" class="box" onclick="toggleWing()"></div>
         </div>
 
+        <!-- SOSPENSIONI (6 caselle) - Numeri base spostati sulle 2 caselle a destra -->
         <div class="comp-block-wrapper align-right">
           <div class="board-side right-side">
             <div class="icon-box-center arrow-right" title="Sospensioni">
@@ -921,8 +932,8 @@
               </svg>
             </div>
             <div class="boxes-container" id="row-suspension">
-              <div class="box">1</div><div class="box">1</div>
               <div class="box"></div><div class="box"></div><div class="box"></div><div class="box"></div>
+              <div class="box">1</div><div class="box">1</div>
             </div>
           </div>
         </div>
@@ -988,7 +999,7 @@
 <div id="modal-kers" class="modal">
   <div class="modal-content">
   <h3>Gestione Uso KERS</h3>
-    <p style="color: #a0aec0;">Hai utilizzato il KERS! Qual Ã¨ stato l'esito del tiro?</p>
+    <p style="color: #a0aec0;">Hai utilizzato il KERS! Qual è stato l'esito del tiro?</p>
     <button class="btn btn-success" onclick="resolveKers(false)">Esito OK (Svuota KERS)</button>
     <button class="btn btn-danger" onclick="resolveKers(true)">Danneggiato (X Rossa)</button>
     <button class="btn btn-secondary" onclick="closeModal('modal-kers')">Annulla</button>
