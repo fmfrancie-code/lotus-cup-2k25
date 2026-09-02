@@ -154,6 +154,8 @@ document.addEventListener("DOMContentLoaded", () => {
         'row-suspension': 'suspension'
     };
 
+    const componentiDaDestra = ['body', 'engine', 'suspension'];
+
     Object.keys(righeComponenti).forEach(rowId => {
         const container = document.getElementById(rowId);
         if (container) {
@@ -163,22 +165,64 @@ document.addEventListener("DOMContentLoaded", () => {
                 const box = e.target.closest('.box');
                 if (!box) return;
 
-                // Impedisce di cliccare sulle caselle che contengono già un valore base
-                if (box.innerText.trim() !== '') return;
+                // Salta le caselle che contengono già i valori base fissi (es. '1' nativo)
+                if (box.dataset.base === "true" || (box.innerText.trim() !== '' && !box.classList.contains('user-allocated'))) {
+                    return;
+                }
 
                 const tipoComponente = righeComponenti[rowId];
-                const eGiaAttiva = box.classList.contains('pre-selected');
-                const delta = eGiaAttiva ? -1 : 1;
+                const boxesNellaRiga = Array.from(container.querySelectorAll('.box'));
+                
+                // Filtra solo le caselle modificabili (escludendo quelle base fisse)
+                const isDaDestra = componentiDaDestra.includes(tipoComponente);
+                
+                const puntiAttuali = gameState.allocations[tipoComponente] || 0;
+                const indiceBox = boxesNellaRiga.indexOf(box);
+
+                // Determina se il box cliccato è quello valido per aggiungere o rimuovere
+                let delta = 0;
+                let indiceTarget;
+
+                if (isDaDestra) {
+                    // Per le sezioni di destra: partono da destra verso sinistra
+                    // Le caselle base sono in fondo (ultime 2), le 4 vuote sono prima
+                    const indicePrimoBase = boxesNellaRiga.findIndex(b => b.innerText.trim() !== '' && !b.classList.contains('user-allocated'));
+                    const indiceUltimaVuota = indicePrimoBase - 1;
+                    const indiceUltimaAllocata = indiceUltimaVuota - puntiAttuali + 1;
+
+                    if (box.classList.contains('user-allocated') && indiceBox === indiceUltimaAllocata) {
+                        delta = -1; // Rimozione dell'ultimo punto aggiunto
+                    } else if (!box.classList.contains('user-allocated') && indiceBox === indiceUltimaVuota - puntiAttuali) {
+                        delta = 1; // Aggiunta del prossimo punto
+                    } else {
+                        return; // Click non valido secondo la sequenza
+                    }
+                } else {
+                    // Per le sezioni di sinistra: partono da sinistra verso destra
+                    const indicePrimaBase = boxesNellaRiga.findIndex(b => b.innerText.trim() !== '' && !b.classList.contains('user-allocated'));
+                    // Le caselle vuote sono all'inizio o dopo le base
+                    const offsetInizio = boxesNellaRiga.findIndex(b => b.innerText.trim() === '');
+                    const indiceProssimoDaAggiungere = offsetInizio + puntiAttuali;
+                    const indiceUltimoAggiunto = offsetInizio + puntiAttuali - 1;
+
+                    if (box.classList.contains('user-allocated') && indiceBox === indiceUltimoAggiunto) {
+                        delta = -1; // Rimozione
+                    } else if (!box.classList.contains('user-allocated') && indiceBox === indiceProssimoDaAggiungere) {
+                        delta = 1; // Aggiunta
+                    } else {
+                        return;
+                    }
+                }
 
                 const risultato = gestisciAssegnazioneBudget(tipoComponente, delta);
 
                 if (risultato.operazioneRiuscita) {
                     if (delta > 0) {
-                        box.classList.add('pre-selected');
-                        box.innerText = '1'; // Inserisce il numero 1 come richiesto
+                        box.classList.add('user-allocated');
+                        box.innerText = '1'; 
                     } else {
-                        box.classList.remove('pre-selected');
-                        box.innerText = ''; // Rimuove il numero
+                        box.classList.remove('user-allocated');
+                        box.innerText = ''; 
                     }
                     
                     const budgetCount = document.getElementById('budget-count');
