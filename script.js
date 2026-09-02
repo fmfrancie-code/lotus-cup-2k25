@@ -3,10 +3,10 @@
 // Collega l'HTML monolitico ai moduli JavaScript moderni
 // ==========================================
 
-import { applyTheme, inizializzaLayout, aggiornaInterfacciaBudget } from './layout.js';             // 1. Gestione Tema Grafico
-import { gameState, updateGameState } from './state.js';                                            // 2. Gestione Stato Globale
-import { gestisciMeteo } from './weather.js';                                                       // 3. Gestione Meteo
-import { aggiornaTelemetria } from './telemetryGrid.js';                                            // 4. Gestione Telemetria
+import { applyTheme, inizializzaLayout, aggiornaInterfacciaBudget, inizializzaInterazionePlancia } from './layout.js';       // 1. Gestione Tema Grafico
+import { gameState, updateGameState } from './state.js';                                                                     // 2. Gestione Stato Globale
+import { gestisciMeteo } from './weather.js';                                                                                // 3. Gestione Meteo
+import { aggiornaTelemetria } from './telemetryGrid.js';                                                                     // 4. Gestione Telemetria
 import { inizializzaSchedaPilota, gestisciAssegnazioneBudget, ufficializzaSchedaPerGara, toggleAlettoneController } from './mainSchedaController.js';
 
 
@@ -131,6 +131,7 @@ window.closeModal = function(modalId) {
 // --- INIZIALIZZAZIONE INTERFACCIA ---
 document.addEventListener("DOMContentLoaded", () => {
     inizializzaLayout();
+    inizializzaInterazionePlancia();
 });
 
 
