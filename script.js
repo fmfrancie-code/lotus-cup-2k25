@@ -3,10 +3,10 @@
 // Collega l'HTML monolitico ai moduli JavaScript moderni
 // ==========================================
 
-import { applyTheme, inizializzaLayout } from './layout.js';             // 1. Gestione Tema Grafico
-import { gameState, updateGameState } from './state.js';                 // 2. Gestione Stato Globale
-import { gestisciMeteo } from './weather.js';                            // 3. Gestione Meteo
-import { aggiornaTelemetria } from './telemetryGrid.js';                 // 4. Gestione Telemetria
+import { applyTheme, inizializzaLayout, aggiornaInterfacciaBudget } from './layout.js';             // 1. Gestione Tema Grafico
+import { gameState, updateGameState } from './state.js';                                            // 2. Gestione Stato Globale
+import { gestisciMeteo } from './weather.js';                                                       // 3. Gestione Meteo
+import { aggiornaTelemetria } from './telemetryGrid.js';                                            // 4. Gestione Telemetria
 import { inizializzaSchedaPilota, gestisciAssegnazioneBudget, ufficializzaSchedaPerGara, toggleAlettoneController } from './mainSchedaController.js';
 
 
@@ -145,6 +145,7 @@ document.addEventListener("DOMContentLoaded", () => {
         'row-suspension': 'suspension'
     };
 
+    // Sezioni che riempiono da destra verso sinistra
     const componentiDaDestra = ['body', 'engine', 'suspension'];
 
     Object.keys(righeComponenti).forEach(rowId => {
@@ -156,69 +157,91 @@ document.addEventListener("DOMContentLoaded", () => {
                 const box = e.target.closest('.box');
                 if (!box) return;
 
-                // Salta le caselle fisse o disabilitate dall'Alettone
-                if (box.dataset.base === "true" || box.classList.contains('wing-disabled') || (box.innerText.trim() !== '' && !box.classList.contains('user-allocated'))) {
-                    return;
-                }
+                // Ignora caselle base fisse o disabilitate dall'alettone
+                if (box.dataset.base === "true" || box.classList.contains('wing-disabled')) return;
 
                 const tipoComponente = righeComponenti[rowId];
                 const boxesNellaRiga = Array.from(container.querySelectorAll('.box'));
                 const isDaDestra = componentiDaDestra.includes(tipoComponente);
-                const puntiAttuali = gameState.allocations[tipoComponente] || 0;
                 const indiceBox = boxesNellaRiga.indexOf(box);
 
                 let delta = 0;
 
                 if (isDaDestra) {
-                    // Da destra a sinistra: individua la prima casella utile partendo da destra
+                    // SEZIONI DI DESTRA: riempimento da destra a sinistra
+                    // Filtra le caselle escludendo quelle disabilitate dall'alettone
                     const boxesValide = boxesNellaRiga.filter(b => !b.classList.contains('wing-disabled'));
-                    const indicePrimoBase = boxesValide.findIndex(b => b.innerText.trim() !== '' && !b.classList.contains('user-allocated'));
-                    const indiceUltimaVuota = indicePrimoBase - 1;
-                    const indiceUltimaAllocata = indiceUltimaVuota - puntiAttuali + 1;
+                    const primeVuoteDaDestra = boxesValide.reverse();
+                    
+                    // Trova la prima casella disponibile partendo da destra (la prima vuota)
+                    const primaCasellaVuota = primeVuoteDaDestra.find(b => b.innerText.trim() === '');
+                    const ultimaAllocata = boxesValide.find(b => b.classList.contains('user-allocated') && boxesValide.indexOf(b) === boxesValide.lastIndexOf(b)); // o l'ultima della serie
 
-                    if (box.classList.contains('user-allocated') && indiceBox === indiceUltimaAllocata) {
-                        delta = -1;
-                    } else if (!box.classList.contains('user-allocated') && indiceBox === indiceUltimaVuota - puntiAttuali) {
+                    // Se clicchi sull'ultima casella allocata, la rimuove (-1)
+                    if (box.classList.contains('user-allocated')) {
+                        // Verifica se è l'ultima casella attiva della sequenza da destra
+                        const caselleAllocate = boxesValide.filter(b => b.classList.contains('user-allocated'));
+                        if (caselleAllocate.length > 0 && box === caselleAllocate[0]) { // la più a destra tra le allocate
+                            delta = -1;
+                        } else {
+                            return;
+                        }
+                    } else if (box.innerText.trim() === '' && primaCasellaVuota && box === primaCasellaVuota) {
+                        // Cliccando su qualsiasi casella vuota, attiva la prima disponibile da destra
                         delta = 1;
                     } else {
+                        // Se clicchi su una casella vuota ma ce n'è una più a destra libera, forza la prima disponibile
+                        if (primaCasellaVuota) {
+                            delta = 1;
+                            // Reindirizza l'azione sulla vera prima casella vuota da destra
+                            const risultato = gestisciAssegnazioneBudget(tipoComponente, 1);
+                            if (risultato.operazioneRiuscita) {
+                                primaCasellaVuota.classList.add('user-allocated');
+                                primaCasellaVuota.innerText = '1';
+                                aggiornaInterfacciaBudget(risultato.budgetResiduo);
+                            } else {
+                                alert(risultato.messaggioDescrittivo);
+                            }
+                        }
                         return;
                     }
                 } else {
-                    // Da sinistra a destra: individua la prima casella vuota disponibile
+                    // SEZIONI DI SINISTRA (Pneumatici, Freni, Carburante): riempimento da sinistra a destra
                     const boxesValide = boxesNellaRiga.filter(b => !b.classList.contains('wing-disabled'));
-                    const offsetInizio = boxesValide.findIndex(b => b.innerText.trim() === '');
-                    const indiceProssimoDaAggiungere = offsetInizio + puntiAttuali;
-                    const indiceUltimoAggiunto = offsetInizio + puntiAttuali - 1;
+                    const primaCasellaVuota = boxesValide.find(b => b.innerText.trim() === '');
+                    
+                    // Trova l'ultima casella allocata dall'utente per permetterne la rimozione
+                    const caselleAllocate = boxesValide.filter(b => b.classList.contains('user-allocated'));
+                    const ultimaAllocataDallUtente = caselleAllocate.length > 0 ? caselleAllocate[caselleAllocate.length - 1] : null;
 
-                    if (box.classList.contains('user-allocated') && indiceBox === indiceUltimoAggiunto) {
+                    if (box.classList.contains('user-allocated') && box === ultimaAllocataDallUtente) {
                         delta = -1;
-                    } else if (!box.classList.contains('user-allocated') && indiceBox === indiceProssimoDaAggiungere) {
-                        delta = 1;
+                    } else if (box.innerText.trim() === '') {
+                        // Indipendentemente da quale casella vuota si clicca, attiva la prima disponibile da sinistra
+                        if (primaCasellaVuota) {
+                            const risultato = gestisciAssegnazioneBudget(tipoComponente, 1);
+                            if (risultato.operazioneRiuscita) {
+                                primaCasellaVuota.classList.add('user-allocated');
+                                primaCasellaVuota.innerText = '1';
+                                aggiornaInterfacciaBudget(risultato.budgetResiduo);
+                            } else {
+                                alert(risultato.messaggioDescrittivo);
+                            }
+                        }
+                        return;
                     } else {
                         return;
                     }
                 }
 
-                const risultato = gestisciAssegnazioneBudget(tipoComponente, delta);
-
-                if (risultato.operazioneRiuscita) {
-                    if (delta > 0) {
-                        box.classList.add('user-allocated');
-                        box.innerText = '1'; 
-                    } else {
+                // Gestione rimozione punto (-1)
+                if (delta < 0) {
+                    const risultato = gestisciAssegnazioneBudget(tipoComponente, delta);
+                    if (risultato.operazioneRiuscita) {
                         box.classList.remove('user-allocated');
-                        box.innerText = ''; 
+                        box.innerText = '';
+                        aggiornaInterfacciaBudget(risultato.budgetResiduo);
                     }
-                    
-                    const budgetCount = document.getElementById('budget-count');
-                    if (budgetCount) budgetCount.innerText = risultato.budgetResiduo;
-
-                    const btnLock = document.getElementById('btn-lock-setup');
-                    if (btnLock) {
-                        btnLock.disabled = (risultato.budgetResiduo > 0);
-                    }
-                } else {
-                    alert(risultato.messaggioDescrittivo);
                 }
             });
         }
