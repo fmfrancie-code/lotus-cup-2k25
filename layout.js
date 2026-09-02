@@ -4,6 +4,7 @@
 // ==========================================
 
 import { gameState, updateGameState } from './state.js';
+import { gestisciAssegnazioneBudget } from './mainSchedaController.js';
 
 /**
  * Icone SVG per il KERS in base al tema attivo
@@ -106,4 +107,89 @@ export function aggiornaInterfacciaBudget(budgetResiduo) {
             setupScreen.classList.remove('budget-zero');
         }
     }
+}
+
+/**
+ * Inizializza i listener di interazione sulla plancia di setup e gestione punti.
+ */
+export function inizializzaInterazionePlancia() {
+    const righeComponenti = {
+        'row-tyres': 'tyres',
+        'row-body': 'body',
+        'row-brakes': 'brakes',
+        'row-engine': 'engine',
+        'row-fuel': 'fuel',
+        'row-suspension': 'suspension'
+    };
+
+    const componentiDaDestra = ['body', 'engine', 'suspension'];
+
+    Object.keys(righeComponenti).forEach(rowId => {
+        const container = document.getElementById(rowId);
+        if (container) {
+            container.addEventListener('click', (e) => {
+                if (!gameState.isSetupMode) return;
+                
+                const box = e.target.closest('.box');
+                if (!box) return;
+
+                if (box.dataset.base === "true" || box.classList.contains('wing-disabled')) return;
+
+                const tipoComponente = righeComponenti[rowId];
+                const boxesNellaRiga = Array.from(container.querySelectorAll('.box'));
+                const isDaDestra = componentiDaDestra.includes(tipoComponente);
+
+                let delta = 0;
+                let targetBox = null;
+
+                const boxesValide = boxesNellaRiga.filter(b => !b.classList.contains('wing-disabled'));
+                const caselleAllocate = boxesValide.filter(b => b.classList.contains('user-allocated'));
+
+                if (!isDaDestra) {
+                    // SEZIONI DI SINISTRA (Riempimento da sinistra, rimozione dall'ultima a destra)
+                    const primaCasellaVuota = boxesValide.find(b => b.innerText.trim() === '');
+
+                    if (box.classList.contains('user-allocated') || (box.innerText.trim() !== '' && box.dataset.base !== "true")) {
+                        if (caselleAllocate.length > 0) {
+                            delta = -1;
+                            targetBox = caselleAllocate[caselleAllocate.length - 1];
+                        }
+                    } else if (box.innerText.trim() === '' && primaCasellaVuota) {
+                        delta = 1;
+                        targetBox = primaCasellaVuota;
+                    }
+                } else {
+                    // SEZIONI DI DESTRA (Riempimento da destra, rimozione dall'ultima a sinistra)
+                    const primeVuoteDaDestra = [...boxesValide].reverse();
+                    const primaCasellaVuota = primeVuoteDaDestra.find(b => b.innerText.trim() === '');
+
+                    if (box.classList.contains('user-allocated') || (box.innerText.trim() !== '' && box.dataset.base !== "true")) {
+                        if (caselleAllocate.length > 0) {
+                            delta = -1;
+                            targetBox = caselleAllocate[0];
+                        }
+                    } else if (box.innerText.trim() === '' && primaCasellaVuota) {
+                        delta = 1;
+                        targetBox = primaCasellaVuota;
+                    }
+                }
+
+                if (delta !== 0 && targetBox) {
+                    const risultato = gestisciAssegnazioneBudget(tipoComponente, delta);
+                    if (risultato.operazioneRiuscita) {
+                        if (delta > 0) {
+                            targetBox.classList.add('user-allocated');
+                            targetBox.innerText = '1';
+                        } else {
+                            targetBox.classList.remove('user-allocated');
+                            targetBox.innerText = '';
+                        }
+                        aggiornaInterfacciaBudget(risultato.budgetResiduo);
+                    } else if (risultato.messaggioDescrittivo) {
+                        alert(risultato.messaggioDescrittivo);
+                    }
+                }
+            });
+        }
+    });
 }
