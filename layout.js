@@ -126,7 +126,9 @@ export function inizializzaInterazionePlancia() {
 
     Object.keys(righeComponenti).forEach(rowId => {
         const container = document.getElementById(rowId);
-        if (container) {
+        if (container && !container.dataset.listenerAttached) {
+            container.dataset.listenerAttached = "true"; // Evita doppie registrazioni
+            
             container.addEventListener('click', (e) => {
                 if (!gameState.isSetupMode) return;
                 
@@ -142,14 +144,16 @@ export function inizializzaInterazionePlancia() {
                 let delta = 0;
                 let targetBox = null;
 
-                const boxesValide = boxesNellaRiga.filter(b => !b.classList.contains('wing-disabled'));
+                const boxesValide = boxesNellaRiga.filter(b => !b.classList.contains('wing-disabled') && b.dataset.base !== "true");
                 const caselleAllocate = boxesValide.filter(b => b.classList.contains('user-allocated'));
 
                 if (!isDaDestra) {
-                    // SEZIONI DI SINISTRA (Riempimento da sinistra, rimozione dall'ultima a destra)
+                    // SEZIONI DI SINISTRA (Es: Pneumatici, Freni, Carburante)
+                    // Riempimento da sinistra a destra, rimozione dall'ultima a destra
                     const primaCasellaVuota = boxesValide.find(b => b.innerText.trim() === '');
 
-                    if (box.classList.contains('user-allocated') || (box.innerText.trim() !== '' && box.dataset.base !== "true")) {
+                    if (box.classList.contains('user-allocated')) {
+                        // Rimuove l'ultima allocata dall'utente a destra
                         if (caselleAllocate.length > 0) {
                             delta = -1;
                             targetBox = caselleAllocate[caselleAllocate.length - 1];
@@ -159,11 +163,13 @@ export function inizializzaInterazionePlancia() {
                         targetBox = primaCasellaVuota;
                     }
                 } else {
-                    // SEZIONI DI DESTRA (Riempimento da destra, rimozione dall'ultima a sinistra)
+                    // SEZIONI DI DESTRA (Es: Telaio, Motore, Sospensioni)
+                    // Riempimento da destra a sinistra, rimozione dall'ultima a sinistra
                     const primeVuoteDaDestra = [...boxesValide].reverse();
                     const primaCasellaVuota = primeVuoteDaDestra.find(b => b.innerText.trim() === '');
 
-                    if (box.classList.contains('user-allocated') || (box.innerText.trim() !== '' && box.dataset.base !== "true")) {
+                    if (box.classList.contains('user-allocated')) {
+                        // Rimuove l'ultima allocata dall'utente a sinistra
                         if (caselleAllocate.length > 0) {
                             delta = -1;
                             targetBox = caselleAllocate[0];
