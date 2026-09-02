@@ -257,8 +257,9 @@ window.toggleWing = function() {
     if (!containerBody) return;
     
     const boxesBody = Array.from(containerBody.querySelectorAll('.box'));
-    // Trova la casella base più a sinistra (la prima base della serie)
-    const targetBox = boxesBody.find(b => b.dataset.base === "true" || (b.innerText.trim() !== '' && !b.classList.contains('user-allocated')));
+    
+    // Trova la prima casella base sul lato destro (la prima con '1' partendo da sinistra)
+    const targetBox = boxesBody.find(b => b.innerText.trim() === '1' && !b.classList.contains('wing-disabled'));
 
     const isAttivo = boxWing.classList.contains('wing-active');
     const wingSvg = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;"><path d="M3 12h18M3 6h18M6 18h12"/></svg>`;
@@ -270,7 +271,6 @@ window.toggleWing = function() {
         if (targetBox) {
             targetBox.dataset.base = "true";
             targetBox.classList.add('wing-disabled');
-            if (targetBox.innerText.trim() === '') targetBox.innerText = '1';
         }
     } else {
         boxWing.classList.remove('wing-active');
