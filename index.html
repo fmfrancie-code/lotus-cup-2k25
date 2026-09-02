@@ -540,11 +540,15 @@
       pointer-events: none !important;
     }
     
-    /* Consente l'interazione sui pulsanti di controllo speciali (Alettone e KERS) solo durante il setup */
-    #screen-setup.setup-active #box-wing, 
-    #screen-setup.setup-active #box-kers {
+    /* Consente l'interazione sul pulsante Alettone solo durante il setup (KERS resta bloccato) */
+    #screen-setup.setup-active #box-wing {
       pointer-events: auto !important;
       cursor: pointer !important;
+    }
+
+    #box-kers {
+      pointer-events: none !important;
+      cursor: default !important;
     }
 
     /* Le box con valori precompilati fissi non devono mai reagire */
