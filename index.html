@@ -517,34 +517,52 @@
 
     .boxes-container { display: flex; gap: 2px; }
 
+    /* Protezione globale delle box: non cliccabili prima dell'avvio della configurazione */
     .box {
       width: 28px; height: 32px;
       font-family: 'Orbitron', sans-serif; font-weight: 700; font-size: 0.95rem;
       display: flex; align-items: center; justify-content: center;
       user-select: none; border-radius: 3px; position: relative; flex-shrink: 0;
       cursor: default !important;
+      pointer-events: none !important;
     }
     
-    /* Le box precompilate (con valori base fissi) non devono mai illuminarsi o reagire all'hover */
+    /* Consente l'interazione sui pulsanti di controllo speciali (Alettone e KERS) */
+    #box-wing, #box-kers {
+      pointer-events: auto !important;
+      cursor: pointer !important;
+    }
+
+    /* Le box con valori precompilati fissi non devono mai reagire */
     .box:not(:empty) {
       cursor: default !important;
       pointer-events: none !important;
     }
 
-    /* L'effetto hover e il cursore puntatore si attivano SOLO sulle caselle vuote quando la schermata ha la classe setup-active */
+    /* Sblocca le caselle vuote della plancia SOLO quando la schermata ha la classe setup-active */
+    #screen-setup.setup-active .box:empty {
+      pointer-events: auto !important;
+      cursor: pointer !important;
+    }
+
     #screen-setup.setup-active .box:empty:hover {
       box-shadow: 0 0 10px #00f0ff !important;
       border-color: #00f0ff !important;
-      cursor: pointer !important;
     }
 
     body.theme-ironman #screen-setup.setup-active .box:empty:hover {
       box-shadow: 0 0 10px #e5b839 !important;
       border-color: #e5b839 !important;
-      cursor: pointer !important;
     }
 
-    /* Stile uniforme e identico per le caselle allocate in qualsiasi tema (nessuna evidenziazione speciale) */
+    /* Caselle disabilitate dall'Alettone */
+    .box.wing-disabled {
+      opacity: 0.25 !important;
+      text-decoration: line-through;
+      pointer-events: none !important;
+    }
+
+    /* Stile uniforme e identico per le caselle allocate in qualsiasi tema */
     .box.user-allocated, .box.pre-selected {
       background-color: inherit !important;
       border-color: inherit !important;
@@ -788,7 +806,7 @@
           </div>
         </div>
 
-        <!-- TELAIO (6 caselle) - Numeri base spostati sulle 2 caselle a destra -->
+        <!-- TELAIO (6 caselle) -->
         <div class="comp-block-wrapper align-right">
           <div class="board-side right-side">
             <div class="icon-box-center arrow-right" title="Telaio">
@@ -846,7 +864,6 @@
           <div id="box-kers" class="box" onclick="interactKers()"></div>
         </div>
 
-        <!-- MOTORE (6 caselle) - Numeri base spostati sulle 2 caselle a destra -->
         <div class="comp-block-wrapper align-right">
           <div class="board-side right-side">
             <div class="icon-box-center arrow-right" title="Motore">
@@ -907,7 +924,6 @@
           <div id="box-wing" class="box" onclick="toggleWing()"></div>
         </div>
 
-        <!-- SOSPENSIONI (6 caselle) - Numeri base spostati sulle 2 caselle a destra -->
         <div class="comp-block-wrapper align-right">
           <div class="board-side right-side">
             <div class="icon-box-center arrow-right" title="Sospensioni">
