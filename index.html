@@ -544,20 +544,12 @@
       cursor: pointer !important;
     }
 
-    /* Comportamento universale per le caselle pre-selezionate con il punto budget */
-    .box.pre-selected {
-      background-color: rgba(0, 240, 255, 0.15) !important;
-      border-color: #00f0ff !important;
-      box-shadow: 0 0 10px #00f0ff !important;
-      color: #ffffff !important;
-    }
-
-    /* Adattamento specifico per il tema Iron-Man (accento oro/giallo) sulle caselle selezionate */
-    body.theme-ironman .box.pre-selected {
-      background-color: rgba(229, 184, 57, 0.2) !important;
-      border-color: #e5b839 !important;
-      box-shadow: 0 0 10px #e5b839 !important;
-      color: #f5d061 !important;
+    /* Stile uniforme e identico per le caselle allocate in qualsiasi tema (nessuna evidenziazione speciale) */
+    .box.user-allocated, .box.pre-selected {
+      background-color: inherit !important;
+      border-color: inherit !important;
+      box-shadow: none !important;
+      font-weight: 700;
     }
 
     .budget-bar {
