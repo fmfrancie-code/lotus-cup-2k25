@@ -154,51 +154,31 @@ document.addEventListener("DOMContentLoaded", () => {
         'row-suspension': 'suspension'
     };
 
-    const componentiDaDestra = ['body', 'engine', 'suspension'];
-
     Object.keys(righeComponenti).forEach(rowId => {
         const container = document.getElementById(rowId);
         if (container) {
             container.addEventListener('click', (e) => {
-                // CORRETTO: Impedisce qualsiasi interazione se la configurazione non è stata avviata
-                if (!gameState.isSetupMode) {
-                    return;
-                }
+                if (!gameState.isSetupMode) return;
                 
                 const box = e.target.closest('.box');
                 if (!box) return;
 
+                // Impedisce di cliccare sulle caselle che contengono già un valore base
+                if (box.innerText.trim() !== '') return;
+
                 const tipoComponente = righeComponenti[rowId];
-                const boxesNellaRiga = Array.from(container.querySelectorAll('.box'));
-                const indiceBox = boxesNellaRiga.indexOf(box);
-                
-                const puntiAttuali = gameState.allocations[tipoComponente] || 0;
-                
-                let delta = 1;
-                const isDaDestra = componentiDaDestra.includes(tipoComponente);
                 const eGiaAttiva = box.classList.contains('pre-selected');
-
-                if (eGiaAttiva) {
-                    delta = -1;
-                } else {
-                    const prossimoIndiceValido = isDaDestra 
-                        ? boxesNellaRiga.length - 1 - puntiAttuali 
-                        : puntiAttuali;
-
-                    if (indiceBox !== prossimoIndiceValido) {
-                        return;
-                    }
-                    delta = 1;
-                }
+                const delta = eGiaAttiva ? -1 : 1;
 
                 const risultato = gestisciAssegnazioneBudget(tipoComponente, delta);
 
                 if (risultato.operazioneRiuscita) {
                     if (delta > 0) {
                         box.classList.add('pre-selected');
-                        // RIMOSSO: box.innerText = '1'; per evitare di cancellare i numeri interni della casella
+                        box.innerText = '1'; // Inserisce il numero 1 come richiesto
                     } else {
                         box.classList.remove('pre-selected');
+                        box.innerText = ''; // Rimuove il numero
                     }
                     
                     const budgetCount = document.getElementById('budget-count');
