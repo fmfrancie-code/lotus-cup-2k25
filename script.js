@@ -156,7 +156,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 const box = e.target.closest('.box');
                 if (!box) return;
 
-                if (box.dataset.base === "true" || (box.innerText.trim() !== '' && !box.classList.contains('user-allocated'))) {
+                // Salta le caselle fisse o disabilitate dall'Alettone
+                if (box.dataset.base === "true" || box.classList.contains('wing-disabled') || (box.innerText.trim() !== '' && !box.classList.contains('user-allocated'))) {
                     return;
                 }
 
@@ -169,26 +170,30 @@ document.addEventListener("DOMContentLoaded", () => {
                 let delta = 0;
 
                 if (isDaDestra) {
-                    const indicePrimoBase = boxesNellaRiga.findIndex(b => b.innerText.trim() !== '' && !b.classList.contains('user-allocated'));
+                    // Da destra a sinistra: individua la prima casella utile partendo da destra
+                    const boxesValide = boxesNellaRiga.filter(b => !b.classList.contains('wing-disabled'));
+                    const indicePrimoBase = boxesValide.findIndex(b => b.innerText.trim() !== '' && !b.classList.contains('user-allocated'));
                     const indiceUltimaVuota = indicePrimoBase - 1;
                     const indiceUltimaAllocata = indiceUltimaVuota - puntiAttuali + 1;
 
                     if (box.classList.contains('user-allocated') && indiceBox === indiceUltimaAllocata) {
-                        delta = -1; 
+                        delta = -1;
                     } else if (!box.classList.contains('user-allocated') && indiceBox === indiceUltimaVuota - puntiAttuali) {
-                        delta = 1; 
+                        delta = 1;
                     } else {
-                        return; 
+                        return;
                     }
                 } else {
-                    const offsetInizio = boxesNellaRiga.findIndex(b => b.innerText.trim() === '');
+                    // Da sinistra a destra: individua la prima casella vuota disponibile
+                    const boxesValide = boxesNellaRiga.filter(b => !b.classList.contains('wing-disabled'));
+                    const offsetInizio = boxesValide.findIndex(b => b.innerText.trim() === '');
                     const indiceProssimoDaAggiungere = offsetInizio + puntiAttuali;
                     const indiceUltimoAggiunto = offsetInizio + puntiAttuali - 1;
 
                     if (box.classList.contains('user-allocated') && indiceBox === indiceUltimoAggiunto) {
-                        delta = -1; 
+                        delta = -1;
                     } else if (!box.classList.contains('user-allocated') && indiceBox === indiceProssimoDaAggiungere) {
-                        delta = 1; 
+                        delta = 1;
                     } else {
                         return;
                     }
@@ -228,12 +233,10 @@ window.toggleWing = function() {
     if (!containerBody) return;
     
     const boxesBody = Array.from(containerBody.querySelectorAll('.box'));
-    // Trova la prima casella della sezione telaio che contiene un punto (es. il primo '1' base)
+    // Trova la prima casella della sezione telaio che contiene un punto base (es. '1') per disabilitarla mantenendo il numero
     const targetBox = boxesBody.find(b => b.innerText.trim() !== '' && !b.classList.contains('wing-disabled'));
 
     const isAttivo = boxWing.classList.contains('wing-active');
-
-    // Icona SVG dell'alettone
     const wingSvg = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;"><path d="M3 12h18M3 6h18M6 18h12"/></svg>`;
 
     if (!isAttivo) {
@@ -242,19 +245,16 @@ window.toggleWing = function() {
         
         if (targetBox) {
             targetBox.classList.add('wing-disabled');
-            targetBox.dataset.valorePrecedente = targetBox.innerText;
-            targetBox.innerText = ''; // Libera visivamente la casella disabilitata
+            // Mantiene il numero '1' visibile ma barrato/attenuato come richiesto
+            if (targetBox.innerText.trim() === '') targetBox.innerText = '1';
         }
     } else {
         boxWing.classList.remove('wing-active');
         boxWing.innerHTML = '';
 
-        // Trova la casella del telaio precedentemente disabilitata e la riabilita
         const disabledBodyBox = boxesBody.find(b => b.classList.contains('wing-disabled'));
         if (disabledBodyBox) {
             disabledBodyBox.classList.remove('wing-disabled');
-            disabledBodyBox.innerText = disabledBodyBox.dataset.valorePrecedente || '1';
-            delete disabledBodyBox.dataset.valorePrecedente;
         }
     }
 };
