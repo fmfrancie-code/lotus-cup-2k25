@@ -30,26 +30,20 @@ const ICONS = {
  * @param {string} themeName - Nome del tema ('ironman' o 'cyberpunk')
  */
 export function applyTheme(themeName) {
-
-    // Elenco dei temi attuali e futuri delle scuderie
     const supportedThemes = ['ironman', 'cyberpunk', 'redbull', 'mcdonalds', 'chupachups', 'octan', 'kinder'];
-    // Verifica se il tema scelto è valido, altrimenti usa 'ironman' come default
     const validTheme = supportedThemes.includes(themeName) ? themeName : 'ironman';
     
-    // Aggiorna lo stato globale
     updateGameState({ theme: validTheme });
 
     const allThemeClasses = supportedThemes.map(t => `theme-${t}`);
     document.body.classList.remove(...allThemeClasses);
     document.body.classList.add(`theme-${validTheme}`);
 
-    // Sincronizza l'eventuale selettore nel DOM se presente
     const themeSelect = document.getElementById('theme-select');
     if (themeSelect && themeSelect.value !== validTheme) {
         themeSelect.value = validTheme;
     }
 
-    // Aggiorna le icone KERS dinamiche sulla plancia
     updateKersIconsVisual(validTheme);
 }
 
@@ -69,7 +63,6 @@ export function getKersIconHtml(themeName) {
 function updateKersIconsVisual(themeName) {
     const kersContainers = document.querySelectorAll('.kers-icon-container');
     kersContainers.forEach(container => {
-        // Aggiorna l'icona solo se non è in stato di errore/danno (X rossa)
         if (!container.classList.contains('x-red')) {
             container.innerHTML = getKersIconHtml(themeName);
         }
@@ -87,7 +80,6 @@ export function inizializzaLayout() {
 
 /**
  * Aggiorna visivamente il contatore del budget residuo e lo stato del pulsante di blocco.
- * 
  * @param {number} budgetResiduo - I punti budget rimasti
  */
 export function aggiornaInterfacciaBudget(budgetResiduo) {
@@ -154,7 +146,6 @@ export function inizializzaInterazionePlancia() {
                     if (box.classList.contains('user-allocated')) {
                         if (caselleAllocate.length > 0) {
                             delta = -1;
-                            // Rimuove l'ultimo punto inserito dall'utente (in ordine da sinistra a destra)
                             targetBox = caselleAllocate[caselleAllocate.length - 1];
                         }
                     } else if (box.innerText.trim() === '' && primaCasellaVuota) {
@@ -162,12 +153,10 @@ export function inizializzaInterazionePlancia() {
                         targetBox = primaCasellaVuota;
                     }
                 } else {
-                    // SEZIONI DI DESTRA (Telaio, Motore, Sospensioni)
                     let targetPool = boxesValide;
                     if (tipoComponente === 'body') {
                         const indiceDisabilitato = boxesNellaRiga.findIndex(b => b.classList.contains('wing-disabled'));
                         if (indiceDisabilitato !== -1) {
-                            // Esclude le caselle a sinistra di quella disabilitata dall'alettone
                             targetPool = boxesValide.filter(b => boxesNellaRiga.indexOf(b) > indiceDisabilitato);
                         }
                     }
@@ -178,7 +167,6 @@ export function inizializzaInterazionePlancia() {
                     if (box.classList.contains('user-allocated')) {
                         if (caselleAllocate.length > 0) {
                             delta = -1;
-                            // Nelle sezioni da destra, rimuove la prima casella allocata incontrata partendo da destra
                             targetBox = caselleAllocate[0];
                         }
                     } else if (box.innerText.trim() === '' && primaCasellaVuota) {
@@ -197,10 +185,7 @@ export function inizializzaInterazionePlancia() {
                             targetBox.classList.remove('user-allocated');
                             targetBox.innerText = '';
                         }
-                        // Aggiorna istantaneamente il budget residuo (incrementandolo in caso di rimozione)
                         aggiornaInterfacciaBudget(risultato.budgetResiduo);
-                        
-                        // Forza il re-trigger pulito dell'onda su tutte le caselle vuote
                         sincronizzaOndaVuote();
                     } else if (risultato.messaggioDescrittivo) {
                         alert(risultato.messaggioDescrittivo);
@@ -217,7 +202,7 @@ export function inizializzaInterazionePlancia() {
 function sincronizzaOndaVuote() {
     document.querySelectorAll('.box:empty').forEach(box => {
         box.style.animation = 'none';
-        box.offsetHeight; // Trigger del reflow del browser
+        box.offsetHeight;
         box.style.animation = null;
     });
 }
