@@ -517,11 +517,10 @@
 
     .boxes-container { display: flex; gap: 2px; }
 
-    /* Animazione lampeggiante originale per le caselle riempibili durante il setup */
-    @keyframes pulse-glow {
-      0% { box-shadow: 0 0 4px rgba(0, 240, 255, 0.3); border-color: rgba(0, 240, 255, 0.4); }
-      50% { box-shadow: 0 0 12px rgba(0, 240, 255, 0.9); border-color: #00f0ff; }
-      100% { box-shadow: 0 0 4px rgba(0, 240, 255, 0.3); border-color: rgba(0, 240, 255, 0.4); }
+    /* Animazione lampeggiante corretta e sincronizzata per le caselle riempibili durante il setup */
+    @keyframes pulse-yellow {
+      0%, 100% { border-color: rgba(255, 183, 0, 0.4); background-color: transparent; }
+      50% { border-color: rgba(255, 183, 0, 1); background-color: rgba(255, 183, 0, 0.08); }
     }
 
     @keyframes pulse-glow-ironman {
@@ -538,6 +537,18 @@
       user-select: none; border-radius: 3px; position: relative; flex-shrink: 0;
       cursor: default !important;
       pointer-events: none !important;
+    }
+
+    .box.box-setup-highlight {
+      border: 1px dashed #ffb700; 
+      color: #ffb700; 
+      background-color: transparent;
+      animation: pulse-yellow 1.8s infinite ease-in-out;
+      animation-delay: 0s !important;
+    }
+    body.theme-ironman .box.box-setup-highlight { 
+      border-color: #00f0ff; 
+      color: #00f0ff; 
     }
     
     /* Consente l'interazione sul pulsante Alettone solo durante il setup (KERS resta bloccato) */
@@ -587,12 +598,6 @@
     #screen-setup.setup-active:not(.budget-zero) .box:empty {
       pointer-events: auto !important;
       cursor: pointer !important;
-      animation: pulse-glow 1.5s infinite ease-in-out !important;
-      animation-delay: 0s !important;
-    }
-
-    body.theme-ironman #screen-setup.setup-active:not(.budget-zero) .box:empty {
-      animation: pulse-glow-ironman 1.5s infinite ease-in-out !important;
       animation-delay: 0s !important;
     }
 
