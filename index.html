@@ -551,10 +551,25 @@
       cursor: default !important;
     }
 
-    /* Le box con valori precompilati fissi non devono mai reagire */
-    .box:not(:empty) {
+    /* Le box piene (sia base fisse che allocate dall'utente) mantengono lo stile coerente del tema */
+    .box:not(:empty),
+    .box.user-allocated {
+      background-color: #0f1522 !important;
+      border: 1px solid #00f0ff !important;
+      color: #00ffcc !important;
+      box-shadow: 0 0 6px rgba(0, 240, 255, 0.15), inset 0 0 8px rgba(0, 255, 204, 0.08) !important;
+      font-weight: 700;
       cursor: default !important;
       pointer-events: none !important;
+    }
+
+    body.theme-ironman .box:not(:empty),
+    body.theme-ironman .box.user-allocated {
+      background-color: #0a0204 !important;
+      border: 1px solid #00f0ff !important;
+      color: #ffffff !important;
+      box-shadow: none !important;
+      font-weight: 700;
     }
 
     /* Le caselle vuote lampeggiano solo se il setup è attivo e ci sono punti disponibili (> 0) */
@@ -580,15 +595,6 @@
       opacity: 0.35 !important;
       text-decoration: line-through;
       pointer-events: none !important;
-    }
-
-    /* Le caselle allocate ereditano rigorosamente lo stile standard del tema attivo */
-    .box.user-allocated {
-      background-color: inherit !important;
-      border-color: inherit !important;
-      color: inherit !important;
-      box-shadow: none !important;
-      font-weight: 700;
     }
 
     .budget-bar {
@@ -1038,4 +1044,3 @@
 <script type="module" src="script.js"></script>
 </body>
 </html>
-```[cite: 2]
