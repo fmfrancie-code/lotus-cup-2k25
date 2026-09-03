@@ -131,7 +131,7 @@ export function inizializzaInterazionePlancia() {
             
             container.addEventListener('click', (e) => {
                 if (!gameState.isSetupMode) return;
-                e.stopImmediatePropagation(); // Blocca la propagazione multipla dell'evento
+                e.stopImmediatePropagation();
                 
                 const box = e.target.closest('.box');
                 if (!box) return;
@@ -160,8 +160,19 @@ export function inizializzaInterazionePlancia() {
                         targetBox = primaCasellaVuota;
                     }
                 } else {
-                    const primeVuoteDaDestra = [...boxesValide].reverse();
+                    // SEZIONI DI DESTRA (Telaio, Motore, Sospensioni)
+                    let targetPool = boxesValide;
+                    if (tipoComponente === 'body') {
+                        const indiceDisabilitato = boxesNellaRiga.findIndex(b => b.classList.contains('wing-disabled'));
+                        if (indiceDisabilitato !== -1) {
+                            // Esclude le caselle a sinistra di quella disabilitata dall'alettone
+                            targetPool = boxesValide.filter(b => boxesNellaRiga.indexOf(b) > indiceDisabilitato);
+                        }
+                    }
+
+                    const primeVuoteDaDestra = [...targetPool].reverse();
                     const primaCasellaVuota = primeVuoteDaDestra.find(b => b.innerText.trim() === '');
+
                     if (box.classList.contains('user-allocated')) {
                         if (caselleAllocate.length > 0) {
                             delta = -1;
