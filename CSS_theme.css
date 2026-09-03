@@ -1,0 +1,265 @@
+/* CYBER-PUNK THEME */
+body.theme-cyberpunk {
+  background-color: #080b10;
+  background-image: linear-gradient(rgba(0, 240, 255, 0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 240, 255, 0.04) 1px, transparent 1px);
+  background-size: 30px 30px;
+  color: #e0e6ed;
+}
+
+body.theme-cyberpunk .app-container {
+  background: rgba(18, 24, 38, 0.85);
+  border: 1px solid rgba(0, 240, 255, 0.35);
+  box-shadow: 0 0 25px rgba(0, 240, 255, 0.12), inset 0 0 15px rgba(0, 0, 0, 0.8);
+}
+
+body.theme-cyberpunk h1, 
+body.theme-cyberpunk h2, 
+body.theme-cyberpunk h3 {
+  color: #00f0ff;
+  text-shadow: 0 0 12px #00f0ff;
+}
+
+body.theme-cyberpunk .btn {
+  background-color: #0f1522;
+  color: #00f0ff;
+  border: 1px solid #00f0ff;
+  font-family: 'Orbitron', sans-serif;
+  padding: 14px 20px;
+  font-size: 1rem;
+  font-weight: bold;
+  border-radius: 4px;
+  cursor: pointer;
+  width: 100%;
+  margin: 10px 0;
+  transition: all 0.25s ease-in-out;
+  box-shadow: 0 0 10px rgba(0, 240, 255, 0.2);
+  text-transform: none !important;
+}
+
+body.theme-cyberpunk .btn:hover:not(:disabled) {
+  background-color: #00f0ff;
+  color: #000000;
+  box-shadow: 0 0 20px #00f0ff;
+  transform: translateY(-1px);
+}
+
+body.theme-cyberpunk .btn:disabled {
+  background-color: #111827 !important;
+  border-color: #374151 !important;
+  color: #6b7280 !important;
+  box-shadow: none !important;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+body.theme-cyberpunk .btn-secondary {
+  background-color: rgba(30, 41, 59, 0.8);
+  color: #e0e6ed;
+  border: 1px solid #2e3d52;
+  box-shadow: none;
+}
+
+body.theme-cyberpunk .btn-danger {
+  background-color: rgba(255, 0, 85, 0.2);
+  color: #ff0055;
+  border: 1px solid #ff0055;
+  box-shadow: 0 0 10px rgba(255, 0, 85, 0.3);
+}
+
+body.theme-cyberpunk .btn-success {
+  background-color: rgba(0, 255, 204, 0.15);
+  color: #00ffcc;
+  border: 1px solid #00ffcc;
+  box-shadow: 0 0 10px rgba(0, 255, 204, 0.3);
+}
+
+body.theme-cyberpunk .btn-read-mode {
+  background-color: rgba(0, 255, 204, 0.2) !important;
+  color: #00ffcc !important;
+  border: 1px solid #00ffcc !important;
+}
+
+body.theme-cyberpunk .btn-edit-mode {
+  background-color: rgba(255, 183, 0, 0.2) !important;
+  color: #ffb700 !important;
+  border: 1px solid #ffb700 !important;
+}
+
+body.theme-cyberpunk .btn-pitstop-mode {
+  background-color: rgba(255, 0, 220, 0.2) !important;
+  color: #ff00dc !important;
+  border: 1px solid #ff00dc !important;
+  box-shadow: 0 0 12px rgba(255, 0, 220, 0.4) !important;
+}
+
+body.theme-cyberpunk .btn-weather-test {
+  background-color: rgba(0, 240, 255, 0.15) !important;
+  color: #00f0ff !important;
+  border: 1px solid #00f0ff !important;
+}
+
+body.theme-cyberpunk .box {
+  background-color: #0f1522;
+  color: #00ffcc;
+  border: 1px solid #00f0ff;
+  text-shadow: 0 0 8px #00ffcc;
+  box-shadow: 0 0 6px rgba(0, 240, 255, 0.15), inset 0 0 8px rgba(0, 255, 204, 0.08);
+}
+
+body.theme-cyberpunk .box.x-red {
+  background: rgba(255, 0, 85, 0.12) !important;
+  border: 1px solid #ff0055 !important;
+  color: #ff0055 !important;
+  font-weight: 900;
+  text-shadow: 0 0 10px #ff0055, 0 0 20px #ff0055 !important;
+  box-shadow: 0 0 10px rgba(255, 0, 85, 0.35) !important;
+  animation: flicker 2s infinite alternate;
+}
+
+body.theme-cyberpunk .box.circle-kers { box-shadow: none !important; }
+body.theme-cyberpunk .box.circle-kers svg {
+  color: #00f0ff !important;
+  animation: glow-only-cyber 1.4s infinite ease-in-out alternate;
+}
+
+/* IRONMAN THEME */
+body.theme-ironman {
+  background-color: #050203;
+  background-image: radial-gradient(circle at center, rgba(229, 184, 57, 0.08) 0%, transparent 70%), linear-gradient(rgba(229, 184, 57, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(229, 184, 57, 0.05) 1px, transparent 1px);
+  background-size: 30px 30px;
+  color: #ffffff;
+}
+
+body.theme-ironman .app-container {
+  background: rgba(92, 0, 3, 0.92);
+  border: 2px solid #e5b839;
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.8);
+}
+
+body.theme-ironman h1, 
+body.theme-ironman h2, 
+body.theme-ironman h3 {
+  color: #f5d061;
+  text-shadow: 0 0 10px rgba(0, 0, 0, 0.8), 0 0 5px #f5d061;
+}
+
+body.theme-ironman .btn {
+  background: linear-gradient(180deg, #fff2bd 0%, #e5b839 40%, #c49618 100%) !important;
+  color: #520003 !important;
+  border: 2px solid #000000 !important;
+  font-family: 'Orbitron', sans-serif;
+  padding: 14px 20px;
+  font-size: 1rem;
+  font-weight: 900;
+  border-radius: 6px;
+  cursor: pointer;
+  width: 100%;
+  margin: 10px 0;
+  transition: all 0.2s ease-in-out;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+  text-shadow: none !important;
+  text-transform: none !important;
+}
+
+body.theme-ironman .btn:hover:not(:disabled) {
+  background: linear-gradient(180deg, #ffffff 0%, #f5d061 40%, #e5b839 100%) !important;
+  color: #300002 !important;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(229, 184, 57, 0.4);
+}
+
+body.theme-ironman .btn-secondary {
+  background: #0a0204 !important;
+  color: #f5d061 !important;
+  border: 1px solid #e5b839 !important;
+}
+
+body.theme-ironman .btn-danger {
+  background: rgba(255, 0, 85, 0.2) !important;
+  color: #ff2a2a !important;
+  border: 1px solid #ff2a2a !important;
+}
+
+body.theme-ironman .btn-read-mode {
+  background: linear-gradient(180deg, #fff2bd 0%, #e5b839 40%, #c49618 100%) !important;
+  color: #520003 !important;
+  border: 2px solid #000000 !important;
+  opacity: 1 !important;
+}
+
+body.theme-ironman .btn-edit-mode {
+  background: rgba(60, 0, 2, 0.95) !important;
+  color: #f5d061 !important;
+  border: 2px solid #f5d061 !important;
+}
+
+body.theme-ironman .btn-pitstop-mode {
+  background: rgba(255, 0, 220, 0.2) !important;
+  color: #ff00dc !important;
+  border: 2px solid #ff00dc !important;
+}
+
+body.theme-ironman .btn-weather-test {
+  background: rgba(229, 184, 57, 0.2) !important;
+  color: #f5d061 !important;
+  border: 2px solid #e5b839 !important;
+}
+
+body.theme-ironman .box {
+  background-color: #0a0204;
+  color: #ffffff;
+  border: 1px solid #00f0ff;
+  text-shadow: none;
+  box-shadow: none;
+}
+
+body.theme-ironman .box.x-red {
+  background: rgba(255, 42, 42, 0.18) !important;
+  border: 1px solid #ff2a2a !important;
+  color: #ff2a2a !important;
+  font-weight: 900;
+  text-shadow: 0 0 10px #ff2a2a, 0 0 18px #ff2a2a !important;
+  box-shadow: 0 0 10px rgba(255, 42, 42, 0.4) !important;
+  animation: flicker 2s infinite alternate;
+}
+
+body.theme-ironman .box.circle-green {
+  color: #00ffcc !important;
+  filter: drop-shadow(0 0 5px #00ffcc);
+}
+
+body.theme-ironman .box.circle-kers { box-shadow: none !important; }
+body.theme-ironman .box.circle-kers svg {
+  color: #00f0ff !important;
+  animation: glow-only-iron 1.4s infinite ease-in-out alternate;
+}
+
+/* SISTEMA DI PULSAZIONE UNIVERSALE IN STILE ORO/GIALLO PER TUTTI I TEMI */
+.box.box-setup-highlight {
+  border: 1px dashed #ffb700; color: #ffb700; background-color: transparent;
+  animation: pulse-yellow 1.5s infinite ease-in-out;
+}
+body.theme-ironman .box.box-setup-highlight { 
+  border-color: #ffb700; color: #ffb700; animation: pulse-yellow 1.5s infinite ease-in-out; 
+}
+body.theme-cyberpunk .box.box-setup-highlight { 
+  border-color: #ffb700; color: #ffb700; animation: pulse-yellow 1.5s infinite ease-in-out; 
+}
+
+@keyframes pulse-yellow {
+  0%, 100% { border-color: rgba(255, 183, 0, 0.4); background-color: transparent; }
+  50% { border-color: rgba(255, 183, 0, 1); background-color: rgba(255, 183, 0, 0.08); }
+}
+@keyframes flicker {
+  0%, 100% { opacity: 1; filter: drop-shadow(0 0 8px #ff2a2a); }
+  50% { opacity: 0.85; filter: drop-shadow(0 0 3px #ff2a2a); }
+  52% { opacity: 1; } 54% { opacity: 0.7; } 56% { opacity: 1; }
+}
+@keyframes glow-only-cyber {
+  0% { filter: drop-shadow(0 0 1px #00f0ff); opacity: 0.55; }
+  100% { filter: drop-shadow(0 0 6px #00f0ff) drop-shadow(0 0 12px #00f0ff); opacity: 1; }
+}
+@keyframes glow-only-iron {
+  0% { filter: drop-shadow(0 0 1px #00f0ff); opacity: 0.6; }
+  100% { filter: drop-shadow(0 0 8px #00f0ff) drop-shadow(0 0 14px #f5d061); opacity: 1; }
+}
