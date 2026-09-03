@@ -3,21 +3,21 @@
 // Coordinatore centrale degli eventi e della UI
 // ==========================================
 
-import { applyTheme, inizializzaLayout, inizializzaInterazionePlancia } from './layout_v2.js';[cite: 9]
-import { gameState, updateGameState } from './state.js';[cite: 1]
-import { inizializzaSchedaPilota, ufficializzaSchedaPerGara } from './mainSchedaController.js';[cite: 10]
+import { applyTheme, inizializzaLayout, inizializzaInterazionePlancia } from './layout_v2.js';
+import { gameState, updateGameState } from './state.js';
+import { inizializzaSchedaPilota, ufficializzaSchedaPerGara } from './mainSchedaController.js';
 
 document.addEventListener("DOMContentLoaded", () => {
     // 1. Inizializzazione interfaccia e interazioni della plancia
-    inizializzaLayout();[cite: 9]
-    inizializzaInterazionePlancia();[cite: 9]
+    inizializzaLayout();
+    inizializzaInterazionePlancia();
 
     // 2. Gestione cambio tema grafico tramite menu a tendina
     const themeSelect = document.getElementById('theme-select');
     if (themeSelect) {
         themeSelect.addEventListener('change', (e) => {
-            applyTheme(e.target.value);[cite: 9]
-            updateGameState({ theme: e.target.value });[cite: 1]
+            applyTheme(e.target.value);
+            updateGameState({ theme: e.target.value });
         });
     }
 
@@ -73,23 +73,23 @@ function handleCreateGame() {
         day: '2-digit', month: '2-digit', year: 'numeric'
     });
 
-    inizializzaSchedaPilota({[cite: 10]
+    inizializzaSchedaPilota({
         code: Math.floor(1000 + Math.random() * 9000).toString(),
         playerName: host,
         playerId: 'player_' + Date.now(),
-        theme: gameState.theme[cite: 1]
+        theme: gameState.theme
     });
 
-    updateGameState({ circuit, host, weather, isSetupMode: true });[cite: 1]
+    updateGameState({ circuit, host, weather, isSetupMode: true });
     showScreen('screen-setup');
     
     document.getElementById('display-circuit').innerText = circuit.toUpperCase();
     document.getElementById('display-meta').innerText = `Data: ${todayFormatted} | Pilota: ${host}`;
-    document.getElementById('display-code').innerText = gameState.code;[cite: 1]
+    document.getElementById('display-code').innerText = gameState.code;
 }
 
 function handleStartConfiguration() {
-    updateGameState({ isSetupMode: true, budget: 13 });[cite: 1]
+    updateGameState({ isSetupMode: true, budget: 13 });
 
     const setupScreen = document.getElementById('screen-setup');
     if (setupScreen) setupScreen.classList.add('setup-active');
@@ -102,11 +102,11 @@ function handleStartConfiguration() {
     if (btnStart) btnStart.style.display = 'none';
     if (btnLock) { btnLock.style.display = 'block'; btnLock.disabled = true; }
     if (budgetBar) budgetBar.style.display = 'block';
-    if (budgetCount) budgetCount.innerText = gameState.budget;[cite: 1]
+    if (budgetCount) budgetCount.innerText = gameState.budget;
 }
 
 function handleOfficializeSetup() {
-    const risultato = ufficializzaSchedaPerGara();[cite: 10]
+    const risultato = ufficializzaSchedaPerGara();
     if (!risultato.operazioneRiuscita) {
         alert(risultato.messaggioDescrittivo);
         return;
