@@ -517,17 +517,15 @@
 
     .boxes-container { display: flex; gap: 2px; }
 
-    /* Animazione lampeggiante originale per le caselle riempibili durante il setup */
-    @keyframes pulse-glow {
-      0% { box-shadow: 0 0 4px rgba(0, 240, 255, 0.3); border-color: rgba(0, 240, 255, 0.4); }
+    /* Animazione lampeggiante sincronizzata per le caselle vuote senza sfasamenti */
+    @keyframes pulse-glow-sync {
+      0%, 100% { box-shadow: 0 0 4px rgba(0, 240, 255, 0.3); border-color: rgba(0, 240, 255, 0.4); }
       50% { box-shadow: 0 0 12px rgba(0, 240, 255, 0.9); border-color: #00f0ff; }
-      100% { box-shadow: 0 0 4px rgba(0, 240, 255, 0.3); border-color: rgba(0, 240, 255, 0.4); }
     }
 
-    @keyframes pulse-glow-ironman {
-      0% { box-shadow: 0 0 4px rgba(229, 184, 57, 0.3); border-color: rgba(229, 184, 57, 0.4); }
+    @keyframes pulse-glow-ironman-sync {
+      0%, 100% { box-shadow: 0 0 4px rgba(229, 184, 57, 0.3); border-color: rgba(229, 184, 57, 0.4); }
       50% { box-shadow: 0 0 12px rgba(229, 184, 57, 0.9); border-color: #e5b839; }
-      100% { box-shadow: 0 0 4px rgba(229, 184, 57, 0.3); border-color: rgba(229, 184, 57, 0.4); }
     }
 
     /* Protezione globale delle box: non cliccabili di default */
@@ -583,17 +581,15 @@
       cursor: default !important;
     }
 
-    /* Le caselle vuote lampeggiano all'unisono azzerando il delay dell'animazione */
+    /* Le caselle vuote gestite nativamente in blocco dal CSS */
     #screen-setup.setup-active:not(.budget-zero) .box:empty {
       pointer-events: auto !important;
       cursor: pointer !important;
-      animation: pulse-glow 1.5s infinite ease-in-out !important;
-      animation-delay: 0s !important;
+      animation: pulse-glow-sync 1.5s infinite ease-in-out !important;
     }
 
     body.theme-ironman #screen-setup.setup-active:not(.budget-zero) .box:empty {
-      animation: pulse-glow-ironman 1.5s infinite ease-in-out !important;
-      animation-delay: 0s !important;
+      animation: pulse-glow-ironman-sync 1.5s infinite ease-in-out !important;
     }
 
     /* Quando il budget arriva a 0, le caselle smettono di illuminarsi/lampeggiare */
