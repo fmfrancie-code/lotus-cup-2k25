@@ -140,7 +140,9 @@ export function inizializzaInterazionePlancia() {
 
                 const tipoComponente = righeComponenti[rowId];
                 const boxesNellaRiga = Array.from(container.querySelectorAll('.box'));
-                const isDaDestra = componentesDaDestraInclude = componentiDaDestra.includes(tipoComponente);
+                
+                // CORRETTO QUI: rimossa l'assegnazione multipla errata e il refuso
+                const isDaDestra = componentiDaDestra.includes(tipoComponente);
 
                 let delta = 0;
                 let targetBox = null;
