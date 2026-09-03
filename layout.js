@@ -33,7 +33,7 @@ export function applyTheme(themeName) {
 
     // Elenco dei temi attuali e futuri delle scuderie
     const supportedThemes = ['ironman', 'cyberpunk', 'redbull', 'mcdonalds', 'chupachups', 'octan', 'kinder'];
-    // Verifica se il tema scelto Ã¨ valido, altrimenti usa 'ironman' come default
+    // Verifica se il tema scelto è valido, altrimenti usa 'ironman' come default
     const validTheme = supportedThemes.includes(themeName) ? themeName : 'ironman';
     
     // Aggiorna lo stato globale
@@ -69,7 +69,7 @@ export function getKersIconHtml(themeName) {
 function updateKersIconsVisual(themeName) {
     const kersContainers = document.querySelectorAll('.kers-icon-container');
     kersContainers.forEach(container => {
-        // Aggiorna l'icona solo se non Ã¨ in stato di errore/danno (X rossa)
+        // Aggiorna l'icona solo se non è in stato di errore/danno (X rossa)
         if (!container.classList.contains('x-red')) {
             container.innerHTML = getKersIconHtml(themeName);
         }
@@ -140,7 +140,7 @@ export function inizializzaInterazionePlancia() {
 
                 const tipoComponente = righeComponenti[rowId];
                 const boxesNellaRiga = Array.from(container.querySelectorAll('.box'));
-                const isDaDestra = componentiDaDestra.includes(tipoComponente);
+                const isDaDestra = componentesDaDestraInclude = componentiDaDestra.includes(tipoComponente);
 
                 let delta = 0;
                 let targetBox = null;
@@ -153,6 +153,7 @@ export function inizializzaInterazionePlancia() {
                     if (box.classList.contains('user-allocated')) {
                         if (caselleAllocate.length > 0) {
                             delta = -1;
+                            // Rimuove l'ultimo punto inserito dall'utente (in ordine da sinistra a destra)
                             targetBox = caselleAllocate[caselleAllocate.length - 1];
                         }
                     } else if (box.innerText.trim() === '' && primaCasellaVuota) {
@@ -176,6 +177,7 @@ export function inizializzaInterazionePlancia() {
                     if (box.classList.contains('user-allocated')) {
                         if (caselleAllocate.length > 0) {
                             delta = -1;
+                            // Nelle sezioni da destra, rimuove la prima casella allocata incontrata partendo da destra
                             targetBox = caselleAllocate[0];
                         }
                     } else if (box.innerText.trim() === '' && primaCasellaVuota) {
@@ -194,6 +196,7 @@ export function inizializzaInterazionePlancia() {
                             targetBox.classList.remove('user-allocated');
                             targetBox.innerText = '';
                         }
+                        // Aggiorna istantaneamente il budget residuo (incrementandolo in caso di rimozione)
                         aggiornaInterfacciaBudget(risultato.budgetResiduo);
                     } else if (risultato.messaggioDescrittivo) {
                         alert(risultato.messaggioDescrittivo);
