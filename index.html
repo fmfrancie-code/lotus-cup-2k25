@@ -544,12 +544,16 @@
       user-select: none; border-radius: 3px; position: relative; flex-shrink: 0;
     }
 
-    /* SISTEMA ORIGINARIO DEL MONOLITICO PER LA PULSAZIONE STABILE */
+    /* SISTEMA DI PULSAZIONE STABILE E COERENTE PER TEMI */
     .box.box-setup-highlight {
       border: 1px dashed #ffb700; color: #ffb700; background-color: transparent;
       animation: pulse-yellow 1.5s infinite ease-in-out;
     }
-    body.theme-ironman .box.box-setup-highlight { border-color: #00f0ff; color: #00f0ff; }
+    body.theme-ironman .box.box-setup-highlight { 
+      border-color: #00f0ff; 
+      color: #00f0ff; 
+      animation: pulse-cyan 1.5s infinite ease-in-out; 
+    }
     .box.box-setup-disabled { border: 1px solid #2e3d52; color: transparent; animation: none !important; }
     .box.clickable { cursor: pointer; }
     .box.clickable:hover { background-color: rgba(0, 240, 255, 0.15); }
@@ -610,8 +614,12 @@
     }
 
     @keyframes pulse-yellow {
-      0%, 100% { border-color: rgba(255, 183, 0, 0.4); }
-      50% { border-color: rgba(255, 183, 0, 1); background-color: rgba(255, 183, 0, 0.05); }
+      0%, 100% { border-color: rgba(255, 183, 0, 0.4); background-color: transparent; }
+      50% { border-color: rgba(255, 183, 0, 1); background-color: rgba(255, 183, 0, 0.08); }
+    }
+    @keyframes pulse-cyan {
+      0%, 100% { border-color: rgba(0, 240, 255, 0.4); background-color: transparent; }
+      50% { border-color: rgba(0, 240, 255, 1); background-color: rgba(0, 240, 255, 0.08); }
     }
     @keyframes flicker {
       0%, 100% { opacity: 1; filter: drop-shadow(0 0 8px #ff2a2a); }
