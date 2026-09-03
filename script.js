@@ -7,6 +7,37 @@ import { applyTheme, inizializzaLayout, aggiornaInterfacciaBudget, inizializzaIn
 import { gameState, updateGameState } from './state.js';
 import { inizializzaSchedaPilota, gestisciAssegnazioneBudget, ufficializzaSchedaPerGara, toggleAlettoneController } from './mainSchedaController.js';
 
+// --- FUNZIONE PER DISEGNARE LE CASELLA SULLA PLANCIA ---
+function renderizzaCasellePlancia() {
+    const configurazioneRighe = {
+        'row-tyres': { base: 4, extra: gameState.allocations.tyres },
+        'row-body': { base: 2, extra: gameState.allocations.body },
+        'row-brakes': { base: 2, extra: gameState.allocations.brakes },
+        'row-engine': { base: 2, extra: gameState.allocations.engine },
+        'row-fuel': { base: 2, extra: gameState.allocations.fuel },
+        'row-suspension': { base: 2, extra: gameState.allocations.suspension },
+        'row-workshop': { base: 3, extra: 0 }
+    };
+
+    Object.keys(configurazioneRighe).forEach(rowId => {
+        const container = document.getElementById(rowId);
+        if (!container) return;
+        
+        container.innerHTML = '';
+        const config = configurazioneRighe[rowId];
+        const totaleCaselle = config.base + config.extra;
+
+        for (let i = 0; i < totaleCaselle; i++) {
+            const box = document.createElement('div');
+            box.className = 'box clickable';
+            if (i < config.base) {
+                box.dataset.base = "true";
+            }
+            container.appendChild(box);
+        }
+    });
+}
+
 // --- ESPORTAZIONE GLOBALE PER I PULSANTI HTML (onclick) ---
 
 window.changeTheme = function(themeName) {
@@ -59,6 +90,9 @@ window.createGame = function() {
     document.getElementById('display-circuit').innerText = circuit.toUpperCase();
     document.getElementById('display-meta').innerText = `Data: ${todayFormatted} | Pilota: ${host}`;
     document.getElementById('display-code').innerText = gameState.code;
+
+    // Disegna i box all'ingresso della schermata di setup
+    renderizzaCasellePlancia();
 };
 
 window.startConfiguration = function() {
@@ -84,6 +118,8 @@ window.startConfiguration = function() {
     }
     if (budgetBar) budgetBar.style.display = 'block';
     if (budgetCount) budgetCount.innerText = gameState.budget;
+
+    renderizzaCasellePlancia();
 };
 
 window.officializeSetup = function() {
@@ -123,7 +159,40 @@ window.closeModal = function(modalId) {
 document.addEventListener("DOMContentLoaded", () => {
     inizializzaLayout();
     inizializzaInterazionePlancia();
+    renderizzaCasellePlancia();
+
+    // Listener per il cambio tema dal menu a tendina
+    const themeSelect = document.getElementById('theme-select');
+    if (themeSelect) {
+        themeSelect.addEventListener('change', (e) => {
+            applyTheme(e.target.value);
+            updateGameState({ theme: e.target.value });
+        });
+    }
+
+    // Collegamento dei pulsanti di navigazione
+    bindClick('btn-goto-new-game', () => showScreen('screen-new-game'));
+    bindClick('btn-goto-join', () => openJoinGameScreen());
+    bindClick('btn-goto-load', () => loadSavedGameModal());
+    bindClick('btn-goto-tutorial', () => showScreen('screen-tutorial'));
+    
+    document.querySelectorAll('.btn-back-home').forEach(btn => {
+        btn.addEventListener('click', () => showScreen('screen-home'));
+    });
+
+    bindClick('btn-create-game', () => createGame());
+    bindClick('btn-start-config', () => startConfiguration());
+    bindClick('btn-lock-setup', () => officializeSetup());
+    bindClick('box-wing', () => toggleWing());
+    bindClick('btn-close-load-modal', () => closeModal('modal-load-game'));
 });
+
+function bindClick(elementId, callback) {
+    const el = document.getElementById(elementId);
+    if (el) {
+        el.addEventListener('click', callback);
+    }
+}
 
 // --- GESTIONE DEI CLICK SULLA PLANCIA (SETUP BUDGET) ---
 document.addEventListener("DOMContentLoaded", () => {
@@ -253,4 +322,4 @@ window.toggleWing = function() {
     }
 };
 
-console.log("Lotus Cup 2k25: Script Main ripristinato e operativo.");
+console.log("Lotus Cup 2k25: Script ripristinato con renderizzatore plancia e tutti i temi.");
