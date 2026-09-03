@@ -199,17 +199,6 @@ export function inizializzaInterazionePlancia() {
                         }
                         // Aggiorna istantaneamente il budget residuo (incrementandolo in caso di rimozione)
                         aggiornaInterfacciaBudget(risultato.budgetResiduo);
-
-                        // FORZA IL RIAVVIO DELL'ANIMAZIONE SU TUTTE LE CASELLE VUOTE (Elimina effetto onda)
-                        const setupScreen = container.closest('#screen-setup');
-                        if (setupScreen) {
-                            const tutteLeCaselleVuote = setupScreen.querySelectorAll('.box:empty');
-                            tutteLeCaselleVuote.forEach(b => {
-                                b.style.animation = 'none';
-                                b.offsetHeight; // Trigger del reflow del browser
-                                b.style.animation = '';
-                            });
-                        }
                     } else if (risultato.messaggioDescrittivo) {
                         alert(risultato.messaggioDescrittivo);
                     }
