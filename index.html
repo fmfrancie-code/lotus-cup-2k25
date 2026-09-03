@@ -14,10 +14,9 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
 
-  <!-- Fogli di stile esterni -->
+  <!-- Fogli di stile esterni nella root -->
   <link rel="stylesheet" href="./main.css">
   <link rel="stylesheet" href="./themes.css">
-  
 
   <!-- Socket.io Client Library -->
   <script src="https://cdn.socket.io/4.7.5/socket.io.min.js" defer></script>
@@ -38,6 +37,11 @@
         <select id="theme-select">
           <option value="ironman" selected>Iron_1 (Stark Metallic Red & Gold)</option>
           <option value="cyberpunk">Cyber-Punk (HUD Neon)</option>
+          <option value="redbull">Red Bull Racing</option>
+          <option value="mcdonalds">McDonald's Racing</option>
+          <option value="chupachups">Chupa Chups Livery</option>
+          <option value="octan">Octan Energy</option>
+          <option value="kinder">Kinder Racing</option>
         </select>
       </div>
 
@@ -71,7 +75,7 @@
       </select>
 
       <button class="btn" id="btn-create-game">Genera Partita & Stanza</button>
-      <button class="btn btn-secondary" class="btn-back-home">Indietro</button>
+      <button class="btn btn-secondary btn-back-home">Indietro</button>
     </div>
   </div>
 
@@ -89,7 +93,7 @@
         <button class="btn" id="btn-join-action">Entra nella Gara</button>
       </div>
 
-      <button class="btn btn-secondary" class="btn-back-home">Indietro</button>
+      <button class="btn btn-secondary btn-back-home">Indietro</button>
     </div>
   </div>
 
@@ -309,7 +313,7 @@
       <p>1. <strong>Setup</strong>: Seleziona la mescola di partenza e distribuisci i 13 punti.</p>
       <p>2. <strong>Giri & Pit Stop</strong>: Spunta i giri 1, 2, 3 in base ai tuoi stint.</p>
       <p>3. <strong>Consumo e Danni</strong>: Barra le caselle utilizzate durante la corsa.</p>
-      <button class="btn btn-secondary" class="btn-back-home">Torna al Menu</button>
+      <button class="btn btn-secondary btn-back-home">Torna al Menu</button>
     </div>
   </div>
 
@@ -359,7 +363,7 @@
   </div>
 </div>
 
-<!-- Script separato per la logica -->
+<!-- Script principale come Modulo nella root -->
 <script type="module" src="./script.js" defer></script>
 </body>
 </html>
