@@ -1,55 +1,20 @@
 // ==========================================
-// MODULO: MAESTRO D'ORCHESTRA (script.js)
-// Coordinatore centrale degli eventi e della UI
+// MODULO: SCRIPT PONTE / ENTRY POINT (script.js)
+// Collega l'HTML monolitico ai moduli JavaScript moderni
 // ==========================================
 
-import { applyTheme, inizializzaLayout, inizializzaInterazionePlancia } from './layout.js';
+import { applyTheme, inizializzaLayout, aggiornaInterfacciaBudget, inizializzaInterazionePlancia } from './layout.js';
 import { gameState, updateGameState } from './state.js';
-import { inizializzaSchedaPilota, ufficializzaSchedaPerGara } from './mainSchedaController.js';
+import { inizializzaSchedaPilota, gestisciAssegnazioneBudget, ufficializzaSchedaPerGara, toggleAlettoneController } from './mainSchedaController.js';
 
-document.addEventListener("DOMContentLoaded", () => {
-    // 1. Inizializzazione interfaccia e interazioni della plancia
-    inizializzaLayout();
-    inizializzaInterazionePlancia();
+// --- ESPORTAZIONE GLOBALE PER I PULSANTI HTML (onclick) ---
 
-    // 2. Gestione cambio tema grafico tramite menu a tendina
-    const themeSelect = document.getElementById('theme-select');
-    if (themeSelect) {
-        themeSelect.addEventListener('change', (e) => {
-            applyTheme(e.target.value);
-            updateGameState({ theme: e.target.value });
-        });
-    }
+window.changeTheme = function(themeName) {
+    applyTheme(themeName);
+    updateGameState({ theme: themeName });
+};
 
-    // 3. Listener per la navigazione tra le schermate
-    bindClick('btn-goto-new-game', () => showScreen('screen-new-game'));
-    bindClick('btn-goto-join', () => openJoinGameScreen());
-    bindClick('btn-goto-load', () => loadSavedGameModal());
-    bindClick('btn-goto-tutorial', () => showScreen('screen-tutorial'));
-    
-    document.querySelectorAll('.btn-back-home').forEach(btn => {
-        btn.addEventListener('click', () => showScreen('screen-home'));
-    });
-
-    // 4. Listener per le azioni di gioco
-    bindClick('btn-create-game', () => handleCreateGame());
-    bindClick('btn-start-config', () => handleStartConfiguration());
-    bindClick('btn-lock-setup', () => handleOfficializeSetup());
-    bindClick('box-wing', () => toggleWingController());
-    bindClick('btn-close-load-modal', () => closeModal('modal-load-game'));
-});
-
-// Funzione di utilità per legare i click in sicurezza
-function bindClick(elementId, callback) {
-    const el = document.getElementById(elementId);
-    if (el) {
-        el.addEventListener('click', callback);
-    }
-}
-
-// --- FUNZIONI DI GESTIONE SCHERMATE E FLUSSO ---
-
-function showScreen(screenId) {
+window.showScreen = function(screenId) {
     document.querySelectorAll('.screen').forEach(screen => {
         screen.classList.remove('active');
     });
@@ -57,9 +22,9 @@ function showScreen(screenId) {
     if (targetScreen) {
         targetScreen.classList.add('active');
     }
-}
+};
 
-function handleCreateGame() {
+window.createGame = function() {
     const circuit = document.getElementById('input-circuit').value;
     const host = document.getElementById('input-host').value;
     const weather = document.getElementById('input-weather').value;
@@ -70,7 +35,9 @@ function handleCreateGame() {
     }
 
     const todayFormatted = new Date().toLocaleDateString('it-IT', {
-        day: '2-digit', month: '2-digit', year: 'numeric'
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
     });
 
     inizializzaSchedaPilota({
@@ -80,19 +47,30 @@ function handleCreateGame() {
         theme: gameState.theme
     });
 
-    updateGameState({ circuit, host, weather, isSetupMode: true });
-    showScreen('screen-setup');
+    updateGameState({
+        circuit: circuit,
+        host: host,
+        weather: weather,
+        isSetupMode: true
+    });
+
+    window.showScreen('screen-setup');
     
     document.getElementById('display-circuit').innerText = circuit.toUpperCase();
     document.getElementById('display-meta').innerText = `Data: ${todayFormatted} | Pilota: ${host}`;
     document.getElementById('display-code').innerText = gameState.code;
-}
+};
 
-function handleStartConfiguration() {
-    updateGameState({ isSetupMode: true, budget: 13 });
+window.startConfiguration = function() {
+    updateGameState({
+        isSetupMode: true,
+        budget: 13 
+    });
 
     const setupScreen = document.getElementById('screen-setup');
-    if (setupScreen) setupScreen.classList.add('setup-active');
+    if (setupScreen) {
+        setupScreen.classList.add('setup-active');
+    }
 
     const btnStart = document.getElementById('btn-start-config');
     const btnLock = document.getElementById('btn-lock-setup');
@@ -100,13 +78,17 @@ function handleStartConfiguration() {
     const budgetCount = document.getElementById('budget-count');
 
     if (btnStart) btnStart.style.display = 'none';
-    if (btnLock) { btnLock.style.display = 'block'; btnLock.disabled = true; }
+    if (btnLock) {
+        btnLock.style.display = 'block';
+        btnLock.disabled = true; 
+    }
     if (budgetBar) budgetBar.style.display = 'block';
     if (budgetCount) budgetCount.innerText = gameState.budget;
-}
+};
 
-function handleOfficializeSetup() {
+window.officializeSetup = function() {
     const risultato = ufficializzaSchedaPerGara();
+
     if (!risultato.operazioneRiuscita) {
         alert(risultato.messaggioDescrittivo);
         return;
@@ -121,26 +103,154 @@ function handleOfficializeSetup() {
     if (raceControls) raceControls.style.display = 'flex';
 
     alert(risultato.messaggioDescrittivo);
-}
+};
 
-function openJoinGameScreen() {
-    showScreen('screen-join-game');
-}
+window.openJoinGameScreen = function() {
+    window.showScreen('screen-join-game');
+};
 
-function loadSavedGameModal() {
+window.loadSavedGameModal = function() {
     const modal = document.getElementById('modal-load-game');
     if (modal) modal.style.display = 'flex';
-}
+};
 
-function closeModal(modalId) {
+window.closeModal = function(modalId) {
     const modal = document.getElementById(modalId);
     if (modal) modal.style.display = 'none';
-}
+};
 
-function toggleWingController() {
+// --- INIZIALIZZAZIONE INTERFACCIA ---
+document.addEventListener("DOMContentLoaded", () => {
+    inizializzaLayout();
+    inizializzaInterazionePlancia();
+});
+
+// --- GESTIONE DEI CLICK SULLA PLANCIA (SETUP BUDGET) ---
+document.addEventListener("DOMContentLoaded", () => {
+    const righeComponenti = {
+        'row-tyres': 'tyres',
+        'row-body': 'body',
+        'row-brakes': 'brakes',
+        'row-engine': 'engine',
+        'row-fuel': 'fuel',
+        'row-suspension': 'suspension'
+    };
+
+    const componentiDaDestra = ['body', 'engine', 'suspension'];
+
+    Object.keys(righeComponenti).forEach(rowId => {
+        const container = document.getElementById(rowId);
+        if (container) {
+            container.addEventListener('click', (e) => {
+                if (!gameState.isSetupMode) return;
+                
+                const box = e.target.closest('.box');
+                if (!box) return;
+
+                if (box.dataset.base === "true" || box.classList.contains('wing-disabled')) return;
+
+                const tipoComponente = righeComponenti[rowId];
+                const boxesNellaRiga = Array.from(container.querySelectorAll('.box'));
+                const isDaDestra = componentiDaDestra.includes(tipoComponente);
+
+                let delta = 0;
+
+                if (isDaDestra) {
+                    const boxesValide = boxesNellaRiga.filter(b => !b.classList.contains('wing-disabled'));
+                    const primeVuoteDaDestra = [...boxesValide].reverse();
+                    const primaCasellaVuota = primeVuoteDaDestra.find(b => b.innerText.trim() === '');
+                    const caselleAllocate = boxesValide.filter(b => b.classList.contains('user-allocated'));
+
+                    if (box.classList.contains('user-allocated')) {
+                        if (caselleAllocate.length > 0 && box === caselleAllocate[0]) {
+                            delta = -1;
+                        } else {
+                            return;
+                        }
+                    } else if (box.innerText.trim() === '' && primaCasellaVuota && box === primaCasellaVuota) {
+                        delta = 1;
+                    } else {
+                        if (primaCasellaVuota) {
+                            const risultato = gestisciAssegnazioneBudget(tipoComponente, 1);
+                            if (risultato.operazioneRiuscita) {
+                                primaCasellaVuota.classList.add('user-allocated');
+                                primaCasellaVuota.innerText = '1';
+                                aggiornaInterfacciaBudget(risultato.budgetResiduo);
+                            } else {
+                                alert(risultato.messaggioDescrittivo);
+                            }
+                        }
+                        return;
+                    }
+                } else {
+                    const boxesValide = boxesNellaRiga.filter(b => !b.classList.contains('wing-disabled'));
+                    const primaCasellaVuota = boxesValide.find(b => b.innerText.trim() === '');
+                    const caselleAllocate = boxesValide.filter(b => b.classList.contains('user-allocated'));
+                    const ultimaAllocataDallUtente = caselleAllocate.length > 0 ? caselleAllocate[caselleAllocate.length - 1] : null;
+
+                    if (box.classList.contains('user-allocated') && box === ultimaAllocataDallUtente) {
+                        delta = -1;
+                    } else if (box.innerText.trim() === '') {
+                        if (primaCasellaVuota) {
+                            const risultato = gestisciAssegnazioneBudget(tipoComponente, 1);
+                            if (risultato.operazioneRiuscita) {
+                                primaCasellaVuota.classList.add('user-allocated');
+                                primaCasellaVuota.innerText = '1';
+                                aggiornaInterfacciaBudget(risultato.budgetResiduo);
+                            } else {
+                                alert(risultato.messaggioDescrittivo);
+                            }
+                        }
+                        return;
+                    } else {
+                        return;
+                    }
+                }
+
+                if (delta < 0) {
+                    const risultato = gestisciAssegnazioneBudget(tipoComponente, delta);
+                    if (risultato.operazioneRiuscita) {
+                        box.classList.remove('user-allocated');
+                        box.innerText = '';
+                        aggiornaInterfacciaBudget(risultato.budgetResiduo);
+                    }
+                }
+            });
+        }
+    });
+});
+
+window.toggleWing = function() {
     const boxWing = document.getElementById('box-wing');
     if (!boxWing) return;
-    boxWing.classList.toggle('wing-active');
-}
 
-console.log("Lotus Cup 2k25: Script Master Orchestrator avviato correttamente.");
+    const containerBody = document.getElementById('row-body');
+    if (!containerBody) return;
+    
+    const boxesBody = Array.from(containerBody.querySelectorAll('.box'));
+    const targetBox = boxesBody.find(b => b.innerText.trim() === '1' && !b.classList.contains('wing-disabled'));
+
+    const isAttivo = boxWing.classList.contains('wing-active');
+    const wingSvg = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;"><path d="M3 12h18M3 6h18M6 18h12"/></svg>`;
+
+    if (!isAttivo) {
+        boxWing.classList.add('wing-active');
+        boxWing.innerHTML = wingSvg;
+        
+        if (targetBox) {
+            targetBox.dataset.base = "true";
+            targetBox.classList.add('wing-disabled');
+        }
+    } else {
+        boxWing.classList.remove('wing-active');
+        boxWing.innerHTML = '';
+
+        const disabledBodyBox = boxesBody.find(b => b.classList.contains('wing-disabled'));
+        if (disabledBodyBox) {
+            disabledBodyBox.classList.remove('wing-disabled');
+            disabledBodyBox.dataset.base = "false";
+        }
+    }
+};
+
+console.log("Lotus Cup 2k25: Script Main ripristinato e operativo.");
