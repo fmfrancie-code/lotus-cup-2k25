@@ -3,40 +3,13 @@
 // Collega l'HTML monolitico ai moduli JavaScript moderni
 // ==========================================
 
-import { applyTheme, inizializzaLayout, aggiornaInterfacciaBudget, inizializzaInterazionePlancia } from './layout.js';
-import { gameState, updateGameState } from './state.js';
+import { applyTheme, inizializzaLayout, aggiornaInterfacciaBudget, inizializzaInterazionePlancia } from './layout.js';       // 1. Gestione Tema Grafico
+import { gameState, updateGameState } from './state.js';                                                                     // 2. Gestione Stato Globale
+import { gestisciMeteo } from './weather.js';                                                                                // 3. Gestione Meteo
+import { aggiornaTelemetria } from './telemetryGrid.js';                                                                     // 4. Gestione Telemetria
 import { inizializzaSchedaPilota, gestisciAssegnazioneBudget, ufficializzaSchedaPerGara, toggleAlettoneController } from './mainSchedaController.js';
 
-// --- FUNZIONE PER DISEGNARE LE CASELLA SULLA PLANCIA ---
-function renderizzaCasellePlancia() {
-    const configurazioneRighe = {
-        'row-tyres': { base: 4, extra: gameState.allocations.tyres },
-        'row-body': { base: 2, extra: gameState.allocations.body },
-        'row-brakes': { base: 2, extra: gameState.allocations.brakes },
-        'row-engine': { base: 2, extra: gameState.allocations.engine },
-        'row-fuel': { base: 2, extra: gameState.allocations.fuel },
-        'row-suspension': { base: 2, extra: gameState.allocations.suspension },
-        'row-workshop': { base: 3, extra: 0 }
-    };
 
-    Object.keys(configurazioneRighe).forEach(rowId => {
-        const container = document.getElementById(rowId);
-        if (!container) return;
-        
-        container.innerHTML = '';
-        const config = configurazioneRighe[rowId];
-        const totaleCaselle = config.base + config.extra;
-
-        for (let i = 0; i < totaleCaselle; i++) {
-            const box = document.createElement('div');
-            box.className = 'box clickable';
-            if (i < config.base) {
-                box.dataset.base = "true";
-            }
-            container.appendChild(box);
-        }
-    });
-}
 
 // --- ESPORTAZIONE GLOBALE PER I PULSANTI HTML (onclick) ---
 
@@ -90,9 +63,6 @@ window.createGame = function() {
     document.getElementById('display-circuit').innerText = circuit.toUpperCase();
     document.getElementById('display-meta').innerText = `Data: ${todayFormatted} | Pilota: ${host}`;
     document.getElementById('display-code').innerText = gameState.code;
-
-    // Disegna i box all'ingresso della schermata di setup
-    renderizzaCasellePlancia();
 };
 
 window.startConfiguration = function() {
@@ -119,7 +89,7 @@ window.startConfiguration = function() {
     if (budgetBar) budgetBar.style.display = 'block';
     if (budgetCount) budgetCount.innerText = gameState.budget;
 
-    renderizzaCasellePlancia();
+    console.log("Fase di configurazione avviata. Budget disponibile: 13 punti.");
 };
 
 window.officializeSetup = function() {
@@ -139,7 +109,9 @@ window.officializeSetup = function() {
     if (raceControls) raceControls.style.display = 'flex';
 
     alert(risultato.messaggioDescrittivo);
+    console.log("Gara ufficialmente avviata!");
 };
+
 
 window.openJoinGameScreen = function() {
     window.showScreen('screen-join-game');
@@ -155,44 +127,13 @@ window.closeModal = function(modalId) {
     if (modal) modal.style.display = 'none';
 };
 
+
 // --- INIZIALIZZAZIONE INTERFACCIA ---
 document.addEventListener("DOMContentLoaded", () => {
     inizializzaLayout();
     inizializzaInterazionePlancia();
-    renderizzaCasellePlancia();
-
-    // Listener per il cambio tema dal menu a tendina
-    const themeSelect = document.getElementById('theme-select');
-    if (themeSelect) {
-        themeSelect.addEventListener('change', (e) => {
-            applyTheme(e.target.value);
-            updateGameState({ theme: e.target.value });
-        });
-    }
-
-    // Collegamento dei pulsanti di navigazione
-    bindClick('btn-goto-new-game', () => showScreen('screen-new-game'));
-    bindClick('btn-goto-join', () => openJoinGameScreen());
-    bindClick('btn-goto-load', () => loadSavedGameModal());
-    bindClick('btn-goto-tutorial', () => showScreen('screen-tutorial'));
-    
-    document.querySelectorAll('.btn-back-home').forEach(btn => {
-        btn.addEventListener('click', () => showScreen('screen-home'));
-    });
-
-    bindClick('btn-create-game', () => createGame());
-    bindClick('btn-start-config', () => startConfiguration());
-    bindClick('btn-lock-setup', () => officializeSetup());
-    bindClick('box-wing', () => toggleWing());
-    bindClick('btn-close-load-modal', () => closeModal('modal-load-game'));
 });
 
-function bindClick(elementId, callback) {
-    const el = document.getElementById(elementId);
-    if (el) {
-        el.addEventListener('click', callback);
-    }
-}
 
 // --- GESTIONE DEI CLICK SULLA PLANCIA (SETUP BUDGET) ---
 document.addEventListener("DOMContentLoaded", () => {
@@ -205,6 +146,7 @@ document.addEventListener("DOMContentLoaded", () => {
         'row-suspension': 'suspension'
     };
 
+    // Sezioni che riempiono da destra verso sinistra
     const componentiDaDestra = ['body', 'engine', 'suspension'];
 
     Object.keys(righeComponenti).forEach(rowId => {
@@ -216,30 +158,43 @@ document.addEventListener("DOMContentLoaded", () => {
                 const box = e.target.closest('.box');
                 if (!box) return;
 
+                // Ignora caselle base fisse o disabilitate dall'alettone
                 if (box.dataset.base === "true" || box.classList.contains('wing-disabled')) return;
 
                 const tipoComponente = righeComponenti[rowId];
                 const boxesNellaRiga = Array.from(container.querySelectorAll('.box'));
                 const isDaDestra = componentiDaDestra.includes(tipoComponente);
+                const indiceBox = boxesNellaRiga.indexOf(box);
 
                 let delta = 0;
 
                 if (isDaDestra) {
+                    // SEZIONI DI DESTRA: riempimento da destra a sinistra
+                    // Filtra le caselle escludendo quelle disabilitate dall'alettone
                     const boxesValide = boxesNellaRiga.filter(b => !b.classList.contains('wing-disabled'));
-                    const primeVuoteDaDestra = [...boxesValide].reverse();
+                    const primeVuoteDaDestra = boxesValide.reverse();
+                    
+                    // Trova la prima casella disponibile partendo da destra (la prima vuota)
                     const primaCasellaVuota = primeVuoteDaDestra.find(b => b.innerText.trim() === '');
-                    const caselleAllocate = boxesValide.filter(b => b.classList.contains('user-allocated'));
+                    const ultimaAllocata = boxesValide.find(b => b.classList.contains('user-allocated') && boxesValide.indexOf(b) === boxesValide.lastIndexOf(b)); // o l'ultima della serie
 
+                    // Se clicchi sull'ultima casella allocata, la rimuove (-1)
                     if (box.classList.contains('user-allocated')) {
-                        if (caselleAllocate.length > 0 && box === caselleAllocate[0]) {
+                        // Verifica se è l'ultima casella attiva della sequenza da destra
+                        const caselleAllocate = boxesValide.filter(b => b.classList.contains('user-allocated'));
+                        if (caselleAllocate.length > 0 && box === caselleAllocate[0]) { // la più a destra tra le allocate
                             delta = -1;
                         } else {
                             return;
                         }
                     } else if (box.innerText.trim() === '' && primaCasellaVuota && box === primaCasellaVuota) {
+                        // Cliccando su qualsiasi casella vuota, attiva la prima disponibile da destra
                         delta = 1;
                     } else {
+                        // Se clicchi su una casella vuota ma ce n'è una più a destra libera, forza la prima disponibile
                         if (primaCasellaVuota) {
+                            delta = 1;
+                            // Reindirizza l'azione sulla vera prima casella vuota da destra
                             const risultato = gestisciAssegnazioneBudget(tipoComponente, 1);
                             if (risultato.operazioneRiuscita) {
                                 primaCasellaVuota.classList.add('user-allocated');
@@ -252,14 +207,18 @@ document.addEventListener("DOMContentLoaded", () => {
                         return;
                     }
                 } else {
+                    // SEZIONI DI SINISTRA (Pneumatici, Freni, Carburante): riempimento da sinistra a destra
                     const boxesValide = boxesNellaRiga.filter(b => !b.classList.contains('wing-disabled'));
                     const primaCasellaVuota = boxesValide.find(b => b.innerText.trim() === '');
+                    
+                    // Trova l'ultima casella allocata dall'utente per permetterne la rimozione
                     const caselleAllocate = boxesValide.filter(b => b.classList.contains('user-allocated'));
                     const ultimaAllocataDallUtente = caselleAllocate.length > 0 ? caselleAllocate[caselleAllocate.length - 1] : null;
 
                     if (box.classList.contains('user-allocated') && box === ultimaAllocataDallUtente) {
                         delta = -1;
                     } else if (box.innerText.trim() === '') {
+                        // Indipendentemente da quale casella vuota si clicca, attiva la prima disponibile da sinistra
                         if (primaCasellaVuota) {
                             const risultato = gestisciAssegnazioneBudget(tipoComponente, 1);
                             if (risultato.operazioneRiuscita) {
@@ -276,6 +235,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     }
                 }
 
+                // Gestione rimozione punto (-1)
                 if (delta < 0) {
                     const risultato = gestisciAssegnazioneBudget(tipoComponente, delta);
                     if (risultato.operazioneRiuscita) {
@@ -297,6 +257,8 @@ window.toggleWing = function() {
     if (!containerBody) return;
     
     const boxesBody = Array.from(containerBody.querySelectorAll('.box'));
+    
+    // Trova la prima casella base sul lato destro (la prima con '1' partendo da sinistra)
     const targetBox = boxesBody.find(b => b.innerText.trim() === '1' && !b.classList.contains('wing-disabled'));
 
     const isAttivo = boxWing.classList.contains('wing-active');
@@ -322,4 +284,4 @@ window.toggleWing = function() {
     }
 };
 
-console.log("Lotus Cup 2k25: Script ripristinato con renderizzatore plancia e tutti i temi.");
+console.log("Lotus Cup 2k25: Script Main orchestrato correttamente.");
