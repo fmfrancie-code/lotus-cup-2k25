@@ -221,11 +221,3 @@ function sincronizzaOndaVuote() {
         box.style.animation = null;
     });
 }
-
-function sincronizzaOndaVuote() {
-    document.querySelectorAll('.box:empty').forEach(box => {
-        box.style.animation = 'none';
-        box.offsetHeight; // Trigger del reflow del browser
-        box.style.animation = null;
-    });
-}
