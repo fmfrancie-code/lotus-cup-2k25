@@ -530,7 +530,7 @@
       100% { box-shadow: 0 0 4px rgba(229, 184, 57, 0.3); border-color: rgba(229, 184, 57, 0.4); }
     }
 
-    /* Protezione globale delle box: non cliccabili prima dell'avvio della configurazione */
+    /* Protezione globale delle box: non cliccabili di default */
     .box {
       width: 28px; height: 32px;
       font-family: 'Orbitron', sans-serif; font-weight: 700; font-size: 0.95rem;
@@ -559,8 +559,6 @@
       color: #00ffcc !important;
       box-shadow: 0 0 6px rgba(0, 240, 255, 0.15), inset 0 0 8px rgba(0, 255, 204, 0.08) !important;
       font-weight: 700;
-      cursor: default !important;
-      pointer-events: none !important;
     }
 
     body.theme-ironman .box:not(:empty),
@@ -570,6 +568,21 @@
       color: #ffffff !important;
       box-shadow: none !important;
       font-weight: 700;
+    }
+
+    /* INTERATTIVITÀ DINAMICA DELLE CASELLA ALLOCATE (User-Allocated) */
+    /* Diventano cliccabili per la rimozione/modifica SOLO durante Setup, Edit Mode o Pit Stop */
+    #screen-setup.setup-active .box.user-allocated,
+    body.edit-mode-active .box.user-allocated,
+    body.pitstop-mode-active .box.user-allocated {
+      pointer-events: auto !important;
+      cursor: pointer !important;
+    }
+
+    /* Fuori dalle modalità attive, le caselle allocate tornano non cliccabili (sola lettura) */
+    #screen-setup:not(.setup-active):not(.edit-mode-active) .box.user-allocated {
+      pointer-events: none !important;
+      cursor: default !important;
     }
 
     /* Le caselle vuote lampeggiano solo se il setup è attivo e ci sono punti disponibili (> 0) */
