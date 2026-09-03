@@ -3,7 +3,7 @@
 // Coordinatore centrale degli eventi e della UI
 // ==========================================
 
-import { applyTheme, inizializzaLayout, inizializzaInterazionePlancia } from './layout_v2.js';
+import { applyTheme, inizializzaLayout, inizializzaInterazionePlancia } from './layout.js';
 import { gameState, updateGameState } from './state.js';
 import { inizializzaSchedaPilota, ufficializzaSchedaPerGara } from './mainSchedaController.js';
 
