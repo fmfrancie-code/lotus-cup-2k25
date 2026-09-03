@@ -571,7 +571,6 @@
     }
 
     /* INTERATTIVITÀ DINAMICA DELLE CASELLA ALLOCATE (User-Allocated) */
-    /* Diventano cliccabili per la rimozione/modifica SOLO durante Setup, Edit Mode o Pit Stop */
     #screen-setup.setup-active .box.user-allocated,
     body.edit-mode-active .box.user-allocated,
     body.pitstop-mode-active .box.user-allocated {
@@ -579,21 +578,22 @@
       cursor: pointer !important;
     }
 
-    /* Fuori dalle modalità attive, le caselle allocate tornano non cliccabili (sola lettura) */
     #screen-setup:not(.setup-active):not(.edit-mode-active) .box.user-allocated {
       pointer-events: none !important;
       cursor: default !important;
     }
 
-    /* Le caselle vuote lampeggiano solo se il setup è attivo e ci sono punti disponibili (> 0) */
+    /* Le caselle vuote lampeggiano all'unisono azzerando il delay dell'animazione */
     #screen-setup.setup-active:not(.budget-zero) .box:empty {
       pointer-events: auto !important;
       cursor: pointer !important;
-      animation: pulse-glow 1.5s infinite ease-in-out;
+      animation: pulse-glow 1.5s infinite ease-in-out !important;
+      animation-delay: 0s !important;
     }
 
     body.theme-ironman #screen-setup.setup-active:not(.budget-zero) .box:empty {
-      animation: pulse-glow-ironman 1.5s infinite ease-in-out;
+      animation: pulse-glow-ironman 1.5s infinite ease-in-out !important;
+      animation-delay: 0s !important;
     }
 
     /* Quando il budget arriva a 0, le caselle smettono di illuminarsi/lampeggiare */
