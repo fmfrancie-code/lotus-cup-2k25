@@ -199,11 +199,33 @@ export function inizializzaInterazionePlancia() {
                         }
                         // Aggiorna istantaneamente il budget residuo (incrementandolo in caso di rimozione)
                         aggiornaInterfacciaBudget(risultato.budgetResiduo);
+                        
+                        // Forza il re-trigger pulito dell'onda su tutte le caselle vuote
+                        sincronizzaOndaVuote();
                     } else if (risultato.messaggioDescrittivo) {
                         alert(risultato.messaggioDescrittivo);
                     }
                 }
             });
         }
+    });
+}
+
+/**
+ * Riavvia l'animazione CSS in modo sincronizzato su tutte le caselle vuote
+ */
+function sincronizzaOndaVuote() {
+    document.querySelectorAll('.box:empty').forEach(box => {
+        box.style.animation = 'none';
+        box.offsetHeight; // Trigger del reflow del browser
+        box.style.animation = null;
+    });
+}
+
+function sincronizzaOndaVuote() {
+    document.querySelectorAll('.box:empty').forEach(box => {
+        box.style.animation = 'none';
+        box.offsetHeight; // Trigger del reflow del browser
+        box.style.animation = null;
     });
 }
