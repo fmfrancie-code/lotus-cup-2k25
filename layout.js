@@ -1,208 +1,1069 @@
-// ==========================================
-// MODULO: LAYOUT & TEMI (layout.js)
-// Gestione dei temi grafici (Iron-Man / Cyber-Punk)
-// ==========================================
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Lotus Cup">
+  <link rel="apple-touch-icon" href="https://via.placeholder.com/180/000000/ffffff?text=LOTUS">
 
-import { gameState, updateGameState } from './state.js';
-import { gestisciAssegnazioneBudget } from './mainSchedaController.js';
+  <title>Lotus Cup 2k25 - Telemetria & Setup System</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
 
-/**
- * Icone SVG per il KERS in base al tema attivo
- */
-const ICONS = {
-    ironman: `
-        <svg class="kers-svg arcReactorSvgIcon" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-            <circle cx="50" cy="50" r="40" fill="none" stroke="#f5d061" stroke-width="6"/>
-            <circle cx="50" cy="50" r="25" fill="none" stroke="#00f0ff" stroke-width="4" stroke-dasharray="10, 5"/>
-            <circle cx="50" cy="50" r="10" fill="#00f0ff"/>
-        </svg>
-    `,
-    cyberpunk: `
-        <svg class="kers-svg powerSvgIcon" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-            <path d="M50 15 v35" fill="none" stroke="#00f0ff" stroke-width="10" stroke-linecap="round"/>
-            <path d="M32 28 a30 30 0 1 0 36 0" fill="none" stroke="#00f0ff" stroke-width="10" stroke-linecap="round"/>
-        </svg>
-    `
-};
+  <!-- Socket.io Client Library -->
+  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
 
-/**
- * Applica il tema grafico selezionato all'interfaccia dell'applicazione.
- * @param {string} themeName - Nome del tema ('ironman' o 'cyberpunk')
- */
-export function applyTheme(themeName) {
-    const supportedThemes = ['ironman', 'cyberpunk', 'redbull', 'mcdonalds', 'chupachups', 'octan', 'kinder'];
-    const validTheme = supportedThemes.includes(themeName) ? themeName : 'ironman';
+  <style>
+    * { box-sizing: border-box; }
     
-    updateGameState({ theme: validTheme });
-
-    const allThemeClasses = supportedThemes.map(t => `theme-${t}`);
-    document.body.classList.remove(...allThemeClasses);
-    document.body.classList.add(`theme-${validTheme}`);
-
-    const themeSelect = document.getElementById('theme-select');
-    if (themeSelect && themeSelect.value !== validTheme) {
-        themeSelect.value = validTheme;
+    body {
+      font-family: 'Rajdhani', sans-serif;
+      margin: 0;
+      padding: 8px;
+      display: flex;
+      justify-content: center;
+      transition: background 0.3s ease, color 0.3s ease;
     }
 
-    updateKersIconsVisual(validTheme);
-}
-
-/**
- * Restituisce l'icona SVG del KERS appropriata per il tema corrente.
- * @param {string} themeName 
- * @returns {string} Markup HTML dell'icona
- */
-export function getKersIconHtml(themeName) {
-    return ICONS[themeName] || ICONS.ironman;
-}
-
-/**
- * Aggiorna visivamente tutte le istanze dell'icona KERS presenti nella UI.
- * @param {string} themeName 
- */
-function updateKersIconsVisual(themeName) {
-    const kersContainers = document.querySelectorAll('.kers-icon-container');
-    kersContainers.forEach(container => {
-        if (!container.classList.contains('x-red')) {
-            container.innerHTML = getKersIconHtml(themeName);
-        }
-    });
-}
-
-/**
- * Inizializza gli elementi visivi del layout all'avvio dell'applicazione
- */
-export function inizializzaLayout() {
-    if (gameState && gameState.theme) {
-        applyTheme(gameState.theme);
-    }
-}
-
-/**
- * Aggiorna visivamente il contatore del budget residuo e lo stato del pulsante di blocco.
- * @param {number} budgetResiduo - I punti budget rimasti
- */
-export function aggiornaInterfacciaBudget(budgetResiduo) {
-    const budgetCount = document.getElementById('budget-count');
-    if (budgetCount) budgetCount.innerText = budgetResiduo;
-
-    const btnLock = document.getElementById('btn-lock-setup');
-    if (btnLock) {
-        btnLock.disabled = (budgetResiduo > 0);
+    .app-container {
+      width: 100%;
+      max-width: 950px;
+      margin: 0 auto;
+      border-radius: 8px;
+      padding: 12px;
+      backdrop-filter: blur(10px);
     }
 
-    const setupScreen = document.getElementById('screen-setup');
-    if (setupScreen) {
-        if (budgetResiduo === 0) {
-            setupScreen.classList.add('budget-zero');
-        } else {
-            setupScreen.classList.remove('budget-zero');
-        }
+
+    .screen { display: none; }
+    .screen.active { display: block; }
+
+    h1, h2, h3 { 
+      font-family: 'Orbitron', sans-serif;
+      text-align: center; 
+      margin-top: 5px; 
+      text-transform: uppercase;
+      letter-spacing: 2px;
     }
-}
 
-/**
- * Inizializza i listener di interazione sulla plancia di setup e gestione punti.
- */
-export function inizializzaInterazionePlancia() {
-    const righeComponenti = {
-        'row-tyres': 'tyres',
-        'row-body': 'body',
-        'row-brakes': 'brakes',
-        'row-engine': 'engine',
-        'row-fuel': 'fuel',
-        'row-suspension': 'suspension'
-    };
+    /* CYBER-PUNK THEME */
+    body.theme-cyberpunk {
+      background-color: #080b10;
+      background-image: linear-gradient(rgba(0, 240, 255, 0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 240, 255, 0.04) 1px, transparent 1px);
+      background-size: 30px 30px;
+      color: #e0e6ed;
+    }
 
-    const componentiDaDestra = ['body', 'engine', 'suspension'];
+    body.theme-cyberpunk .app-container {
+      background: rgba(18, 24, 38, 0.85);
+      border: 1px solid rgba(0, 240, 255, 0.35);
+      box-shadow: 0 0 25px rgba(0, 240, 255, 0.12), inset 0 0 15px rgba(0, 0, 0, 0.8);
+    }
 
-    Object.keys(righeComponenti).forEach(rowId => {
-        const container = document.getElementById(rowId);
-        if (container && !container.dataset.listenerAttached) {
-            container.dataset.listenerAttached = "true";
-            
-            container.addEventListener('click', (e) => {
-                if (!gameState.isSetupMode) return;
-                e.stopImmediatePropagation();
-                
-                const box = e.target.closest('.box');
-                if (!box) return;
+    body.theme-cyberpunk h1, 
+    body.theme-cyberpunk h2, 
+    body.theme-cyberpunk h3 {
+      color: #00f0ff;
+      text-shadow: 0 0 12px #00f0ff;
+    }
 
-                if (box.dataset.base === "true" || box.classList.contains('wing-disabled')) return;
+    body.theme-cyberpunk .btn {
+      background-color: #0f1522;
+      color: #00f0ff;
+      border: 1px solid #00f0ff;
+      font-family: 'Orbitron', sans-serif;
+      padding: 14px 20px;
+      font-size: 1rem;
+      font-weight: bold;
+      border-radius: 4px;
+      cursor: pointer;
+      width: 100%;
+      margin: 10px 0;
+      transition: all 0.25s ease-in-out;
+      box-shadow: 0 0 10px rgba(0, 240, 255, 0.2);
+    }
 
-                const tipoComponente = righeComponenti[rowId];
-                const boxesNellaRiga = Array.from(container.querySelectorAll('.box'));
-                
-                const isDaDestra = componentiDaDestra.includes(tipoComponente);
+    body.theme-cyberpunk .btn:hover:not(:disabled) {
+      background-color: #00f0ff;
+      color: #000000;
+      box-shadow: 0 0 20px #00f0ff;
+      transform: translateY(-1px);
+    }
 
-                let delta = 0;
-                let targetBox = null;
+    body.theme-cyberpunk .btn:disabled {
+      background-color: #111827 !important;
+      border-color: #374151 !important;
+      color: #6b7280 !important;
+      box-shadow: none !important;
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
 
-                const boxesValide = boxesNellaRiga.filter(b => !b.classList.contains('wing-disabled') && b.dataset.base !== "true");
-                const caselleAllocate = boxesValide.filter(b => b.classList.contains('user-allocated'));
+    body.theme-cyberpunk .btn-secondary {
+      background-color: rgba(30, 41, 59, 0.8);
+      color: #e0e6ed;
+      border: 1px solid #2e3d52;
+      box-shadow: none;
+    }
 
-                if (!isDaDestra) {
-                    const primaCasellaVuota = boxesValide.find(b => b.innerText.trim() === '');
-                    if (box.classList.contains('user-allocated')) {
-                        if (caselleAllocate.length > 0) {
-                            delta = -1;
-                            targetBox = caselleAllocate[caselleAllocate.length - 1];
-                        }
-                    } else if (box.innerText.trim() === '' && primaCasellaVuota) {
-                        delta = 1;
-                        targetBox = primaCasellaVuota;
-                    }
-                } else {
-                    let targetPool = boxesValide;
-                    if (tipoComponente === 'body') {
-                        const indiceDisabilitato = boxesNellaRiga.findIndex(b => b.classList.contains('wing-disabled'));
-                        if (indiceDisabilitato !== -1) {
-                            targetPool = boxesValide.filter(b => boxesNellaRiga.indexOf(b) > indiceDisabilitato);
-                        }
-                    }
+    body.theme-cyberpunk .btn-danger {
+      background-color: rgba(255, 0, 85, 0.2);
+      color: #ff0055;
+      border: 1px solid #ff0055;
+      box-shadow: 0 0 10px rgba(255, 0, 85, 0.3);
+    }
 
-                    const primeVuoteDaDestra = [...targetPool].reverse();
-                    const primaCasellaVuota = primeVuoteDaDestra.find(b => b.innerText.trim() === '');
+    body.theme-cyberpunk .btn-success {
+      background-color: rgba(0, 255, 204, 0.15);
+      color: #00ffcc;
+      border: 1px solid #00ffcc;
+      box-shadow: 0 0 10px rgba(0, 255, 204, 0.3);
+    }
 
-                    if (box.classList.contains('user-allocated')) {
-                        if (caselleAllocate.length > 0) {
-                            delta = -1;
-                            targetBox = caselleAllocate[0];
-                        }
-                    } else if (box.innerText.trim() === '' && primaCasellaVuota) {
-                        delta = 1;
-                        targetBox = primaCasellaVuota;
-                    }
-                }
+    body.theme-cyberpunk .btn-read-mode {
+      background-color: rgba(0, 255, 204, 0.2) !important;
+      color: #00ffcc !important;
+      border: 1px solid #00ffcc !important;
+    }
 
-                if (delta !== 0 && targetBox) {
-                    const risultato = gestisciAssegnazioneBudget(tipoComponente, delta);
-                    if (risultato.operazioneRiuscita) {
-                        if (delta > 0) {
-                            targetBox.classList.add('user-allocated');
-                            targetBox.innerText = '1';
-                        } else {
-                            targetBox.classList.remove('user-allocated');
-                            targetBox.innerText = '';
-                        }
-                        aggiornaInterfacciaBudget(risultato.budgetResiduo);
-                        sincronizzaOndaVuote();
-                    } else if (risultato.messaggioDescrittivo) {
-                        alert(risultato.messaggioDescrittivo);
-                    }
-                }
-            });
-        }
-    });
-}
+    body.theme-cyberpunk .btn-edit-mode {
+      background-color: rgba(255, 183, 0, 0.2) !important;
+      color: #ffb700 !important;
+      border: 1px solid #ffb700 !important;
+    }
 
-/**
- * Riavvia l'animazione CSS in modo sincronizzato su tutte le caselle vuote
- */
-function sincronizzaOndaVuote() {
-    document.querySelectorAll('.box:empty').forEach(box => {
-        box.style.animation = 'none';
-        box.offsetHeight;
-        box.style.animation = null;
-    });
-}
+    body.theme-cyberpunk .btn-pitstop-mode {
+      background-color: rgba(255, 0, 220, 0.2) !important;
+      color: #ff00dc !important;
+      border: 1px solid #ff00dc !important;
+      box-shadow: 0 0 12px rgba(255, 0, 220, 0.4) !important;
+    }
+
+    body.theme-cyberpunk .btn-weather-test {
+      background-color: rgba(0, 240, 255, 0.15) !important;
+      color: #00f0ff !important;
+      border: 1px solid #00f0ff !important;
+    }
+
+    body.theme-cyberpunk .box {
+      background-color: #0f1522;
+      color: #00ffcc;
+      border: 1px solid #00f0ff;
+      text-shadow: 0 0 8px #00ffcc;
+      box-shadow: 0 0 6px rgba(0, 240, 255, 0.15), inset 0 0 8px rgba(0, 255, 204, 0.08);
+    }
+
+    body.theme-cyberpunk .box.x-red {
+      background: rgba(255, 0, 85, 0.12) !important;
+      border: 1px solid #ff0055 !important;
+      color: #ff0055 !important;
+      font-weight: 900;
+      text-shadow: 0 0 10px #ff0055, 0 0 20px #ff0055 !important;
+      box-shadow: 0 0 10px rgba(255, 0, 85, 0.35) !important;
+      animation: flicker 2s infinite alternate;
+    }
+
+    body.theme-cyberpunk .box.circle-kers { box-shadow: none !important; }
+    body.theme-cyberpunk .box.circle-kers svg {
+      color: #00f0ff !important;
+      animation: glow-only-cyber 1.4s infinite ease-in-out alternate;
+    }
+
+    /* FINE CYBER-PUNK THEME */
+
+
+    /* IRONMAN THEME */
+    body.theme-ironman {
+      background-color: #050203;
+      background-image: radial-gradient(circle at center, rgba(229, 184, 57, 0.08) 0%, transparent 70%), linear-gradient(rgba(229, 184, 57, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(229, 184, 57, 0.05) 1px, transparent 1px);
+      background-size: 30px 30px;
+      color: #ffffff;
+    }
+
+    body.theme-ironman .app-container {
+      background: rgba(92, 0, 3, 0.92);
+      border: 2px solid #e5b839;
+      box-shadow: 0 0 30px rgba(0, 0, 0, 0.8);
+    }
+
+    body.theme-ironman h1, 
+    body.theme-ironman h2, 
+    body.theme-ironman h3 {
+      color: #f5d061;
+      text-shadow: 0 0 10px rgba(0, 0, 0, 0.8), 0 0 5px #f5d061;
+    }
+
+    body.theme-ironman .btn {
+      background: linear-gradient(180deg, #fff2bd 0%, #e5b839 40%, #c49618 100%) !important;
+      color: #520003 !important;
+      border: 2px solid #000000 !important;
+      font-family: 'Orbitron', sans-serif;
+      padding: 14px 20px;
+      font-size: 1rem;
+      font-weight: 900;
+      border-radius: 6px;
+      cursor: pointer;
+      width: 100%;
+      margin: 10px 0;
+      transition: all 0.2s ease-in-out;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+      text-shadow: none !important;
+    }
+
+    body.theme-ironman .btn:hover:not(:disabled) {
+      background: linear-gradient(180deg, #ffffff 0%, #f5d061 40%, #e5b839 100%) !important;
+      color: #300002 !important;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 15px rgba(229, 184, 57, 0.4);
+    }
+
+    body.theme-ironman .btn-secondary {
+      background: #0a0204 !important;
+      color: #f5d061 !important;
+      border: 1px solid #e5b839 !important;
+    }
+
+    body.theme-ironman .btn-danger {
+      background: rgba(255, 0, 85, 0.2) !important;
+      color: #ff2a2a !important;
+      border: 1px solid #ff2a2a !important;
+    }
+
+    body.theme-ironman .btn-read-mode {
+      background: linear-gradient(180deg, #fff2bd 0%, #e5b839 40%, #c49618 100%) !important;
+      color: #520003 !important;
+      border: 2px solid #000000 !important;
+      opacity: 1 !important;
+    }
+
+    body.theme-ironman .btn-edit-mode {
+      background: rgba(60, 0, 2, 0.95) !important;
+      color: #f5d061 !important;
+      border: 2px solid #f5d061 !important;
+    }
+
+    body.theme-ironman .btn-pitstop-mode {
+      background: rgba(255, 0, 220, 0.2) !important;
+      color: #ff00dc !important;
+      border: 2px solid #ff00dc !important;
+    }
+
+    body.theme-ironman .btn-weather-test {
+      background: rgba(229, 184, 57, 0.2) !important;
+      color: #f5d061 !important;
+      border: 2px solid #e5b839 !important;
+    }
+
+    body.theme-ironman .box {
+      background-color: #0a0204;
+      color: #ffffff;
+      border: 1px solid #00f0ff;
+      text-shadow: none;
+      box-shadow: none;
+    }
+
+    body.theme-ironman .box.x-red {
+      background: rgba(255, 42, 42, 0.18) !important;
+      border: 1px solid #ff2a2a !important;
+      color: #ff2a2a !important;
+      font-weight: 900;
+      text-shadow: 0 0 10px #ff2a2a, 0 0 18px #ff2a2a !important;
+      box-shadow: 0 0 10px rgba(255, 42, 42, 0.4) !important;
+      animation: flicker 2s infinite alternate;
+    }
+
+    body.theme-ironman .box.circle-green {
+      color: #00ffcc !important;
+      filter: drop-shadow(0 0 5px #00ffcc);
+    }
+    
+    body.theme-ironman .box.circle-kers { box-shadow: none !important; }
+    body.theme-ironman .box.circle-kers svg {
+      color: #00f0ff !important;
+      animation: glow-only-iron 1.4s infinite ease-in-out alternate;
+    }
+    
+    /* FINE IRONMAN THEME */
+
+    /* GENERAL LAYOUT & LOBBY */
+    input, select {
+      width: 100%;
+      padding: 10px;
+      margin: 8px 0;
+      background-color: #0f1522;
+      border: 1px solid rgba(0, 240, 255, 0.35);
+      color: #ffffff;
+      border-radius: 4px;
+      font-size: 1rem;
+      font-family: 'Rajdhani', sans-serif;
+    }
+
+    #lobbies-list-container {
+      margin-bottom: 15px; 
+      max-height: 250px; 
+      overflow-y: auto; 
+      padding-right: 6px;
+    }
+
+    .lobby-card {
+      background: rgba(15, 21, 34, 0.9);
+      border: 1px solid #00f0ff;
+      padding: 10px 12px;
+      border-radius: 6px;
+      margin-bottom: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+    .lobby-card:hover {
+      border-color: #ffb700;
+      background: rgba(20, 28, 45, 0.95);
+      transform: translateY(-1px);
+    }
+    .lobby-card.selected {
+      border: 2px solid #ffb700;
+      box-shadow: 0 0 12px rgba(255, 183, 0, 0.4);
+    }
+
+    .theme-selector-wrapper {
+      background: rgba(15, 21, 34, 0.8);
+      border: 1px solid rgba(0, 240, 255, 0.35);
+      border-radius: 6px;
+      padding: 12px;
+      margin: 15px 0;
+      text-align: center;
+    }
+    .theme-selector-wrapper label {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.85rem;
+      color: #ffb700;
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+
+    .sheet-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(0, 240, 255, 0.35);
+      padding-bottom: 10px;
+      margin-bottom: 15px;
+      flex-wrap: wrap;
+    }
+
+    .weather-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(15, 21, 34, 0.8);
+      border: 1px solid #00f0ff;
+      border-radius: 4px;
+      padding: 4px 8px;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.8rem;
+      color: #00f0ff;
+      margin-left: 10px;
+    }
+
+    .tyres-deck {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 8px;
+      margin-bottom: 15px;
+      background-color: rgba(15, 21, 34, 0.6);
+      padding: 8px;
+      border-radius: 6px;
+      border: 1px solid #2e3d52;
+    }
+
+    .tyre-card {
+      background-color: #0f1522;
+      border: 1px solid rgba(0, 240, 255, 0.15);
+      border-radius: 4px;
+      padding: 6px;
+      text-align: center;
+      transition: all 0.2s ease;
+    }
+    .tyre-card.active { 
+      border-color: #00f0ff !important; 
+      box-shadow: 0 0 10px #00f0ff !important;
+    }
+    .tyre-card.disabled-weather {
+      opacity: 0.3 !important;
+      filter: grayscale(1);
+      pointer-events: none;
+    }
+
+    .tyre-title-btn {
+      width: 100%;
+      padding: 6px;
+      background: rgba(30, 41, 59, 0.9);
+      color: #ffffff;
+      border: 1px solid #2e3d52;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.8rem;
+      font-weight: bold;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-bottom: 6px;
+    }
+    .tyre-card.active .tyre-title-btn { 
+      background: #00f0ff; 
+      color: #000000; 
+      border-color: #00f0ff;
+    }
+
+    .laps-container { display: flex; justify-content: center; gap: 4px; }
+
+    .lap-box {
+      width: 26px; height: 26px;
+      background-color: #0f1522;
+      color: #cbd5e1;
+      border: 1px solid #2e3d52;
+      border-radius: 3px;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.9rem;
+      font-weight: bold;
+      display: flex; align-items: center; justify-content: center;
+      user-select: none; opacity: 0.6;
+    }
+    body.theme-ironman .lap-box { border-color: #520003; }
+    .tyre-card.active .lap-box { border-color: #00f0ff; }
+
+    .lap-box.pre-selected {
+      background-color: #0b1320 !important;
+      color: #ffffff !important;
+      border: 1px solid #00f0ff !important;
+      opacity: 1 !important;
+    }
+
+    .lap-box.marked { 
+      background-color: #00f0ff !important; 
+      color: #000 !important; 
+      font-weight: 900 !important; 
+      opacity: 1 !important; 
+    }
+    .lap-box.clickable { cursor: pointer; opacity: 1; }
+    .lap-box.disabled { cursor: not-allowed; opacity: 0.25; }
+
+    .workshop-block {
+      background-color: rgba(15, 21, 34, 0.8);
+      padding: 4px 6px; border-radius: 6px;
+      border: 1px solid rgba(0, 240, 255, 0.35);
+      display: inline-flex; align-items: flex-end; gap: 6px;
+      width: max-content;
+      flex-shrink: 0;
+    }
+    .workshop-boxes-wrapper { display: flex; flex-direction: column; align-items: center; width: 100%; }
+    
+    .workshop-label, .fuel-mov-label {
+      font-family: 'Orbitron', sans-serif; 
+      font-size: 0.65rem; 
+      font-weight: 900;
+      color: #ffb700; 
+      text-transform: uppercase; 
+      margin-bottom: 2px;
+      border-bottom: 1px solid rgba(0, 240, 255, 0.35); 
+      width: 100%;
+      text-align: center;
+      letter-spacing: 0.5px;
+    }
+    .fuel-mov-label { text-align: left; padding-left: 2px; }
+
+    .mov-num-val {
+      font-weight: 900;
+      color: #ffb700;
+      transition: color 0.2s ease;
+      display: inline-block;
+      min-width: 1.5ch;
+      text-align: center;
+    }
+
+    .board-row {
+      display: flex; align-items: flex-end; justify-content: space-between; gap: 4px;
+      margin-bottom: 12px; padding: 6px;
+      border: 1px solid rgba(0, 240, 255, 0.35); border-radius: 6px; width: 100%;
+      clip-path: polygon(0 0, 98% 0, 100% 10px, 100% 100%, 2% 100%, 0 calc(100% - 10px));
+    }
+    .board-side { display: flex; align-items: flex-end; gap: 4px; flex-shrink: 0; }
+    .board-side.right-side { justify-content: flex-end; }
+
+    .comp-block-wrapper { display: flex; flex-direction: column; align-items: flex-start; }
+    .comp-block-wrapper.align-right { align-items: flex-end; }
+    .fuel-container-wrapper { display: flex; flex-direction: column; flex-shrink: 0; width: max-content; }
+
+    .icon-box-center {
+      width: 30px; height: 34px; border: 1px solid rgba(0, 240, 255, 0.35);
+      background: #0f1522; display: flex; align-items: center; justify-content: center;
+      position: relative; flex-shrink: 0; border-radius: 4px; padding: 2px;
+    }
+    .icon-box-center svg { width: 100%; height: 100%; }
+    body.theme-ironman .icon-box-center { border-color: #e5b839; }
+
+    .icon-box-center.arrow-left { margin-left: 6px; }
+    .icon-box-center.arrow-left::before {
+      content: ''; position: absolute; left: -7px; top: 50%; transform: translateY(-50%);
+      border-top: 4px solid transparent; border-bottom: 4px solid transparent; border-right: 6px solid #00f0ff;
+    }
+
+    .icon-box-center.arrow-right { margin-right: 6px; }
+    .icon-box-center.arrow-right::after {
+      content: ''; position: absolute; right: -7px; top: 50%; transform: translateY(-50%);
+      border-top: 4px solid transparent; border-bottom: 4px solid transparent; border-left: 6px solid #00f0ff;
+    }
+
+    .boxes-container { display: flex; gap: 2px; }
+
+    /* Animazione lampeggiante corretta e sincronizzata per le caselle riempibili durante il setup */
+    @keyframes pulse-yellow {
+      0%, 100% { border-color: rgba(255, 183, 0, 0.4); background-color: transparent; }
+      50% { border-color: rgba(255, 183, 0, 1); background-color: rgba(255, 183, 0, 0.08); }
+    }
+
+    @keyframes pulse-glow-ironman {
+      0% { box-shadow: 0 0 4px rgba(229, 184, 57, 0.3); border-color: rgba(229, 184, 57, 0.4); }
+      50% { box-shadow: 0 0 12px rgba(229, 184, 57, 0.9); border-color: #e5b839; }
+      100% { box-shadow: 0 0 4px rgba(229, 184, 57, 0.3); border-color: rgba(229, 184, 57, 0.4); }
+    }
+
+    /* Protezione globale delle box: non cliccabili di default */
+    .box {
+      width: 30px; height: 34px;
+      font-family: 'Orbitron', sans-serif; font-weight: 700; font-size: 1rem;
+      display: flex; align-items: center; justify-content: center;
+      user-select: none; border-radius: 3px; position: relative; flex-shrink: 0;
+      cursor: default !important;
+      pointer-events: none !important;
+    }
+
+    .box.box-setup-highlight {
+      border: 1px dashed #ffb700; 
+      color: #ffb700; 
+      background-color: transparent;
+      animation: pulse-yellow 1.8s infinite ease-in-out;
+      animation-delay: 0s !important;
+    }
+    body.theme-ironman .box.box-setup-highlight { 
+      border-color: #00f0ff; 
+      color: #00f0ff; 
+    }
+    
+    /* Consente l'interazione sul pulsante Alettone solo durante il setup (KERS resta bloccato) */
+    #screen-setup.setup-active #box-wing {
+      pointer-events: auto !important;
+      cursor: pointer !important;
+    }
+
+    #box-kers {
+      pointer-events: none !important;
+      cursor: default !important;
+    }
+
+    /* Le box piene (sia base fisse che allocate dall'utente) mantengono lo stile coerente del tema */
+    .box:not(:empty),
+    .box.user-allocated {
+      background-color: #0f1522 !important;
+      border: 1px solid #00f0ff !important;
+      color: #00ffcc !important;
+      box-shadow: 0 0 6px rgba(0, 240, 255, 0.15), inset 0 0 8px rgba(0, 255, 204, 0.08) !important;
+      font-weight: 700;
+    }
+
+    body.theme-ironman .box:not(:empty),
+    body.theme-ironman .box.user-allocated {
+      background-color: #0a0204 !important;
+      border: 1px solid #00f0ff !important;
+      color: #ffffff !important;
+      box-shadow: none !important;
+      font-weight: 700;
+    }
+
+    /* INTERATTIVITÀ DINAMICA DELLE CASELLA ALLOCATE (User-Allocated) */
+    #screen-setup.setup-active .box.user-allocated,
+    body.edit-mode-active .box.user-allocated,
+    body.pitstop-mode-active .box.user-allocated {
+      pointer-events: auto !important;
+      cursor: pointer !important;
+    }
+
+    #screen-setup:not(.setup-active):not(.edit-mode-active) .box.user-allocated {
+      pointer-events: none !important;
+      cursor: default !important;
+    }
+
+    /* Le caselle vuote lampeggiano all'unisono azzerando il delay dell'animazione */
+    #screen-setup.setup-active:not(.budget-zero) .box:empty {
+      pointer-events: auto !important;
+      cursor: pointer !important;
+      animation-delay: 0s !important;
+    }
+
+    /* Quando il budget arriva a 0, le caselle smettono di illuminarsi/lampeggiare */
+    #screen-setup.setup-active.budget-zero .box:empty {
+      pointer-events: none !important;
+      animation: none !important;
+      opacity: 0.6;
+    }
+
+    /* Caselle disabilitate dall'Alettone (mantiene l'1 visibile ma barrato/attenuato) */
+    .box.wing-disabled {
+      opacity: 0.35 !important;
+      text-decoration: line-through;
+      pointer-events: none !important;
+    }
+
+    .budget-bar {
+      background-color: rgba(15, 21, 34, 0.8); border: 1px solid #ffb700;
+      padding: 10px; text-align: center; border-radius: 6px; margin-bottom: 15px;
+      font-family: 'Orbitron', sans-serif; font-weight: bold; font-size: 1rem; color: #ffb700;
+    }
+
+    .opponents-list { margin-top: 15px; border-top: 1px solid rgba(0, 240, 255, 0.35); padding-top: 10px; }
+    .opp-item {
+      background: rgba(15, 21, 34, 0.6); border: 1px solid #2e3d52;
+      padding: 8px 12px; border-radius: 4px; margin-bottom: 5px;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+
+    .btn-refresh-list {
+      background: transparent;
+      border: 1px solid #00f0ff;
+      color: #00f0ff;
+      padding: 2px 8px;
+      font-size: 0.75rem;
+      border-radius: 4px;
+      cursor: pointer;
+      font-family: 'Orbitron', sans-serif;
+      margin-left: 10px;
+    }
+
+    .modal {
+      display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.85); backdrop-filter: blur(5px);
+      justify-content: center; align-items: center; z-index: 100;
+    }
+    .modal-content {
+      background: #080b10; padding: 20px; border-radius: 8px; max-width: 450px; width: 92%;
+      text-align: center; border: 1px solid #00f0ff;
+    }
+
+    .status-check-box {
+      background: rgba(15, 21, 34, 0.9);
+      border: 1px solid #00f0ff; border-radius: 6px;
+      padding: 10px; margin-bottom: 12px; text-align: center;
+    }
+
+    @keyframes flicker {
+      0%, 100% { opacity: 1; filter: drop-shadow(0 0 8px #ff2a2a); }
+      50% { opacity: 0.85; filter: drop-shadow(0 0 3px #ff2a2a); }
+      52% { opacity: 1; } 54% { opacity: 0.7; } 56% { opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="app-container">
+  <!-- 1. HOME MENU -->
+  <div id="screen-home" class="screen active">
+    <h1>LOTUS CUP 2K25</h1>
+    <p style="text-align: center; font-family: 'Orbitron'; font-size: 0.85rem;">TELEMETRIA & SETUP SYSTEM</p>
+    <hr style="border-color: rgba(0, 240, 255, 0.35); margin: 20px 0;">
+    
+    <div style="max-width: 400px; margin: 0 auto;">
+      <div class="theme-selector-wrapper">
+        <label for="theme-select">STILE GRAFICO APPLICAZIONE</label>
+        <select id="theme-select" onchange="changeTheme(this.value)">
+          <option value="ironman" selected>Iron_1 (Stark Metallic Red & Gold)</option>
+          <option value="cyberpunk">Cyber-Punk (HUD Neon)</option>
+          <option value="redbull">Red Bull Racing</option>
+          <option value="mcdonalds">McDonald's</option>
+          <option value="chupachups">Chupa Chups</option>
+          <option value="octan">Octan Energy</option>
+          <option value="kinder">Kinder Scuderia</option>
+        </select>
+      </div>
+
+      <button class="btn" onclick="showScreen('screen-new-game')">Crea Nuova Partita</button>
+      <button class="btn" onclick="openJoinGameScreen()">Unisciti a una Partita</button>
+      <button class="btn" onclick="loadSavedGameModal()">Riprendi Partita</button>
+      <button class="btn" onclick="showScreen('screen-tutorial')">Tutorial & Regole</button>
+    </div>
+  </div>
+
+  <!-- 2. CREA PARTITA -->
+  <div id="screen-new-game" class="screen">
+    <h2>Crea Nuova Partita</h2>
+    <div style="max-width: 500px; margin: 0 auto;">
+      <label>Nome Gara / Circuito:</label>
+      <input type="text" id="input-circuit" placeholder="es. Monza, Spa, Monaco...">
+      <label>Nome Pilota / Host:</label>
+      <input type="text" id="input-host" placeholder="Il tuo nome...">
+      
+      <label>Meteo Iniziale:</label>
+      <select id="input-weather">
+        <option value="" disabled selected>-- Seleziona Condizione Meteo --</option>
+        <option value="sun">&#9728;&#65039; Sole Fisso</option>
+        <option value="rain">&#127783;&#65039; Pioggia Fissa</option>
+        <option value="var_dry">&#9925; Variabile Asciutto</option>
+        <option value="var_wet">&#127783;&#65039; Variabile Bagnato</option>
+      </select>
+
+      <button class="btn" onclick="createGame()">Genera Partita & Stanza</button>
+      <button class="btn btn-secondary" onclick="showScreen('screen-home')">Indietro</button>
+    </div>
+  </div>
+
+  <!-- 3. UNISCITI A UNA PARTITA -->
+  <div id="screen-join-game" class="screen">
+    <h2>Unisciti a una Partita</h2>
+    <div style="max-width: 500px; margin: 0 auto;">
+      <label>Seleziona Gara / Stanza Attiva:</label>
+      <div id="lobbies-list-container"></div>
+
+      <div id="join-form-section" style="display: none; background: rgba(15, 21, 34, 0.7); padding: 12px; border-radius: 6px; border: 1px solid #ffb700; margin-bottom: 15px;">
+        <p style="margin: 0 0 8px 0; font-size: 0.85rem; color:#ffb700;">Gara selezionata: <strong id="selected-room-label" style="color:#fff;">-</strong></p>
+        <label>Inserisci il tuo Nome Pilota:</label>
+        <input type="text" id="input-player-name" placeholder="Il tuo nome...">
+        <button class="btn" onclick="joinGame()">Entra nella Gara</button>
+      </div>
+
+      <button class="btn btn-secondary" onclick="showScreen('screen-home')">Indietro</button>
+    </div>
+  </div>
+
+  <!-- 4. DASHBOARD SETUP & GARA -->
+  <div id="screen-setup" class="screen">
+    
+    <div id="inspection-banner" style="display: none; background: rgba(255, 183, 0, 0.2); border: 1px solid #ffb700; padding: 8px; border-radius: 4px; margin-bottom: 10px; text-align: center; font-family: 'Orbitron'; font-size: 0.85rem; color: #ffb700;">
+      Stai visualizzando la scheda di: <span id="inspecting-pilot-name" style="font-weight:900; color:#fff;">-</span>
+      <button class="btn btn-secondary" onclick="returnToMyBoard()" style="padding: 4px 10px; width: auto; margin: 0 0 0 15px; font-size: 0.75rem;">Torna alla mia Scheda</button>
+    </div>
+
+    <div class="sheet-header">
+      <div>
+        <h3 style="margin:0; text-align:left; display: flex; align-items: center;">
+          <span id="display-circuit">CIRCUITO</span>
+          <div id="weather-badge" class="weather-badge">
+            <span id="weather-icon">&#9728;&#65039;</span> <small id="weather-text">Sole</small>
+          </div>
+        </h3>
+        <small id="display-meta">Data: - | Pilota: -</small>
+      </div>
+      <div>
+        <strong style="font-family: 'Orbitron';">ROOM: <span id="display-code">0000</span></strong>
+      </div>
+    </div>
+
+    <div style="margin-bottom: 15px;" id="actions-container-wrapper">
+      <button id="btn-start-config" class="btn" onclick="startConfiguration()">Inizia Configurazione (13 Punti)</button>
+      <button id="btn-lock-setup" class="btn btn-success" onclick="officializeSetup()" style="display: none;" disabled>Ufficializza Scheda / Inizio Gara (Assegna tutti i 13 Punti)</button>
+      
+      <div id="race-controls" style="display: none; gap: 8px; flex-direction: column;">
+        <div style="display: flex; gap: 8px;">
+          <button id="btn-toggle-edit" class="btn btn-read-mode" onclick="toggleRaceEdit()" style="flex:1; margin:0; text-transform:none !important;">Modalità edit attiva (clicca per sbloccare)</button>
+          <button id="btn-pitstop-action" class="btn btn-pitstop-mode" onclick="handlePitStopButtonClick()" style="display: none; flex:1; margin:0; text-transform:none !important;">Entrata ai Box (Pit Stop)</button>
+        </div>
+        <button id="btn-weather-test" class="btn btn-weather-test" onclick="openWeatherModal()" style="display: none; margin: 4px 0 0 0;">Test Motore / Controllo Meteo</button>
+      </div>
+    </div>
+
+    <!-- DECK MESCOLE SEPARATE CON LAPS BOX -->
+    <div class="tyres-deck" id="tyres-deck-container">
+      <div class="tyre-card">
+        <button class="tyre-title-btn">1 - Prime</button>
+        <div class="laps-container">
+          <div class="lap-box">1</div>
+          <div class="lap-box">2</div>
+          <div class="lap-box">3</div>
+        </div>
+      </div>
+      <div class="tyre-card">
+        <button class="tyre-title-btn">2 - Option</button>
+        <div class="laps-container">
+          <div class="lap-box">1</div>
+          <div class="lap-box">2</div>
+          <div class="lap-box">3</div>
+        </div>
+      </div>
+      <div class="tyre-card">
+        <button class="tyre-title-btn">3 - Intermedie</button>
+        <div class="laps-container">
+          <div class="lap-box">1</div>
+          <div class="lap-box">2</div>
+          <div class="lap-box">3</div>
+        </div>
+      </div>
+      <div class="tyre-card">
+        <button class="tyre-title-btn">4 - Pioggia</button>
+        <div class="laps-container">
+          <div class="lap-box">1</div>
+          <div class="lap-box">2</div>
+          <div class="lap-box">3</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="display: flex; justify-content: flex-end; margin-bottom: 10px;">
+      <div class="workshop-block">
+        <div class="icon-box-center" title="Punti Officina">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#00f0ff" stroke-width="2.2" stroke-linecap="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+        </div>
+        <div class="workshop-boxes-wrapper">
+          <div class="workshop-label"><span id="workshop-mov-val" class="mov-num-val">0</span> MOV</div>
+          <div class="boxes-container" id="row-workshop">
+            <div class="box">1</div><div class="box">1</div><div class="box">1</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="budget-bar" class="budget-bar" style="display: none;">
+      Punti Disponibili per Setup: <span id="budget-count">13</span> / 13
+    </div>
+
+    <div>
+      <!-- PNEUMATICI (10 caselle) -->
+      <div class="board-row">
+        <div class="comp-block-wrapper">
+          <div class="board-side">
+            <div class="boxes-container" id="row-tyres">
+              <div class="box">1</div><div class="box">1</div><div class="box">1</div>
+              <div class="box"></div><div class="box"></div><div class="box"></div>
+              <div class="box"></div><div class="box"></div><div class="box"></div><div class="box"></div>
+            </div>
+            <div class="icon-box-center arrow-left" title="Pneumatici">
+              <svg viewBox="0 0 100 100" fill="none" stroke="#00f0ff">
+                <path d="M 45 12 Q 22 18 18 50 Q 22 82 45 88 Q 85 88 85 50 Q 85 12 45 12 Z" fill="#00f0ff"/>
+                <ellipse cx="62" cy="50" rx="20" ry="32" fill="#0f1522" stroke="#00f0ff" stroke-width="3"/>
+                <ellipse cx="62" cy="50" rx="8" ry="12" fill="#00f0ff"/>
+                <line x1="62" y1="38" x2="62" y2="20" stroke="#00f0ff" stroke-width="3"/>
+                <line x1="62" y1="62" x2="62" y2="80" stroke="#0f1522" stroke-width="3"/>
+                <line x1="54" y1="50" x2="44" y2="50" stroke="#00f0ff" stroke-width="3"/>
+                <line x1="70" y1="50" x2="80" y2="50" stroke="#00f0ff" stroke-width="3"/>
+                <line x1="56" y1="42" x2="48" y2="30" stroke="#00f0ff" stroke-width="3"/>
+                <line x1="68" y1="58" x2="76" y2="70" stroke="#0f1522" stroke-width="3"/>
+                <path d="M 22 25 L 35 22 M 20 38 L 35 34 M 19 50 L 35 48 M 22 75 L 35 78" stroke="#0f1522" stroke-width="3"/>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- TELAIO (6 caselle) -->
+        <div class="comp-block-wrapper align-right">
+          <div class="board-side right-side">
+            <div class="icon-box-center arrow-right" title="Telaio">
+              <svg viewBox="0 0 100 100" fill="#00f0ff">
+                <rect x="5" y="32" width="18" height="42" rx="3"/>
+                <rect x="77" y="32" width="18" height="42" rx="3"/>
+                <rect x="8" y="70" width="84" height="6" rx="1"/>
+                <path d="M 12 63 L 40 68 L 40 70 L 12 68 Z"/>
+                <path d="M 88 63 L 60 68 L 60 70 L 88 68 Z"/>
+                <path d="M 40 70 L 43 35 L 57 35 L 60 70 Z"/>
+                <circle cx="50" cy="30" r="5"/>
+                <path d="M 42 26 C 42 18, 58 18, 58 26 L 55 33 L 45 33 Z" fill="none" stroke="#00f0ff" stroke-width="2"/>
+                <rect x="30" y="12" width="40" height="5"/>
+                <line x1="33" y1="17" x2="33" y2="28" stroke="#00f0ff" stroke-width="3"/>
+                <line x1="67" y1="17" x2="67" y2="28" stroke="#0f1522" stroke-width="3"/>
+                <line x1="23" y1="42" x2="42" y2="48" stroke="#00f0ff" stroke-width="2"/>
+                <line x1="23" y1="58" x2="42" y2="52" stroke="#00f0ff" stroke-width="2"/>
+                <line x1="77" y1="42" x2="58" y2="48" stroke="#00f0ff" stroke-width="2"/>
+                <line x1="77" y1="58" x2="58" y2="52" stroke="#00f0ff" stroke-width="2"/>
+              </svg>
+            </div>
+            <div class="boxes-container" id="row-body">
+              <div class="box"></div><div class="box"></div><div class="box"></div><div class="box"></div>
+              <div class="box">1</div><div class="box">1</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- FRENI & MOTORE (6 caselle ciascuno) -->
+      <div class="board-row">
+        <div class="comp-block-wrapper">
+          <div class="board-side">
+            <div class="boxes-container" id="row-brakes">
+              <div class="box">1</div><div class="box">1</div>
+              <div class="box"></div><div class="box"></div><div class="box"></div><div class="box"></div>
+            </div>
+            <div class="icon-box-center arrow-left" title="Freni">
+              <svg viewBox="0 0 100 100" fill="#00f0ff">
+                <rect x="15" y="80" width="70" height="6" rx="2"/>
+                <path d="M 24 80 L 42 55 L 49 59 L 30 84 Z"/>
+                <rect x="33" y="47" width="28" height="10" transform="rotate(-32 47 52)" rx="3"/>
+                <path d="M 33 46 C 30 38 42 34 56 42 C 64 47 70 57 65 67 C 60 74 52 74 52 74 L 80 52 C 86 47 78 35 72 26 L 60 34 L 75 12 L 56 2 Z"/>
+                <line x1="44" y1="43" x2="47" y2="40" stroke="#0f1522" stroke-width="2.5" stroke-linecap="round"/>
+                <line x1="48" y1="45" x2="51" y2="42" stroke="#0f1522" stroke-width="2.5" stroke-linecap="round"/>
+                <line x1="52" y1="48" x2="55" y2="45" stroke="#0f1522" stroke-width="2.5" stroke-linecap="round"/>
+                <line x1="60" y1="34" x2="72" y2="26" stroke="#0f1522" stroke-width="2"/>
+              </svg>
+            </div>
+          </div>
+        </div>
+        
+        <div style="display: flex; flex-direction: column; align-items: center;">
+          <small class="comp-title-label" style="margin-bottom:2px;">KERS</small>
+          <div id="box-kers" class="box" onclick="interactKers()"></div>
+        </div>
+
+        <div class="comp-block-wrapper align-right">
+          <div class="board-side right-side">
+            <div class="icon-box-center arrow-right" title="Motore">
+              <svg viewBox="0 0 100 100" fill="#00f0ff">
+                <g transform="rotate(-25 32 38)">
+                  <rect x="18" y="15" width="28" height="12" rx="3"/>
+                  <rect x="20" y="29" width="24" height="22"/>
+                  <line x1="16" y1="33" x2="48" y2="33" stroke="#0f1522" stroke-width="2"/>
+                  <line x1="16" y1="39" x2="48" y2="39" stroke="#0f1522" stroke-width="2"/>
+                  <line x1="16" y1="45" x2="48" y2="45" stroke="#0f1522" stroke-width="2"/>
+                </g>
+                <g transform="rotate(25 68 38)">
+                  <rect x="54" y="15" width="28" height="12" rx="3"/>
+                  <rect x="56" y="29" width="24" height="22"/>
+                  <line x1="52" y1="33" x2="84" y2="33" stroke="#0f1522" stroke-width="2"/>
+                  <line x1="52" y1="39" x2="84" y2="39" stroke="#0f1522" stroke-width="2"/>
+                  <line x1="52" y1="45" x2="84" y2="45" stroke="#0f1522" stroke-width="2"/>
+                </g>
+                <circle cx="50" cy="35" r="14" fill="#00f0ff" stroke="#0f1522" stroke-width="2"/>
+                <circle cx="50" cy="35" r="6" fill="#0f1522"/>
+                <path d="M 22 62 L 78 62 L 72 88 L 28 88 Z"/>
+                <line x1="32" y1="70" x2="68" y2="70" stroke="#0f1522" stroke-width="3"/>
+                <line x1="32" y1="78" x2="68" y2="78" stroke="#0f1522" stroke-width="3"/>
+              </svg>
+            </div>
+            <div class="boxes-container" id="row-engine">
+              <div class="box"></div><div class="box"></div><div class="box"></div><div class="box"></div>
+              <div class="box">1</div><div class="box">1</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CARBURANTE & SOSPENSIONI (6 caselle ciascuno) -->
+      <div class="board-row">
+        <div class="comp-block-wrapper">
+          <div class="board-side">
+            <div class="fuel-container-wrapper">
+              <div class="fuel-mov-label"><span id="fuel-mov-prefix">+</span><span id="fuel-mov-val" class="mov-num-val">0</span> MOV</div>
+              <div class="boxes-container" id="row-fuel">
+                <div class="box">1</div><div class="box">1</div>
+                <div class="box"></div><div class="box"></div><div class="box"></div><div class="box"></div>
+              </div>
+            </div>
+            <div class="icon-box-center arrow-left" title="Carburante">
+              <svg viewBox="0 0 100 100" fill="#00f0ff">
+                <rect x="30" y="12" width="48" height="76" rx="6"/>
+                <rect x="38" y="22" width="32" height="24" fill="#0f1522" rx="2"/>
+                <path d="M 30 35 C 10 35, 8 60, 20 80" fill="none" stroke="#00f0ff" stroke-width="6" stroke-linecap="round"/>
+                <rect x="14" y="70" width="10" height="14" rx="2"/>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <div style="display: flex; flex-direction: column; align-items: center;">
+          <small class="comp-title-label" style="margin-bottom:2px;">ALETTONE</small>
+          <div id="box-wing" class="box" onclick="toggleWing()"></div>
+        </div>
+
+        <div class="comp-block-wrapper align-right">
+          <div class="board-side right-side">
+            <div class="icon-box-center arrow-right" title="Sospensioni">
+              <svg viewBox="0 0 100 100" fill="#00f0ff">
+                <rect x="12" y="25" width="26" height="62" rx="8"/>
+                <path d="M 18 35 L 32 32 M 18 45 L 32 42 M 18 55 L 32 52 M 18 65 L 32 62 M 18 75 L 32 72" stroke="#0f1522" stroke-width="3"/>
+                <g transform="rotate(30 60 45)">
+                  <rect x="52" y="12" width="12" height="10" rx="2"/>
+                  <path d="M 52 24 Q 68 28 52 32 Q 68 36 52 40 Q 68 44 52 48 Q 68 52 52 56 L 64 56 L 64 24 Z"/>
+                  <rect x="54" y="58" width="8" height="18"/>
+                </g>
+                <rect x="38" y="48" width="16" height="12"/>
+                <line x1="38" y1="68" x2="68" y2="75" stroke="#0f1522" stroke-width="4"/>
+              </svg>
+            </div>
+            <div class="boxes-container" id="row-suspension">
+              <div class="box"></div><div class="box"></div><div class="box"></div><div class="box"></div>
+              <div class="box">1</div><div class="box">1</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- VISTA AVVERSARI / PILOTI IN GARA -->
+    <div class="opponents-list" id="opponents-container">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+        <h3 style="font-size: 1rem; margin:0;">Piloti in Gara (Clicca per ispezionare)</h3>
+        <button class="btn-refresh-list" onclick="refreshOpponentsList()" title="Aggiorna stato piloti">&#8635; Aggiorna</button>
+      </div>
+      <div id="opponents-list-items"></div>
+    </div>
+  </div>
+
+  <!-- TUTORIAL -->
+  <div id="screen-tutorial" class="screen">
+    <h2>Tutorial & Regolamento</h2>
+    <div style="max-width: 500px; margin: 0 auto;">
+      <p>1. <strong>Setup</strong>: Seleziona la mescola di partenza e distribuisci i 13 punti.</p>
+      <p>2. <strong>Giri & Pit Stop</strong>: Spunta i giri in base ai tuoi stint.</p>
+      <p>3. <strong>Consumo e Danni</strong>: Barra le caselle utilizzate durante la corsa.</p>
+      <button class="btn btn-secondary" onclick="showScreen('screen-home')">Torna al Menu</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODALI -->
+<div id="modal-load-game" class="modal">
+  <div class="modal-content">
+    <h3>Riprendi Partita</h3>
+    <p style="color: #a0aec0; font-size: 0.85rem;">Seleziona la sessione e il pilota da caricare:</p>
+    <div id="load-games-list-container" style="max-height: 200px; overflow-y: auto; margin-bottom: 12px; text-align: left;"></div>
+    <button class="btn btn-secondary" onclick="closeModal('modal-load-game')">Annulla</button>
+  </div>
+</div>
+
+<div id="modal-pitstop-confirm" class="modal">
+  <div class="modal-content">
+    <h3>Entrata ai Box (Pit Stop)</h3>
+    <p style="color: #a0aec0;">Vuoi procedere con l'ingresso ai box per cambio gomme e riparazioni?</p>
+    <button class="btn btn-success" onclick="confirmEnterPitStop()">Entra</button>
+    <button class="btn btn-secondary" onclick="closeModal('modal-pitstop-confirm')">Non ancora</button>
+  </div>
+</div>
+
+<div id="modal-weather" class="modal">
+  <div class="modal-content">
+    <h3>Evoluzione Meteo Variabile</h3>
+    <div class="status-check-box">
+      <strong style="color:#ffb700;">STATO ATTUALE ASFALTO:</strong> 
+      <div id="modal-current-weather-text" style="color:#00f0ff; font-weight:bold; font-size:1.1rem; margin-top:2px;">Variabile Asciutto</div>
+      <div id="modal-check-history" style="font-size:0.85rem; margin-top:6px; color:#cbd5e1;">Ultimo Check: Nessuno</div>
+    </div>
+    <p style="color: #a0aec0; font-size:0.85rem;" id="modal-instruction-text">Registra l'esito dell'ultimo tiro di dado per il controllo meteo:</p>
+    <div id="modal-check-buttons" style="display: flex; flex-direction: column; gap: 8px;"></div>
+    <hr style="border-color: #2e3d52; margin: 15px 0;">
+    <button class="btn btn-secondary" onclick="closeModal('modal-weather')">Annulla</button>
+  </div>
+</div>
+
+<div id="modal-kers" class="modal">
+  <div class="modal-content">
+  <h3>Gestione Uso KERS</h3>
+    <p style="color: #a0aec0;">Hai utilizzato il KERS! Qual è stato l'esito del tiro?</p>
+    <button class="btn btn-success" onclick="resolveKers(false)">Esito OK (Svuota KERS)</button>
+    <button class="btn btn-danger" onclick="resolveKers(true)">Danneggiato (X Rossa)</button>
+    <button class="btn btn-secondary" onclick="closeModal('modal-kers')">Annulla</button>
+  </div>
+</div>
+
+<script type="module" src="script.js"></script>
+</body>
+</html>
