@@ -173,6 +173,9 @@
       animation: glow-only-cyber 1.4s infinite ease-in-out alternate;
     }
 
+    /* FINE CYBER-PUNK THEME */
+
+
     /* IRONMAN THEME */
     body.theme-ironman {
       background-color: #050203;
@@ -283,6 +286,8 @@
       color: #00f0ff !important;
       animation: glow-only-iron 1.4s infinite ease-in-out alternate;
     }
+    
+    /* FINE IRONMAN THEME */
 
     /* GENERAL LAYOUT & LOBBY */
     input, select {
@@ -416,16 +421,16 @@
       border-color: #00f0ff;
     }
 
-    .laps-container { display: flex; justify-content: center; gap: 4px; }
+    .laps-container { display: flex; justify-content: center; gap: 6px; }
 
     .lap-box {
-      width: 26px; height: 26px;
+      width: 26px; height: 28px;
       background-color: #0f1522;
       color: #cbd5e1;
       border: 1px solid #2e3d52;
       border-radius: 3px;
       font-family: 'Orbitron', sans-serif;
-      font-size: 0.85rem;
+      font-size: 0.9rem;
       font-weight: bold;
       display: flex; align-items: center; justify-content: center;
       user-select: none; opacity: 0.6;
@@ -517,35 +522,19 @@
 
     .boxes-container { display: flex; gap: 2px; }
 
-    /* Animazione lampeggiante corretta e sincronizzata per le caselle riempibili durante il setup */
-    @keyframes pulse-yellow {
-      0%, 100% { border-color: rgba(255, 183, 0, 0.4); background-color: transparent; }
-      50% { border-color: rgba(255, 183, 0, 1); background-color: rgba(255, 183, 0, 0.08); }
-    }
-
-    @keyframes pulse-glow-ironman {
-      0% { box-shadow: 0 0 4px rgba(229, 184, 57, 0.3); border-color: rgba(229, 184, 57, 0.4); }
-      50% { box-shadow: 0 0 12px rgba(229, 184, 57, 0.9); border-color: #e5b839; }
-      100% { box-shadow: 0 0 4px rgba(229, 184, 57, 0.3); border-color: rgba(229, 184, 57, 0.4); }
-    }
-
     /* Protezione globale delle box: non cliccabili di default */
     .box {
-      width: 28px; height: 32px;
+      width: 30px; height: 34px;
       font-family: 'Orbitron', sans-serif; font-weight: 700; font-size: 0.95rem;
       display: flex; align-items: center; justify-content: center;
       user-select: none; border-radius: 3px; position: relative; flex-shrink: 0;
-      cursor: default !important;
-      pointer-events: none !important;
     }
 
     .box.box-setup-highlight {
-      border: 1px dashed #ffb700; 
-      color: #ffb700; 
-      background-color: transparent;
-      animation: pulse-yellow 1.8s infinite ease-in-out;
-      animation-delay: 0s !important;
+      border: 1px dashed #ffb700; color: #ffb700; background-color: transparent;
+      animation: pulse-yellow 1.5s infinite ease-in-out;
     }
+    
     body.theme-ironman .box.box-setup-highlight { 
       border-color: #00f0ff; 
       color: #00f0ff; 
@@ -656,6 +645,18 @@
       padding: 10px; margin-bottom: 12px; text-align: center;
     }
 
+    /* Animazione lampeggiante corretta e sincronizzata per le caselle riempibili durante il setup */
+    @keyframes pulse-yellow {
+      0%, 100% { border-color: rgba(255, 183, 0, 0.4); background-color: transparent; }
+      50% { border-color: rgba(255, 183, 0, 1); background-color: rgba(255, 183, 0, 0.08); }
+    }
+
+    @keyframes pulse-glow-ironman {
+      0% { box-shadow: 0 0 4px rgba(229, 184, 57, 0.3); border-color: rgba(229, 184, 57, 0.4); }
+      50% { box-shadow: 0 0 12px rgba(229, 184, 57, 0.9); border-color: #e5b839; }
+      100% { box-shadow: 0 0 4px rgba(229, 184, 57, 0.3); border-color: rgba(229, 184, 57, 0.4); }
+    }
+    
     @keyframes flicker {
       0%, 100% { opacity: 1; filter: drop-shadow(0 0 8px #ff2a2a); }
       50% { opacity: 0.85; filter: drop-shadow(0 0 3px #ff2a2a); }
