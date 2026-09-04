@@ -258,11 +258,8 @@ window.toggleWing = function() {
     if (!containerBody) return;
     
     const boxesBody = Array.from(containerBody.querySelectorAll('.box'));
-    
-    // Trova la prima casella base sul lato destro (la prima con '1' partendo da sinistra)
-    const targetBox = boxesBody.find(b => b.innerText.trim() === '1' && !b.classList.contains('wing-x'));
-
     const isAttivo = boxWing.classList.contains('wing-active');
+    
     const wingSvg = `
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;color:inherit;">
             <path d="M 2 6 L 22 6 L 20 10 L 4 10 Z" fill="currentColor" fill-opacity="0.2"/>
@@ -272,16 +269,21 @@ window.toggleWing = function() {
             <line x1="15" y1="10" x2="15" y2="17"/>
         </svg>
     `;
-        
+    
     if (!isAttivo) {
+        // Trova la casella più a sinistra tra quelle che contengono '1'
+        const primaValorizzata = boxesBody.find(b => b.innerText.trim() === '1' && !b.classList.contains('wing-x'));
+        if (!primaValorizzata) {
+            alert("Devi prima inserire almeno un punto nel telaio per attivare l'alettone!");
+            return;
+        }
+
         boxWing.classList.add('wing-active', 'circle-green');
         boxWing.innerHTML = wingSvg;
         
-        if (targetBox) {
-            targetBox.innerText = 'X';
-            targetBox.classList.add('wing-x');
-            targetBox.dataset.base = "true";
-        }
+        primaValorizzata.innerText = 'X';
+        primaValorizzata.classList.add('wing-x');
+        primaValorizzata.dataset.base = "true";
     } else {
         boxWing.classList.remove('wing-active', 'circle-green');
         boxWing.innerHTML = '';
@@ -294,5 +296,4 @@ window.toggleWing = function() {
         }
     }
 };
-
 console.log("Lotus Cup 2k25: Script Main orchestrato correttamente.");
