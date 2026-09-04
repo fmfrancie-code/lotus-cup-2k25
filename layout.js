@@ -203,21 +203,21 @@ export function inizializzaInterazionePlancia() {
                                         currentWingX.dataset.base = "false";
                                         currentWingX.classList.add('user-allocated');
                                         currentWingX.innerText = '1';
-                                            
+                                        
                                         // La casella a sinistra diventa la nuova X dell'alettone
                                         cellaSinistra.classList.add('wing-x');
                                         cellaSinistra.dataset.base = "true";
                                         cellaSinistra.innerText = 'X';
                                     }
                                 }
-                            }
-                        }    
-                        targetBox.classList.add('user-allocated');
-                        targetBox.innerText = '1';
+                            }    
+                            targetBox.classList.add('user-allocated');
+                            targetBox.innerText = '1';
                         } else {
                             targetBox.classList.remove('user-allocated');
                             targetBox.innerText = '';
                         }
+                        
                         // Aggiorna istantaneamente il budget residuo (incrementandolo in caso di rimozione)
                         aggiornaInterfacciaBudget(risultato.budgetResiduo);
                         
