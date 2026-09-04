@@ -278,8 +278,9 @@ window.toggleWing = function() {
         boxWing.innerHTML = wingSvg;
         
         if (targetBox) {
+            targetBox.innerText = 'X';
+            targetBox.classList.add('wing-x');
             targetBox.dataset.base = "true";
-            targetBox.classList.add('wing-disabled');
         }
     } else {
         boxWing.classList.remove('wing-active');
