@@ -254,10 +254,6 @@ window.toggleWing = function() {
     const boxWing = document.getElementById('box-wing');
     if (!boxWing) return;
 
-    const containerBody = document.getElementById('row-body');
-    if (!containerBody) return;
-    
-    const boxesBody = Array.from(containerBody.querySelectorAll('.box'));
     const isAttivo = boxWing.classList.contains('wing-active');
     
     const wingSvg = `
@@ -271,29 +267,14 @@ window.toggleWing = function() {
     `;
     
     if (!isAttivo) {
-        // Trova la casella più a sinistra tra quelle che contengono '1'
-        const primaValorizzata = boxesBody.find(b => b.innerText.trim() === '1' && !b.classList.contains('wing-x'));
-        if (!primaValorizzata) {
-            alert("Devi prima inserire almeno un punto nel telaio per attivare l'alettone!");
-            return;
-        }
-
         boxWing.classList.add('wing-active', 'circle-green');
         boxWing.innerHTML = wingSvg;
-        
-        primaValorizzata.innerText = 'X';
-        primaValorizzata.classList.add('wing-x');
-        primaValorizzata.dataset.base = "true";
     } else {
         boxWing.classList.remove('wing-active', 'circle-green');
         boxWing.innerHTML = '';
-
-        const markedBox = boxesBody.find(b => b.classList.contains('wing-x'));
-        if (markedBox) {
-            markedBox.innerText = '1';
-            markedBox.classList.remove('wing-x');
-            markedBox.dataset.base = "false";
-        }
     }
+
+    // Ricalcola la posizione della X sul telaio
+    aggiornaStatoAlettoneTelaio();
 };
 console.log("Lotus Cup 2k25: Script Main orchestrato correttamente.");
