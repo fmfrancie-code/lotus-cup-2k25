@@ -135,8 +135,8 @@ export function inizializzaInterazionePlancia() {
                 
                 const box = e.target.closest('.box');
                 if (!box) return;
-
-                if (box.dataset.base === "true" || box.classList.contains('wing-disabled')) return;
+                
+                if (box.dataset.base === "true" || box.classList.contains('wing-disabled') || box.classList.contains('wing-x')) return;
 
                 const tipoComponente = righeComponenti[rowId];
                 const boxesNellaRiga = Array.from(container.querySelectorAll('.box'));
