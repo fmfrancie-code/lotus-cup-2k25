@@ -283,13 +283,14 @@ window.toggleWing = function() {
             targetBox.dataset.base = "true";
         }
     } else {
-        boxWing.classList.remove('wing-active');
+        boxWing.classList.remove('wing-active', 'circle-green');
         boxWing.innerHTML = '';
 
-        const disabledBodyBox = boxesBody.find(b => b.classList.contains('wing-disabled'));
-        if (disabledBodyBox) {
-            disabledBodyBox.classList.remove('wing-disabled');
-            disabledBodyBox.dataset.base = "false";
+        const markedBox = boxesBody.find(b => b.classList.contains('wing-x'));
+        if (markedBox) {
+            markedBox.innerText = '1';
+            markedBox.classList.remove('wing-x');
+            markedBox.dataset.base = "false";
         }
     }
 };
