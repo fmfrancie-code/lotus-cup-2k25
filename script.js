@@ -274,7 +274,7 @@ window.toggleWing = function() {
     `;
         
     if (!isAttivo) {
-        boxWing.classList.add('wing-active');
+        boxWing.classList.add('wing-active', 'circle-green');
         boxWing.innerHTML = wingSvg;
         
         if (targetBox) {
