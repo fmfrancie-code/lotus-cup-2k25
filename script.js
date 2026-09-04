@@ -249,6 +249,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 });
 
+// --- GESTIONE DEI ALETTONE SULLA PLANCIA ---
 window.toggleWing = function() {
     const boxWing = document.getElementById('box-wing');
     if (!boxWing) return;
@@ -262,8 +263,16 @@ window.toggleWing = function() {
     const targetBox = boxesBody.find(b => b.innerText.trim() === '1' && !b.classList.contains('wing-disabled'));
 
     const isAttivo = boxWing.classList.contains('wing-active');
-    const wingSvg = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;"><path d="M3 12h18M3 6h18M6 18h12"/></svg>`;
-
+    const wingSvg = `
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;">
+            <path d="M 2 6 L 22 6 L 20 10 L 4 10 Z" fill="currentColor" fill-opacity="0.2"/>
+            <path d="M 2 4 L 4 14 L 2 14 Z"/>
+            <path d="M 22 4 L 20 14 L 22 14 Z"/>
+            <line x1="9" y1="10" x2="9" y2="17"/>
+            <line x1="15" y1="10" x2="15" y2="17"/>
+        </svg>
+    `;
+        
     if (!isAttivo) {
         boxWing.classList.add('wing-active');
         boxWing.innerHTML = wingSvg;
