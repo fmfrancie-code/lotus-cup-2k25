@@ -213,11 +213,11 @@ export function inizializzaInterazionePlancia() {
                             }    
                             targetBox.classList.add('user-allocated');
                             targetBox.innerText = '1';
-                        } else {
+                        } 
+                        else {
                             targetBox.classList.remove('user-allocated');
                             targetBox.innerText = '';
                         }
-                        
                         // Aggiorna istantaneamente il budget residuo (incrementandolo in caso di rimozione)
                         aggiornaInterfacciaBudget(risultato.budgetResiduo);
                         
@@ -240,5 +240,5 @@ function sincronizzaOndaVuote() {
         box.style.animation = 'none';
         box.offsetHeight; // Trigger del reflow del browser
         box.style.animation = null;
-    });
+    };
 }
