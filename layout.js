@@ -240,5 +240,5 @@ function sincronizzaOndaVuote() {
         box.style.animation = 'none';
         box.offsetHeight; // Trigger del reflow del browser
         box.style.animation = null;
-    };
+    });
 }
