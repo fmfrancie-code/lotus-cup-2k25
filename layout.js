@@ -188,31 +188,6 @@ export function inizializzaInterazionePlancia() {
                 }
 
                 if (delta !== 0 && targetBox) {
-                    // CONTROLLO SLITTAMENTO ALETTONE PRIMA DELL'ASSEGNAZIONE DEL NUOVO PUNTO
-                    if (tipoComponente === 'body' && delta > 0) {
-                        const boxWing = document.getElementById('box-wing');
-                        if (boxWing && boxWing.classList.contains('wing-active')) {
-                            const currentWingX = boxesNellaRiga.find(b => b.classList.contains('wing-x'));
-                            if (currentWingX) {
-                                const indexX = boxesNellaRiga.indexOf(currentWingX);
-                                if (indexX > 0) {
-                                    const cellaSinistra = boxesNellaRiga[indexX - 1];
-                                    
-                                    // La vecchia casella con la X diventa un punto utente normale ('1')
-                                    currentWingX.classList.remove('wing-x');
-                                    currentWingX.dataset.base = "false";
-                                    currentWingX.classList.add('user-allocated');
-                                    currentWingX.innerText = '1';
-                                    
-                                    // La casella a sinistra diventa la nuova X dell'alettone
-                                    cellaSinistra.classList.add('wing-x');
-                                    cellaSinistra.dataset.base = "true";
-                                    cellaSinistra.innerText = 'X';
-                                }
-                            }
-                        }
-                    }
-
                     const risultato = gestisciAssegnazioneBudget(tipoComponente, delta);
                     if (risultato.operazioneRiuscita) {
                         if (delta > 0) {
@@ -223,6 +198,11 @@ export function inizializzaInterazionePlancia() {
                             targetBox.innerText = '';
                         }
                         
+                        // AGGIORNA AUTOMATICAMENTE LA POSIZIONE DELLA X SE È IL TELAIO
+                        if (tipoComponente === 'body') {
+                            aggiornaStatoAlettoneTelaio();
+                        }
+
                         aggiornaInterfacciaBudget(risultato.budgetResiduo);
                         sincronizzaOndaVuote();
                     } else if (risultato.messaggioDescrittivo) {
@@ -242,5 +222,44 @@ function sincronizzaOndaVuote() {
         box.style.animation = 'none';
         box.offsetHeight; // Trigger del reflow del browser
         box.style.animation = null;
+    });
+}
+
+/**
+ * Aggiorna dinamicamente la posizione della X sul telaio in base all'alettone
+ */
+export function aggiornaStatoAlettoneTelaio() {
+    const containerBody = document.getElementById('row-body');
+    if (!containerBody) return;
+    
+    const boxesBody = Array.from(containerBody.querySelectorAll('.box'));
+    const boxWing = document.getElementById('box-wing');
+    const isWingActive = boxWing && boxWing.classList.contains('wing-active');
+
+    if (!isWingActive) {
+        // Se l'alettone è spento, ripristina la X a '1' normale
+        boxesBody.forEach(b => {
+            if (b.classList.contains('wing-x')) {
+                b.classList.remove('wing-x');
+                b.innerText = '1';
+                b.dataset.base = "false";
+            }
+        });
+        return;
+    }
+
+    // Se l'alettone è attivo, trova la prima casella non vuota partendo da sinistra
+    const primaAttiva = boxesBody.find(b => b.innerText.trim() !== '' && b.innerText.trim() !== '');
+
+    boxesBody.forEach(b => {
+        const testo = b.innerText.trim();
+        if (b === primaAttiva) {
+            b.innerText = 'X';
+            b.classList.add('wing-x');
+            b.dataset.base = "true"; // Protetta perché è la X dell'alettone
+        } else if (testo !== '' && testo !== 'X') {
+            b.innerText = '1';
+            b.classList.remove('wing-x');
+        }
     });
 }
