@@ -32,12 +32,11 @@
     .app-container {
       width: 100%;
       max-width: 950px;
-      margin: 0 auto;
       border-radius: 8px;
       padding: 12px;
       backdrop-filter: blur(10px);
+      position: relative;
     }
-
 
     .screen { display: none; }
     .screen.active { display: block; }
@@ -85,6 +84,7 @@
       margin: 10px 0;
       transition: all 0.25s ease-in-out;
       box-shadow: 0 0 10px rgba(0, 240, 255, 0.2);
+      text-transform: none !important;
     }
 
     body.theme-cyberpunk .btn:hover:not(:disabled) {
@@ -173,9 +173,6 @@
       animation: glow-only-cyber 1.4s infinite ease-in-out alternate;
     }
 
-    /* FINE CYBER-PUNK THEME */
-
-
     /* IRONMAN THEME */
     body.theme-ironman {
       background-color: #050203;
@@ -212,6 +209,7 @@
       transition: all 0.2s ease-in-out;
       box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
       text-shadow: none !important;
+      text-transform: none !important;
     }
 
     body.theme-ironman .btn:hover:not(:disabled) {
@@ -286,8 +284,6 @@
       color: #00f0ff !important;
       animation: glow-only-iron 1.4s infinite ease-in-out alternate;
     }
-    
-    /* FINE IRONMAN THEME */
 
     /* GENERAL LAYOUT & LOBBY */
     input, select {
@@ -330,6 +326,23 @@
     .lobby-card.selected {
       border: 2px solid #ffb700;
       box-shadow: 0 0 12px rgba(255, 183, 0, 0.4);
+    }
+    
+    .btn-delete-room {
+      background: rgba(255, 0, 85, 0.2);
+      color: #ff0055;
+      border: 1px solid #ff0055;
+      padding: 6px 10px;
+      font-size: 0.75rem;
+      border-radius: 4px;
+      cursor: pointer;
+      font-family: 'Orbitron', sans-serif;
+      flex-shrink: 0;
+      text-transform: none !important;
+    }
+    .btn-delete-room:hover {
+      background: #ff0055;
+      color: #000;
     }
 
     .theme-selector-wrapper {
@@ -375,7 +388,7 @@
 
     .tyres-deck {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
       gap: 8px;
       margin-bottom: 15px;
       background-color: rgba(15, 21, 34, 0.6);
@@ -409,11 +422,12 @@
       color: #ffffff;
       border: 1px solid #2e3d52;
       font-family: 'Orbitron', sans-serif;
-      font-size: 0.75rem;
+      font-size: 0.8rem;
       font-weight: bold;
       border-radius: 4px;
       cursor: pointer;
       margin-bottom: 6px;
+      text-transform: none !important;
     }
     .tyre-card.active .tyre-title-btn { 
       background: #00f0ff; 
@@ -424,7 +438,7 @@
     .laps-container { display: flex; justify-content: center; gap: 6px; }
 
     .lap-box {
-      width: 26px; height: 28px;
+      width: 28px; height: 28px;
       background-color: #0f1522;
       color: #cbd5e1;
       border: 1px solid #2e3d52;
@@ -522,10 +536,9 @@
 
     .boxes-container { display: flex; gap: 2px; }
 
-    /* Protezione globale delle box: non cliccabili di default */
     .box {
       width: 30px; height: 34px;
-      font-family: 'Orbitron', sans-serif; font-weight: 700; font-size: 0.95rem;
+      font-family: 'Orbitron', sans-serif; font-weight: 700; font-size: 1rem;
       display: flex; align-items: center; justify-content: center;
       user-select: none; border-radius: 3px; position: relative; flex-shrink: 0;
     }
@@ -534,75 +547,17 @@
       border: 1px dashed #ffb700; color: #ffb700; background-color: transparent;
       animation: pulse-yellow 1.5s infinite ease-in-out;
     }
-    
-    body.theme-ironman .box.box-setup-highlight { 
-      border-color: #00f0ff; 
-      color: #00f0ff; 
-    }
-    
-    /* Consente l'interazione sul pulsante Alettone solo durante il setup (KERS resta bloccato) */
-    #screen-setup.setup-active #box-wing {
-      pointer-events: auto !important;
-      cursor: pointer !important;
-    }
+    body.theme-ironman .box.box-setup-highlight { border-color: #00f0ff; color: #00f0ff; }
+    .box.box-setup-disabled { border: 1px solid #2e3d52; color: transparent; animation: none !important; }
+    .box.clickable { cursor: pointer; }
+    .box.clickable:hover { background-color: rgba(0, 240, 255, 0.15); }
 
-    #box-kers {
-      pointer-events: none !important;
-      cursor: default !important;
+    .box.x-black { 
+      color: rgba(255, 255, 255, 0.25) !important; 
+      font-weight: 700; background-color: rgba(0, 0, 0, 0.4); 
+      border-color: #1e293b; text-shadow: none !important; box-shadow: none !important;
     }
-
-    /* Le box piene (sia base fisse che allocate dall'utente) mantengono lo stile coerente del tema */
-    .box:not(:empty),
-    .box.user-allocated {
-      background-color: #0f1522 !important;
-      border: 1px solid #00f0ff !important;
-      color: #00ffcc !important;
-      box-shadow: 0 0 6px rgba(0, 240, 255, 0.15), inset 0 0 8px rgba(0, 255, 204, 0.08) !important;
-      font-weight: 700;
-    }
-
-    body.theme-ironman .box:not(:empty),
-    body.theme-ironman .box.user-allocated {
-      background-color: #0a0204 !important;
-      border: 1px solid #00f0ff !important;
-      color: #ffffff !important;
-      box-shadow: none !important;
-      font-weight: 700;
-    }
-
-    /* INTERATTIVITÀ DINAMICA DELLE CASELLA ALLOCATE (User-Allocated) */
-    #screen-setup.setup-active .box.user-allocated,
-    body.edit-mode-active .box.user-allocated,
-    body.pitstop-mode-active .box.user-allocated {
-      pointer-events: auto !important;
-      cursor: pointer !important;
-    }
-
-    #screen-setup:not(.setup-active):not(.edit-mode-active) .box.user-allocated {
-      pointer-events: none !important;
-      cursor: default !important;
-    }
-
-    /* Le caselle vuote lampeggiano all'unisono azzerando il delay dell'animazione */
-    #screen-setup.setup-active:not(.budget-zero) .box:empty {
-      pointer-events: auto !important;
-      cursor: pointer !important;
-      animation-delay: 0s !important;
-    }
-
-    /* Quando il budget arriva a 0, le caselle smettono di illuminarsi/lampeggiare */
-    #screen-setup.setup-active.budget-zero .box:empty {
-      pointer-events: none !important;
-      animation: none !important;
-      opacity: 0.6;
-    }
-
-    /* Caselle disabilitate dall'Alettone (mantiene l'1 visibile ma barrato/attenuato) */
-    .box.wing-disabled {
-      opacity: 0.35 !important;
-      text-decoration: line-through;
-      pointer-events: none !important;
-    }
+    .box.circle-green { color: #00ffcc; font-size: 1.1rem; }
 
     .budget-bar {
       background-color: rgba(15, 21, 34, 0.8); border: 1px solid #ffb700;
@@ -616,6 +571,8 @@
       padding: 8px 12px; border-radius: 4px; margin-bottom: 5px;
       display: flex; justify-content: space-between; align-items: center;
     }
+    .opp-item.clickable-opp { cursor: pointer; }
+    .opp-item.clickable-opp:hover { border-color: #00f0ff; }
 
     .btn-refresh-list {
       background: transparent;
@@ -627,6 +584,11 @@
       cursor: pointer;
       font-family: 'Orbitron', sans-serif;
       margin-left: 10px;
+      text-transform: none !important;
+    }
+    .btn-refresh-list:hover {
+      background: #00f0ff;
+      color: #000;
     }
 
     .modal {
@@ -645,22 +607,22 @@
       padding: 10px; margin-bottom: 12px; text-align: center;
     }
 
-    /* Animazione lampeggiante corretta e sincronizzata per le caselle riempibili durante il setup */
     @keyframes pulse-yellow {
-      0%, 100% { border-color: rgba(255, 183, 0, 0.4); background-color: transparent; }
-      50% { border-color: rgba(255, 183, 0, 1); background-color: rgba(255, 183, 0, 0.08); }
+      0%, 100% { border-color: rgba(255, 183, 0, 0.4); }
+      50% { border-color: rgba(255, 183, 0, 1); background-color: rgba(255, 183, 0, 0.05); }
     }
-
-    @keyframes pulse-glow-ironman {
-      0% { box-shadow: 0 0 4px rgba(229, 184, 57, 0.3); border-color: rgba(229, 184, 57, 0.4); }
-      50% { box-shadow: 0 0 12px rgba(229, 184, 57, 0.9); border-color: #e5b839; }
-      100% { box-shadow: 0 0 4px rgba(229, 184, 57, 0.3); border-color: rgba(229, 184, 57, 0.4); }
-    }
-    
     @keyframes flicker {
       0%, 100% { opacity: 1; filter: drop-shadow(0 0 8px #ff2a2a); }
       50% { opacity: 0.85; filter: drop-shadow(0 0 3px #ff2a2a); }
       52% { opacity: 1; } 54% { opacity: 0.7; } 56% { opacity: 1; }
+    }
+    @keyframes glow-only-cyber {
+      0% { filter: drop-shadow(0 0 1px #00f0ff); opacity: 0.55; }
+      100% { filter: drop-shadow(0 0 6px #00f0ff) drop-shadow(0 0 12px #00f0ff); opacity: 1; }
+    }
+    @keyframes glow-only-iron {
+      0% { filter: drop-shadow(0 0 1px #00f0ff); opacity: 0.6; }
+      100% { filter: drop-shadow(0 0 8px #00f0ff) drop-shadow(0 0 14px #f5d061); opacity: 1; }
     }
   </style>
 </head>
