@@ -260,11 +260,11 @@ window.toggleWing = function() {
     const boxesBody = Array.from(containerBody.querySelectorAll('.box'));
     
     // Trova la prima casella base sul lato destro (la prima con '1' partendo da sinistra)
-    const targetBox = boxesBody.find(b => b.innerText.trim() === '1' && !b.classList.contains('wing-disabled'));
+    const targetBox = boxesBody.find(b => b.innerText.trim() === '1' && !b.classList.contains('wing-x'));
 
     const isAttivo = boxWing.classList.contains('wing-active');
     const wingSvg = `
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;color:inherit;">
             <path d="M 2 6 L 22 6 L 20 10 L 4 10 Z" fill="currentColor" fill-opacity="0.2"/>
             <path d="M 2 4 L 4 14 L 2 14 Z"/>
             <path d="M 22 4 L 20 14 L 22 14 Z"/>
