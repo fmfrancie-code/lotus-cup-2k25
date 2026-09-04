@@ -191,33 +191,29 @@ export function inizializzaInterazionePlancia() {
                     const risultato = gestisciAssegnazioneBudget(tipoComponente, delta);
                     if (risultato.operazioneRiuscita) {
                         if (delta > 0) {
-                            // CONTROLLO SLITTAMENTO ALETTONE (SE SI AGGIUNGE UN PUNTO AL TELAIO)
-                            if (tipoComponente === 'body') {
-                                const boxWing = document.getElementById('box-wing');
-                                if (boxWing && boxWing.classList.contains('wing-active')) {
-                                    const currentWingX = boxesNellaRiga.find(b => b.classList.contains('wing-x'));
-                                    if (currentWingX) {
-                                        const indexX = boxesNellaRiga.indexOf(currentWingX);
-                                        if (indexX > 0) {
-                                            const cellaSinistra = boxesNellaRiga[indexX - 1];
+                            const boxWing = document.getElementById('box-wing');
+                            if (boxWing && boxWing.classList.contains('wing-active')) {
+                                const currentWingX = boxesNellaRiga.find(b => b.classList.contains('wing-x'));
+                                if (currentWingX) {
+                                    const indexX = boxesNellaRiga.indexOf(currentWingX);
+                                    if (indexX > 0) {
+                                        const cellaSinistra = boxesNellaRiga[indexX - 1];
+                                        // La vecchia casella con la X diventa un punto utente normale ('1')
+                                        currentWingX.classList.remove('wing-x');
+                                        currentWingX.dataset.base = "false";
+                                        currentWingX.classList.add('user-allocated');
+                                        currentWingX.innerText = '1';
                                             
-                                            // La vecchia casella con la X diventa un punto utente normale ('1')
-                                            currentWingX.classList.remove('wing-x');
-                                            currentWingX.dataset.base = "false";
-                                            currentWingX.classList.add('user-allocated');
-                                            currentWingX.innerText = '1';
-                                            
-                                            // La casella a sinistra diventa la nuova X dell'alettone
-                                            cellaSinistra.classList.add('wing-x');
-                                            cellaSinistra.dataset.base = "true";
-                                            cellaSinistra.innerText = 'X';
-                                        }
+                                        // La casella a sinistra diventa la nuova X dell'alettone
+                                        cellaSinistra.classList.add('wing-x');
+                                        cellaSinistra.dataset.base = "true";
+                                        cellaSinistra.innerText = 'X';
                                     }
                                 }
                             }
-
-                            targetBox.classList.add('user-allocated');
-                            targetBox.innerText = '1';
+                        }    
+                        targetBox.classList.add('user-allocated');
+                        targetBox.innerText = '1';
                         } else {
                             targetBox.classList.remove('user-allocated');
                             targetBox.innerText = '';
@@ -231,6 +227,10 @@ export function inizializzaInterazionePlancia() {
                         alert(risultato.messaggioDescrittivo);
                     }
                 }
+            });
+        }
+    });
+}
 
 /**
  * Riavvia l'animazione CSS in modo sincronizzato su tutte le caselle vuote
