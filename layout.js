@@ -234,19 +234,32 @@ export function aggiornaStatoAlettoneTelaio(isWingActive) {
     
     const boxesBody = Array.from(containerBody.querySelectorAll('.box'));
 
-    // Se l'alettone viene spento (false), rimuoviamo la X e ripristiniamo le caselle a '1'
-    if (!isWingActive) {
-        boxesBody.forEach(b => {
-            if (b.classList.contains('wing-x')) {
-                b.classList.remove('wing-x');
+    // 1. Prima di tutto, rimuoviamo qualsiasi vecchia "X" e riportiamo le caselle allo stato base '1' o vuote
+    boxesBody.forEach(b => {
+        if (b.classList.contains('wing-x')) {
+            b.classList.remove('wing-x');
+            b.dataset.base = "false";
+            // Se la casella aveva solo la X, la rimettiamo a '1' se fa parte dei punti attivi, altrimenti gestiamo
+            if (b.classList.contains('user-allocated')) {
                 b.innerText = '1';
-                b.dataset.base = "false";
+            } else {
+                // Se era una casella base o simile, controlliamo in base al valore
+                b.innerText = b.innerText === 'X' ? '1' : b.innerText;
             }
-        });
-        return;
-    }
+        }
+    });
 
-    // Se l'alettone è acceso, individuiamo la prima casella attiva a sinistra per ancorare la X
+    // Se l'alettone viene spento (false), usciamo dopo aver pulito
+    if (!isWingActive) return;
+
+    // 2. Puliamo temporaneamente tutte le X residue dal testo per evitare che la ricerca le trovi
+    boxesBody.forEach(b => {
+        if (b.innerText.trim() === 'X') {
+            b.innerText = '1';
+        }
+    });
+
+    // 3. Ora cerchiamo la vera prima casella attiva a sinistra (che contiene '1')
     const primaCasellaAttiva = boxesBody.find(box => box.innerText.trim() !== '');
 
     boxesBody.forEach(box => {
@@ -258,7 +271,7 @@ export function aggiornaStatoAlettoneTelaio(isWingActive) {
             box.classList.add('wing-x');
             box.dataset.base = "true"; // Impostata come protetta
         } else if (testoCasella !== '') {
-            // Qualsiasi altra casella precedentemente occupata (incluso il testo 'X' precedente) torna a essere '1'
+            // Tutte le altre caselle occupate restano o tornano a essere '1'
             box.innerText = '1';
             box.classList.remove('wing-x');
             box.dataset.base = "false";
