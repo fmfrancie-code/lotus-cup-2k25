@@ -233,48 +233,34 @@ export function aggiornaStatoAlettoneTelaio(isWingActive) {
     if (!containerBody) return;
     
     const boxesBody = Array.from(containerBody.querySelectorAll('.box'));
+    const totalBoxes = 6;
+    const baseVal = gameState.baseValues.body;
+    const addedVal = gameState.allocations.body;
+    const totalPoints = baseVal + addedVal;
+    
+    // Calcolo matematico esatto dell'indice (come nella versione stabile)
+    const wingBoxIndex = totalBoxes - totalPoints;
 
-    // 1. Prima di tutto, rimuoviamo qualsiasi vecchia "X" e riportiamo le caselle allo stato base '1' o vuote
-    boxesBody.forEach(b => {
-        if (b.classList.contains('wing-x')) {
-            b.classList.remove('wing-x');
-            b.dataset.base = "false";
-            // Se la casella aveva solo la X, la rimettiamo a '1' se fa parte dei punti attivi, altrimenti gestiamo
-            if (b.classList.contains('user-allocated')) {
-                b.innerText = '1';
-            } else {
-                // Se era una casella base o simile, controlliamo in base al valore
-                b.innerText = b.innerText === 'X' ? '1' : b.innerText;
-            }
-        }
-    });
+    boxesBody.forEach((box, i) => {
+        box.classList.remove('wing-x', 'x-black');
+        box.dataset.base = "false";
 
-    // Se l'alettone viene spento (false), usciamo dopo aver pulito
-    if (!isWingActive) return;
+        const fromRight = totalBoxes - 1 - i;
 
-    // 2. Puliamo temporaneamente tutte le X residue dal testo per evitare che la ricerca le trovi
-    boxesBody.forEach(b => {
-        if (b.innerText.trim() === 'X') {
-            b.innerText = '1';
-        }
-    });
-
-    // 3. Ora cerchiamo la vera prima casella attiva a sinistra (che contiene '1')
-    const primaCasellaAttiva = boxesBody.find(box => box.innerText.trim() !== '');
-
-    boxesBody.forEach(box => {
-        const testoCasella = box.innerText.trim();
-        
-        if (box === primaCasellaAttiva) {
-            // Ancoriamo la X sulla primissima casella attiva della riga
+        if (isWingActive && i === wingBoxIndex) {
             box.innerText = 'X';
-            box.classList.add('wing-x');
-            box.dataset.base = "true"; // Impostata come protetta
-        } else if (testoCasella !== '') {
-            // Tutte le altre caselle occupate restano o tornano a essere '1'
+            box.classList.add('wing-x', 'x-black');
+            box.dataset.base = "true";
+            box.classList.remove('user-allocated');
+        } else if (fromRight < baseVal) {
             box.innerText = '1';
-            box.classList.remove('wing-x');
-            box.dataset.base = "false";
+            box.classList.remove('user-allocated');
+        } else if (fromRight < totalPoints) {
+            box.innerText = '1';
+            box.classList.add('user-allocated');
+        } else {
+            box.innerText = '';
+            box.classList.remove('user-allocated');
         }
     });
 }
@@ -282,7 +268,6 @@ export function aggiornaStatoAlettoneTelaio(isWingActive) {
 export function gestisciAggiornamentoAlettoneDopoModifica(tipoComponente) {
     if (tipoComponente !== 'body') return;
     const boxWing = document.getElementById('box-wing');
-    if (boxWing && boxWing.classList.contains('wing-active')) {
-        aggiornaStatoAlettoneTelaio(true);
-    }
+    const isWingActive = boxWing && boxWing.classList.contains('wing-active');
+    aggiornaStatoAlettoneTelaio(isWingActive);
 }
