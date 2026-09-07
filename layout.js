@@ -250,19 +250,19 @@ export function aggiornaStatoAlettoneTelaio(isWingActive) {
     const primaCasellaAttiva = boxesBody.find(box => box.innerText.trim() !== '');
 
     boxesBody.forEach(box => {
-    const testoCasella = box.innerText.trim();
-    
-    if (box === primaCasellaAttiva) {
-        // Ancoriamo la X sulla primissima casella attiva della riga
-        box.innerText = 'X';
-        box.classList.add('wing-x');
-        box.dataset.base = "true"; // Impostata come protetta
-    } else if (testoCasella !== '' && testoCasella !== 'X') {
-        // Tutte le altre caselle precedentemente occupate tornano a essere normali '1'
-        box.innerText = '1';
-        box.classList.remove('wing-x');
-        box.dataset.base = "false";
-    }
+        const testoCasella = box.innerText.trim();
+        
+        if (box === primaCasellaAttiva) {
+            // Ancoriamo la X sulla primissima casella attiva della riga
+            box.innerText = 'X';
+            box.classList.add('wing-x');
+            box.dataset.base = "true"; // Impostata come protetta
+        } else if (testoCasella !== '') {
+            // Qualsiasi altra casella precedentemente occupata (incluso il testo 'X' precedente) torna a essere '1'
+            box.innerText = '1';
+            box.classList.remove('wing-x');
+            box.dataset.base = "false";
+        }
     });
 }
 
