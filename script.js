@@ -3,7 +3,7 @@
 // Collega l'HTML monolitico ai moduli JavaScript moderni
 // ==========================================
 
-import { applyTheme, inizializzaLayout, aggiornaInterfacciaBudget, inizializzaInterazionePlancia } from './layout.js';       // 1. Gestione Tema Grafico
+import { applyTheme, inizializzaLayout, aggiornaInterfacciaBudget, inizializzaInterazionePlancia,aggiornaStatoAlettoneTelaio } from './layout.js';       // 1. Gestione Tema Grafico
 import { gameState, updateGameState } from './state.js';                                                                     // 2. Gestione Stato Globale
 import { gestisciMeteo } from './weather.js';                                                                                // 3. Gestione Meteo
 import { aggiornaTelemetria } from './telemetryGrid.js';                                                                     // 4. Gestione Telemetria
@@ -242,6 +242,11 @@ document.addEventListener("DOMContentLoaded", () => {
                         box.classList.remove('user-allocated');
                         box.innerText = '';
                         aggiornaInterfacciaBudget(risultato.budgetResiduo);
+                        
+                        const boxWing = document.getElementById('box-wing');
+                        if (tipoComponente === 'body' && boxWing && boxWing.classList.contains('wing-active')) {
+                        aggiornaStatoAlettoneTelaio(true);
+        }
                     }
                 }
             });
@@ -254,9 +259,11 @@ window.toggleWing = function() {
     const boxWing = document.getElementById('box-wing');
     if (!boxWing) return;
 
-    const isAttivo = boxWing.classList.contains('wing-active');
+    let isWingActive = boxWing.classList.contains('wing-active');
     
-    const wingSvg = `
+    //SE L'ALETTONE NON E' ATTIVO GENERA L'ICONA E RIEMPIE LA CASELLA
+    if (!isWingActive) {
+        const wingSvg = `
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;color:inherit;">
             <path d="M 2 6 L 22 6 L 20 10 L 4 10 Z" fill="currentColor" fill-opacity="0.2"/>
             <path d="M 2 4 L 4 14 L 2 14 Z"/>
@@ -265,16 +272,18 @@ window.toggleWing = function() {
             <line x1="15" y1="10" x2="15" y2="17"/>
         </svg>
     `;
-    
-    if (!isAttivo) {
         boxWing.classList.add('wing-active', 'circle-green');
         boxWing.innerHTML = wingSvg;
-    } else {
+        isWingActive = true
+    } 
+    //SE L'AETTONE E' GIA' ATTIVATO, LO SI VUOLE SPEGNERE E TOGLIE L'ICONA DA UI
+    else {
         boxWing.classList.remove('wing-active', 'circle-green');
         boxWing.innerHTML = '';
+        isWingActive = false
     }
-
+       
     // Ricalcola la posizione della X sul telaio
-    aggiornaStatoAlettoneTelaio();
+    aggiornaStatoAlettoneTelaio(isWingActive);
 };
 console.log("Lotus Cup 2k25: Script Main orchestrato correttamente.");
