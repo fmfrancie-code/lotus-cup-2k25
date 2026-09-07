@@ -4,7 +4,7 @@
 // ==========================================
 
 import { gameState, updateGameState } from './state.js';
-import { assegnaPuntoBudgetSetup, gestisciLogicaAlettone } from './setupPhase.js';
+import { assegnaPuntoBudgetSetup } from './setupPhase.js';
 import { gestisciConsumoBenzinaEModifica } from './fuel.js';
 import { gestisciUsuraMotore } from './engine.js';
 import { gestisciModificaUsuraFreniETrafilamentoKers } from './brakesKers.js';
@@ -73,12 +73,3 @@ export function gestisciAssegnazioneBudget(tipoArea, delta) {
     return assegnaPuntoBudgetSetup(tipoArea, delta);
 }
 
-/**
- * Coordina l'interazione con l'Alettone tramite il modulo di setup.
- * 
- * @param {boolean} statoCorrente - Stato attuale dell'alettone
- * @returns {Object} Risultato dell'operazione
- */
-export function toggleAlettoneController(statoCorrente) {
-    return gestisciLogicaAlettone(statoCorrente);
-}
