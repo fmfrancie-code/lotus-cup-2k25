@@ -1,142 +1,118 @@
 // ==========================================
-// MODULO: SCRIPT PONTE / ENTRY POINT (script.js)
-// Collega l'HTML monolitico ai moduli JavaScript moderni
+// MODULO: LAYOUT & TEMI (layout.js)
+// Gestione dei temi grafici (Iron-Man / Cyber-Punk)
 // ==========================================
 
-import { applyTheme, inizializzaLayout, aggiornaInterfacciaBudget, inizializzaInterazionePlancia,aggiornaStatoAlettoneTelaio } from './layout.js';       // 1. Gestione Tema Grafico
-import { gameState, updateGameState } from './state.js';                                                                     // 2. Gestione Stato Globale
-import { gestisciMeteo } from './weather.js';                                                                                // 3. Gestione Meteo
-import { aggiornaTelemetria } from './telemetryGrid.js';                                                                     // 4. Gestione Telemetria
-import { inizializzaSchedaPilota, gestisciAssegnazioneBudget, ufficializzaSchedaPerGara, toggleAlettoneController } from './mainSchedaController.js';
+import { gameState, updateGameState } from './state.js';
+import { gestisciAssegnazioneBudget } from './mainSchedaController.js';
 
-
-
-// --- ESPORTAZIONE GLOBALE PER I PULSANTI HTML (onclick) ---
-
-window.changeTheme = function(themeName) {
-    applyTheme(themeName);
-    updateGameState({ theme: themeName });
+/**
+ * Icone SVG per il KERS in base al tema attivo
+ */
+const ICONS = {
+    ironman: `
+        <svg class="kers-svg arcReactorSvgIcon" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="50" cy="50" r="40" fill="none" stroke="#f5d061" stroke-width="6"/>
+            <circle cx="50" cy="50" r="25" fill="none" stroke="#00f0ff" stroke-width="4" stroke-dasharray="10, 5"/>
+            <circle cx="50" cy="50" r="10" fill="#00f0ff"/>
+        </svg>
+    `,
+    cyberpunk: `
+        <svg class="kers-svg powerSvgIcon" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+            <path d="M50 15 v35" fill="none" stroke="#00f0ff" stroke-width="10" stroke-linecap="round"/>
+            <path d="M32 28 a30 30 0 1 0 36 0" fill="none" stroke="#00f0ff" stroke-width="10" stroke-linecap="round"/>
+        </svg>
+    `
 };
 
-window.showScreen = function(screenId) {
-    document.querySelectorAll('.screen').forEach(screen => {
-        screen.classList.remove('active');
-    });
-    const targetScreen = document.getElementById(screenId);
-    if (targetScreen) {
-        targetScreen.classList.add('active');
-    }
-};
+/**
+ * Applica il tema grafico selezionato all'interfaccia dell'applicazione.
+ * @param {string} themeName - Nome del tema ('ironman' o 'cyberpunk')
+ */
+export function applyTheme(themeName) {
 
-window.createGame = function() {
-    const circuit = document.getElementById('input-circuit').value;
-    const host = document.getElementById('input-host').value;
-    const weather = document.getElementById('input-weather').value;
-
-    if (!circuit || !host || !weather) {
-        alert("Compila tutti i campi per creare la partita!");
-        return;
-    }
-
-    const todayFormatted = new Date().toLocaleDateString('it-IT', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric'
-    });
-
-    inizializzaSchedaPilota({
-        code: Math.floor(1000 + Math.random() * 9000).toString(),
-        playerName: host,
-        playerId: 'player_' + Date.now(),
-        theme: gameState.theme
-    });
-
-    updateGameState({
-        circuit: circuit,
-        host: host,
-        weather: weather,
-        isSetupMode: true
-    });
-
-    window.showScreen('screen-setup');
+    // Elenco dei temi attuali e futuri delle scuderie
+    const supportedThemes = ['ironman', 'cyberpunk', 'redbull', 'mcdonalds', 'chupachups', 'octan', 'kinder'];
+    // Verifica se il tema scelto è valido, altrimenti usa 'ironman' come default
+    const validTheme = supportedThemes.includes(themeName) ? themeName : 'ironman';
     
-    document.getElementById('display-circuit').innerText = circuit.toUpperCase();
-    document.getElementById('display-meta').innerText = `Data: ${todayFormatted} | Pilota: ${host}`;
-    document.getElementById('display-code').innerText = gameState.code;
-};
+    // Aggiorna lo stato globale
+    updateGameState({ theme: validTheme });
 
-window.startConfiguration = function() {
-    updateGameState({
-        isSetupMode: true,
-        budget: 13 
+    const allThemeClasses = supportedThemes.map(t => `theme-${t}`);
+    document.body.classList.remove(...allThemeClasses);
+    document.body.classList.add(`theme-${validTheme}`);
+
+    // Sincronizza l'eventuale selettore nel DOM se presente
+    const themeSelect = document.getElementById('theme-select');
+    if (themeSelect && themeSelect.value !== validTheme) {
+        themeSelect.value = validTheme;
+    }
+
+    // Aggiorna le icone KERS dinamiche sulla plancia
+    updateKersIconsVisual(validTheme);
+}
+
+/**
+ * Restituisce l'icona SVG del KERS appropriata per il tema corrente.
+ * @param {string} themeName 
+ * @returns {string} Markup HTML dell'icona
+ */
+export function getKersIconHtml(themeName) {
+    return ICONS[themeName] || ICONS.ironman;
+}
+
+/**
+ * Aggiorna visivamente tutte le istanze dell'icona KERS presenti nella UI.
+ * @param {string} themeName 
+ */
+function updateKersIconsVisual(themeName) {
+    const kersContainers = document.querySelectorAll('.kers-icon-container');
+    kersContainers.forEach(container => {
+        // Aggiorna l'icona solo se non è in stato di errore/danno (X rossa)
+        if (!container.classList.contains('x-red')) {
+            container.innerHTML = getKersIconHtml(themeName);
+        }
     });
+}
+
+/**
+ * Inizializza gli elementi visivi del layout all'avvio dell'applicazione
+ */
+export function inizializzaLayout() {
+    if (gameState && gameState.theme) {
+        applyTheme(gameState.theme);
+    }
+}
+
+/**
+ * Aggiorna visivamente il contatore del budget residuo e lo stato del pulsante di blocco.
+ * 
+ * @param {number} budgetResiduo - I punti budget rimasti
+ */
+export function aggiornaInterfacciaBudget(budgetResiduo) {
+    const budgetCount = document.getElementById('budget-count');
+    if (budgetCount) budgetCount.innerText = budgetResiduo;
+
+    const btnLock = document.getElementById('btn-lock-setup');
+    if (btnLock) {
+        btnLock.disabled = (budgetResiduo > 0);
+    }
 
     const setupScreen = document.getElementById('screen-setup');
     if (setupScreen) {
-        setupScreen.classList.add('setup-active');
+        if (budgetResiduo === 0) {
+            setupScreen.classList.add('budget-zero');
+        } else {
+            setupScreen.classList.remove('budget-zero');
+        }
     }
+}
 
-    const btnStart = document.getElementById('btn-start-config');
-    const btnLock = document.getElementById('btn-lock-setup');
-    const budgetBar = document.getElementById('budget-bar');
-    const budgetCount = document.getElementById('budget-count');
-
-    if (btnStart) btnStart.style.display = 'none';
-    if (btnLock) {
-        btnLock.style.display = 'block';
-        btnLock.disabled = true; 
-    }
-    if (budgetBar) budgetBar.style.display = 'block';
-    if (budgetCount) budgetCount.innerText = gameState.budget;
-
-    console.log("Fase di configurazione avviata. Budget disponibile: 13 punti.");
-};
-
-window.officializeSetup = function() {
-    const risultato = ufficializzaSchedaPerGara();
-
-    if (!risultato.operazioneRiuscita) {
-        alert(risultato.messaggioDescrittivo);
-        return;
-    }
-
-    const btnLock = document.getElementById('btn-lock-setup');
-    const budgetBar = document.getElementById('budget-bar');
-    const raceControls = document.getElementById('race-controls');
-
-    if (btnLock) btnLock.style.display = 'none';
-    if (budgetBar) budgetBar.style.display = 'none';
-    if (raceControls) raceControls.style.display = 'flex';
-
-    alert(risultato.messaggioDescrittivo);
-    console.log("Gara ufficialmente avviata!");
-};
-
-
-window.openJoinGameScreen = function() {
-    window.showScreen('screen-join-game');
-};
-
-window.loadSavedGameModal = function() {
-    const modal = document.getElementById('modal-load-game');
-    if (modal) modal.style.display = 'flex';
-};
-
-window.closeModal = function(modalId) {
-    const modal = document.getElementById(modalId);
-    if (modal) modal.style.display = 'none';
-};
-
-
-// --- INIZIALIZZAZIONE INTERFACCIA ---
-document.addEventListener("DOMContentLoaded", () => {
-    inizializzaLayout();
-    inizializzaInterazionePlancia();
-});
-
-
-// --- GESTIONE DEI CLICK SULLA PLANCIA (SETUP BUDGET) ---
-document.addEventListener("DOMContentLoaded", () => {
+/**
+ * Inizializza i listener di interazione sulla plancia di setup e gestione punti.
+ */
+export function inizializzaInterazionePlancia() {
     const righeComponenti = {
         'row-tyres': 'tyres',
         'row-body': 'body',
@@ -146,144 +122,146 @@ document.addEventListener("DOMContentLoaded", () => {
         'row-suspension': 'suspension'
     };
 
-    // Sezioni che riempiono da destra verso sinistra
     const componentiDaDestra = ['body', 'engine', 'suspension'];
 
     Object.keys(righeComponenti).forEach(rowId => {
         const container = document.getElementById(rowId);
-        if (container) {
+        if (container && !container.dataset.listenerAttached) {
+            container.dataset.listenerAttached = "true";
+            
             container.addEventListener('click', (e) => {
                 if (!gameState.isSetupMode) return;
+                e.stopImmediatePropagation();
                 
                 const box = e.target.closest('.box');
                 if (!box) return;
-
-                // Ignora caselle base fisse o disabilitate dall'alettone
-                if (box.dataset.base === "true" || box.classList.contains('wing-disabled')) return;
+                
+                if (box.dataset.base === "true" || box.classList.contains('wing-disabled') || box.classList.contains('wing-x')) return;
 
                 const tipoComponente = righeComponenti[rowId];
                 const boxesNellaRiga = Array.from(container.querySelectorAll('.box'));
+                
                 const isDaDestra = componentiDaDestra.includes(tipoComponente);
-                const indiceBox = boxesNellaRiga.indexOf(box);
 
                 let delta = 0;
+                let targetBox = null;
 
-                if (isDaDestra) {
-                    // SEZIONI DI DESTRA: riempimento da destra a sinistra
-                    // Filtra le caselle escludendo quelle disabilitate dall'alettone
-                    const boxesValide = boxesNellaRiga.filter(b => !b.classList.contains('wing-disabled'));
-                    const primeVuoteDaDestra = boxesValide.reverse();
-                    
-                    // Trova la prima casella disponibile partendo da destra (la prima vuota)
-                    const primaCasellaVuota = primeVuoteDaDestra.find(b => b.innerText.trim() === '');
-                    const ultimaAllocata = boxesValide.find(b => b.classList.contains('user-allocated') && boxesValide.indexOf(b) === boxesValide.lastIndexOf(b)); // o l'ultima della serie
+                const boxesValide = boxesNellaRiga.filter(b => !b.classList.contains('wing-disabled') && b.dataset.base !== "true");
+                const caselleAllocate = boxesValide.filter(b => b.classList.contains('user-allocated'));
 
-                    // Se clicchi sull'ultima casella allocata, la rimuove (-1)
+                if (!isDaDestra) {
+                    const primaCasellaVuota = boxesValide.find(b => b.innerText.trim() === '');
                     if (box.classList.contains('user-allocated')) {
-                        // Verifica se è l'ultima casella attiva della sequenza da destra
-                        const caselleAllocate = boxesValide.filter(b => b.classList.contains('user-allocated'));
-                        if (caselleAllocate.length > 0 && box === caselleAllocate[0]) { // la più a destra tra le allocate
+                        if (caselleAllocate.length > 0) {
                             delta = -1;
-                        } else {
-                            return;
+                            // Rimuove l'ultimo punto inserito dall'utente (in ordine da sinistra a destra)
+                            targetBox = caselleAllocate[caselleAllocate.length - 1];
                         }
-                    } else if (box.innerText.trim() === '' && primaCasellaVuota && box === primaCasellaVuota) {
-                        // Cliccando su qualsiasi casella vuota, attiva la prima disponibile da destra
+                    } else if (box.innerText.trim() === '' && primaCasellaVuota) {
                         delta = 1;
-                    } else {
-                        // Se clicchi su una casella vuota ma ce n'è una più a destra libera, forza la prima disponibile
-                        if (primaCasellaVuota) {
-                            delta = 1;
-                            // Reindirizza l'azione sulla vera prima casella vuota da destra
-                            const risultato = gestisciAssegnazioneBudget(tipoComponente, 1);
-                            if (risultato.operazioneRiuscita) {
-                                primaCasellaVuota.classList.add('user-allocated');
-                                primaCasellaVuota.innerText = '1';
-                                aggiornaInterfacciaBudget(risultato.budgetResiduo);
-                            } else {
-                                alert(risultato.messaggioDescrittivo);
-                            }
-                        }
-                        return;
+                        targetBox = primaCasellaVuota;
                     }
                 } else {
-                    // SEZIONI DI SINISTRA (Pneumatici, Freni, Carburante): riempimento da sinistra a destra
-                    const boxesValide = boxesNellaRiga.filter(b => !b.classList.contains('wing-disabled'));
-                    const primaCasellaVuota = boxesValide.find(b => b.innerText.trim() === '');
-                    
-                    // Trova l'ultima casella allocata dall'utente per permetterne la rimozione
-                    const caselleAllocate = boxesValide.filter(b => b.classList.contains('user-allocated'));
-                    const ultimaAllocataDallUtente = caselleAllocate.length > 0 ? caselleAllocate[caselleAllocate.length - 1] : null;
-
-                    if (box.classList.contains('user-allocated') && box === ultimaAllocataDallUtente) {
-                        delta = -1;
-                    } else if (box.innerText.trim() === '') {
-                        // Indipendentemente da quale casella vuota si clicca, attiva la prima disponibile da sinistra
-                        if (primaCasellaVuota) {
-                            const risultato = gestisciAssegnazioneBudget(tipoComponente, 1);
-                            if (risultato.operazioneRiuscita) {
-                                primaCasellaVuota.classList.add('user-allocated');
-                                primaCasellaVuota.innerText = '1';
-                                aggiornaInterfacciaBudget(risultato.budgetResiduo);
-                            } else {
-                                alert(risultato.messaggioDescrittivo);
-                            }
+                    // SEZIONI DI DESTRA (Telaio, Motore, Sospensioni)
+                    let targetPool = boxesValide;
+                    if (tipoComponente === 'body') {
+                        const indiceDisabilitato = boxesNellaRiga.findIndex(b => b.classList.contains('wing-disabled'));
+                        if (indiceDisabilitato !== -1) {
+                            // Esclude le caselle a sinistra di quella disabilitata dall'alettone
+                            targetPool = boxesValide.filter(b => boxesNellaRiga.indexOf(b) > indiceDisabilitato);
                         }
-                        return;
-                    } else {
-                        return;
+                    }
+
+                    const primeVuoteDaDestra = [...targetPool].reverse();
+                    const primaCasellaVuota = primeVuoteDaDestra.find(b => b.innerText.trim() === '');
+
+                    if (box.classList.contains('user-allocated')) {
+                        if (caselleAllocate.length > 0) {
+                            delta = -1;
+                            // Nelle sezioni da destra, rimuove la prima casella allocata incontrata partendo da destra
+                            targetBox = caselleAllocate[0];
+                        }
+                    } else if (box.innerText.trim() === '' && primaCasellaVuota) {
+                        delta = 1;
+                        targetBox = primaCasellaVuota;
                     }
                 }
 
-                // Gestione rimozione punto (-1)
-                if (delta < 0) {
+                if (delta !== 0 && targetBox) {
                     const risultato = gestisciAssegnazioneBudget(tipoComponente, delta);
                     if (risultato.operazioneRiuscita) {
-                        box.classList.remove('user-allocated');
-                        box.innerText = '';
-                        aggiornaInterfacciaBudget(risultato.budgetResiduo);
+                        if (delta > 0) {
+                            targetBox.classList.add('user-allocated');
+                            targetBox.innerText = '1';
+                        } else {
+                            targetBox.classList.remove('user-allocated');
+                            targetBox.innerText = '';
+                        }
                         
-                        const boxWing = document.getElementById('box-wing');
-                        if (tipoComponente === 'body' && boxWing && boxWing.classList.contains('wing-active')) {
-                        aggiornaStatoAlettoneTelaio(true);
-        }
+                        // AGGIORNA AUTOMATICAMENTE LA POSIZIONE DELLA X SE È IL TELAIO
+                        if (tipoComponente === 'body') {
+                            aggiornaStatoAlettoneTelaio();
+                        }
+
+                        aggiornaInterfacciaBudget(risultato.budgetResiduo);
+                        sincronizzaOndaVuote();
+                    } else if (risultato.messaggioDescrittivo) {
+                        alert(risultato.messaggioDescrittivo);
                     }
                 }
             });
         }
     });
-});
+}
 
-// --- GESTIONE DEI ALETTONE SULLA PLANCIA ---
-window.toggleWing = function() {
-    const boxWing = document.getElementById('box-wing');
-    if (!boxWing) return;
+/**
+ * Riavvia l'animazione CSS in modo sincronizzato su tutte le caselle vuote
+ */
+function sincronizzaOndaVuote() {
+    document.querySelectorAll('.box:empty').forEach(box => {
+        box.style.animation = 'none';
+        box.offsetHeight; // Trigger del reflow del browser
+        box.style.animation = null;
+    });
+}
 
-    let isWingActive = boxWing.classList.contains('wing-active');
+/**
+ * Aggiorna dinamicamente la posizione della X sul telaio in base all'alettone
+ */
+export function aggiornaStatoAlettoneTelaio(isWingActive) {
+    const containerBody = document.getElementById('row-body');
+    if (!containerBody) return;
     
-    //SE L'ALETTONE NON E' ATTIVO GENERA L'ICONA E RIEMPIE LA CASELLA
+    const boxesBody = Array.from(containerBody.querySelectorAll('.box'));
+
+    // Se l'alettone viene spento (false), rimuoviamo la X e ripristiniamo le caselle a '1'
     if (!isWingActive) {
-        const wingSvg = `
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;color:inherit;">
-            <path d="M 2 6 L 22 6 L 20 10 L 4 10 Z" fill="currentColor" fill-opacity="0.2"/>
-            <path d="M 2 4 L 4 14 L 2 14 Z"/>
-            <path d="M 22 4 L 20 14 L 22 14 Z"/>
-            <line x1="9" y1="10" x2="9" y2="17"/>
-            <line x1="15" y1="10" x2="15" y2="17"/>
-        </svg>
-    `;
-        boxWing.classList.add('wing-active', 'circle-green');
-        boxWing.innerHTML = wingSvg;
-        isWingActive = true
-    } 
-    //SE L'AETTONE E' GIA' ATTIVATO, LO SI VUOLE SPEGNERE E TOGLIE L'ICONA DA UI
-    else {
-        boxWing.classList.remove('wing-active', 'circle-green');
-        boxWing.innerHTML = '';
-        isWingActive = false
+        boxesBody.forEach(b => {
+            if (b.classList.contains('wing-x')) {
+                b.classList.remove('wing-x');
+                b.innerText = '1';
+                b.dataset.base = "false";
+            }
+        });
+        return;
     }
-       
-    // Ricalcola la posizione della X sul telaio
-    aggiornaStatoAlettoneTelaio(isWingActive);
-};
-console.log("Lotus Cup 2k25: Script Main orchestrato correttamente.");
+
+    // Se l'alettone è acceso, individuiamo la prima casella attiva a sinistra per ancorare la X
+    const primaCasellaAttiva = boxesBody.find(box => box.innerText.trim() !== '');
+
+    boxesBody.forEach(box => {
+    const testoCasella = box.innerText.trim();
+    
+    if (box === primaCasellaAttiva) {
+        // Ancoriamo la X sulla primissima casella attiva della riga
+        box.innerText = 'X';
+        box.classList.add('wing-x');
+        box.dataset.base = "true"; // Impostata come protetta
+    } else if (testoCasella !== '' && testoCasella !== 'X') {
+        // Tutte le altre caselle precedentemente occupate tornano a essere normali '1'
+        box.innerText = '1';
+        box.classList.remove('wing-x');
+        box.dataset.base = "false";
+    }
+    });
+}
