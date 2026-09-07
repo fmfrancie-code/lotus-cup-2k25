@@ -228,16 +228,14 @@ function sincronizzaOndaVuote() {
 /**
  * Aggiorna dinamicamente la posizione della X sul telaio in base all'alettone
  */
-export function aggiornaStatoAlettoneTelaio() {
+export function aggiornaStatoAlettoneTelaio(isWingActive) {
     const containerBody = document.getElementById('row-body');
     if (!containerBody) return;
     
     const boxesBody = Array.from(containerBody.querySelectorAll('.box'));
-    const boxWing = document.getElementById('box-wing');
-    const isWingActive = boxWing && boxWing.classList.contains('wing-active');
 
+    // Se l'alettone viene spento (false), rimuoviamo la X e ripristiniamo le caselle a '1'
     if (!isWingActive) {
-        // Se l'alettone è spento, ripristina la X a '1' normale
         boxesBody.forEach(b => {
             if (b.classList.contains('wing-x')) {
                 b.classList.remove('wing-x');
@@ -248,18 +246,22 @@ export function aggiornaStatoAlettoneTelaio() {
         return;
     }
 
-    // Se l'alettone è attivo, trova la prima casella non vuota partendo da sinistra
-    const primaAttiva = boxesBody.find(b => b.innerText.trim() !== '' && b.innerText.trim() !== '');
+    // Se l'alettone è acceso, individuiamo la prima casella attiva a sinistra per ancorare la X
+    const primaCasellaAttiva = boxesBody.find(box => box.innerText.trim() !== '');
 
-    boxesBody.forEach(b => {
-        const testo = b.innerText.trim();
-        if (b === primaAttiva) {
-            b.innerText = 'X';
-            b.classList.add('wing-x');
-            b.dataset.base = "true"; // Protetta perché è la X dell'alettone
-        } else if (testo !== '' && testo !== 'X') {
-            b.innerText = '1';
-            b.classList.remove('wing-x');
-        }
+    boxesBody.forEach(box => {
+    const testoCasella = box.innerText.trim();
+    
+    if (box === primaCasellaAttiva) {
+        // Ancoriamo la X sulla primissima casella attiva della riga
+        box.innerText = 'X';
+        box.classList.add('wing-x');
+        box.dataset.base = "true"; // Impostata come protetta
+    } else if (testoCasella !== '' && testoCasella !== 'X') {
+        // Tutte le altre caselle precedentemente occupate tornano a essere normali '1'
+        box.innerText = '1';
+        box.classList.remove('wing-x');
+        box.dataset.base = "false";
+    }
     });
 }
