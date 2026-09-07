@@ -7,7 +7,7 @@ import { applyTheme, inizializzaLayout, aggiornaInterfacciaBudget, inizializzaIn
 import { gameState, updateGameState } from './state.js';                                                                     // 2. Gestione Stato Globale
 import { gestisciMeteo } from './weather.js';                                                                                // 3. Gestione Meteo
 import { aggiornaTelemetria } from './telemetryGrid.js';                                                                     // 4. Gestione Telemetria
-import { inizializzaSchedaPilota, gestisciAssegnazioneBudget, ufficializzaSchedaPerGara, toggleAlettoneController } from './mainSchedaController.js';
+import { inizializzaSchedaPilota, gestisciAssegnazioneBudget, ufficializzaSchedaPerGara} from './mainSchedaController.js';
 
 
 
