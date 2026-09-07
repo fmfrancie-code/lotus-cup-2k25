@@ -200,7 +200,7 @@ export function inizializzaInterazionePlancia() {
                         
                         // AGGIORNA AUTOMATICAMENTE LA POSIZIONE DELLA X SE È IL TELAIO
                         if (tipoComponente === 'body') {
-                            aggiornaStatoAlettoneTelaio();
+                            gestisciAggiornamentoAlettoneDopoModifica(tipoComponente);
                         }
 
                         aggiornaInterfacciaBudget(risultato.budgetResiduo);
@@ -264,4 +264,12 @@ export function aggiornaStatoAlettoneTelaio(isWingActive) {
         box.dataset.base = "false";
     }
     });
+}
+
+export function gestisciAggiornamentoAlettoneDopoModifica(tipoComponente) {
+    if (tipoComponente !== 'body') return;
+    const boxWing = document.getElementById('box-wing');
+    if (boxWing && boxWing.classList.contains('wing-active')) {
+        aggiornaStatoAlettoneTelaio(true);
+    }
 }
