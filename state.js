@@ -15,10 +15,10 @@ export let gameState = {
     isRaceMode: false,
     isEditingAllowed: false,
     isPitStopActive: false,
-    weather: 'var_dry',
+    weather: null,
     budget: 13,
     weatherLastCheck: null,
-    selectedTyre: 'Prime',
+    selectedTyre: null,
     tyreLaps: { Prime: [], Option: [], Intermedie: [], Pioggia: [] },
     wingActive: false,
     kersState: 'empty', // 'empty', 'charged', 'damaged'
@@ -33,7 +33,7 @@ export let gameState = {
 
 /**
  * Aggiorna parzialmente o totalmente lo stato globale del gioco.
- * @param {Object} newState - Proprietà da aggiornare nello stato
+ * @param {Object} newState - ProprietÃ  da aggiornare nello stato
  */
 export function updateGameState(newState) {
     gameState = { ...gameState, ...newState };
@@ -57,7 +57,7 @@ export function saveGameState() {
  * Carica lo stato dal localStorage se esiste una sessione salvata.
  * @param {string} code - Codice della stanza
  * @param {string} playerId - ID univoco del giocatore
- * @returns {boolean} - True se il caricamento è riuscito, false altrimenti
+ * @returns {boolean} - True se il caricamento Ã¨ riuscito, false altrimenti
  */
 export function loadGameState(code, playerId) {
     try {
