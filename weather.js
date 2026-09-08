@@ -123,19 +123,17 @@ export function ottieniMescoleAbilitatePerAsfaltoCorrente() {
 
 
 /**
- * Gestisce l'aggiornamento, la simulazione o la lettura delle condizioni meteo correnti.
+ * Restituisce l'etichetta testuale leggibile per l'interfaccia utente in base al codice meteo.
  * 
- * @returns {Object} Stato corrente del meteo e temperatura della pista
+ * @param {string} codiceMeteo - Codice interno (es. 'sun', 'rain', ecc.)
+ * @returns {string} - Nome descrittivo per il badge UI
  */
-export function gestisciMeteo() {
-    // Logica di gestione del meteo integrata con lo stato globale
-    const meteoAttuale = gameState.weather || "Soleggiato";
-    const temperaturaPista = gameState.trackTemp || 28;
-
-    return {
-        meteoAttuale,
-        temperaturaPista,
-        operazioneRiuscita: true,
-        messaggioDescrittivo: `Condizioni meteo stabili: ${meteoAttuale} (${temperaturaPista}°C)`
+export function ottieniEtichettaMeteo(codiceMeteo) {
+    const etichetteMeteo = {
+        'sun': 'SOLE',
+        'rain': 'PIOGGIA',
+        'var_dry': 'VARIABILE (ASCIUTTO)',
+        'var_wet': 'VARIABILE (BAGNATO)'
     };
+    return etichetteMeteo[codiceMeteo] || codiceMeteo.toUpperCase();
 }
