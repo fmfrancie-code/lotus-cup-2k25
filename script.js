@@ -3,12 +3,16 @@
 // Collega l'HTML monolitico ai moduli JavaScript moderni
 // ==========================================
 
-import { applyTheme, inizializzaLayout, aggiornaInterfacciaBudget, inizializzaInterazionePlancia,aggiornaStatoAlettoneTelaio } from './layout.js';       // 1. Gestione Tema Grafico
-import { gameState, updateGameState } from './state.js';                                                                     // 2. Gestione Stato Globale
-import { gestisciMeteo } from './weather.js';                                                                                // 3. Gestione Meteo
-import { aggiornaTelemetria } from './telemetryGrid.js';                                                                     // 4. Gestione Telemetria
-import { inizializzaSchedaPilota, gestisciAssegnazioneBudget, ufficializzaSchedaPerGara} from './mainSchedaController.js';
+import { applyTheme, inizializzaLayout, aggiornaInterfacciaBudget, inizializzaInterazionePlancia,aggiornaStatoAlettoneTelaio } from './layout.js';          // 1. Gestione Tema Grafico
+import { gameState, updateGameState } from './state.js';                                                                                                    // 2. Gestione Stato Globale
+import { gestisciMeteo } from './weather.js';                                                                                                               // 3. Gestione Meteo
+import { aggiornaTelemetria } from './telemetryGrid.js';                                                                                                    // 4. Gestione Telemetria
+import { inizializzaSchedaPilota, gestisciAssegnazioneBudget, ufficializzaSchedaPerGara, renderTyreDeck, selectTyreFromUI, handleTyreClick} from './mainSchedaController.js';
 
+
+// ---- ESPOSIZIONE GLOBALE DELLE FUNZIONI MESCOLE E GESTORI INLINE NEL DOM
+window.selectTyre = selectTyreFromUI;
+window.toggleTyreLap = handleTyreClick;
 
 
 // --- ESPORTAZIONE GLOBALE PER I PULSANTI HTML (onclick) ---
@@ -130,8 +134,14 @@ window.closeModal = function(modalId) {
 
 // --- INIZIALIZZAZIONE INTERFACCIA ---
 document.addEventListener("DOMContentLoaded", () => {
+    // 1. Inizializzazione visiva e dei temi
     inizializzaLayout();
+
+    // 2. Attivazione dei listener sulla plancia di setup
     inizializzaInterazionePlancia();
+
+    // 3. Renderizzazione iniziale del deck pneumatici e stint
+    renderTyreDeck();
 });
 
 
@@ -180,9 +190,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
                     // Se clicchi sull'ultima casella allocata, la rimuove (-1)
                     if (box.classList.contains('user-allocated')) {
-                        // Verifica se è l'ultima casella attiva della sequenza da destra
+                        // Verifica se Ã¨ l'ultima casella attiva della sequenza da destra
                         const caselleAllocate = boxesValide.filter(b => b.classList.contains('user-allocated'));
-                        if (caselleAllocate.length > 0 && box === caselleAllocate[0]) { // la più a destra tra le allocate
+                        if (caselleAllocate.length > 0 && box === caselleAllocate[0]) { // la piÃ¹ a destra tra le allocate
                             delta = -1;
                         } else {
                             return;
@@ -191,7 +201,7 @@ document.addEventListener("DOMContentLoaded", () => {
                         // Cliccando su qualsiasi casella vuota, attiva la prima disponibile da destra
                         delta = 1;
                     } else {
-                        // Se clicchi su una casella vuota ma ce n'è una più a destra libera, forza la prima disponibile
+                        // Se clicchi su una casella vuota ma ce n'Ã¨ una piÃ¹ a destra libera, forza la prima disponibile
                         if (primaCasellaVuota) {
                             delta = 1;
                             // Reindirizza l'azione sulla vera prima casella vuota da destra
