@@ -138,3 +138,14 @@ export function ottieniEtichettaMeteo(codiceMeteo) {
     };
     return etichetteMeteo[codiceMeteo] || codiceMeteo.toUpperCase();
 }
+
+
+export function ottieniIconaMeteo(codiceMeteo) {
+    const iconeMeteo = {
+        'sun': '&#9728;&#65039;',
+        'rain': '&#127783;&#65039;',
+        'var_dry': '&#9925;',
+        'var_wet': '&#127783;&#65039;'
+    };
+    return iconeMeteo[codiceMeteo] || '&#9728;&#65039;';
+}
