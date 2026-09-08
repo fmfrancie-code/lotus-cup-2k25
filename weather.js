@@ -1,139 +1,309 @@
 // ==========================================
-// MODULO: TEMPO & METEO (weather.js)
-// Gestione del meteo, asfalto e dadi con parametri parlanti
+// MODULO: SCRIPT PONTE / ENTRY POINT (script.js)
+// Collega l'HTML monolitico ai moduli JavaScript moderni
 // ==========================================
 
-import { gameState, updateGameState } from './state.js';
+import { applyTheme, inizializzaLayout, aggiornaInterfacciaBudget, inizializzaInterazionePlancia,aggiornaStatoAlettoneTelaio } from './layout.js';          // 1. Gestione Tema Grafico
+import { gameState, updateGameState } from './state.js';                                                                                                    // 2. Gestione Stato Globale
+import { inizializzaMeteoGara, ottieniEtichettaMeteo } from './weather.js';                                                                                                               // 3. Gestione Meteo
+import { aggiornaTelemetria } from './telemetryGrid.js';                                                                                                    // 4. Gestione Telemetria
+import { inizializzaSchedaPilota, gestisciAssegnazioneBudget, ufficializzaSchedaPerGara, renderTyreDeck, selectTyreFromUI, handleTyreClick} from './mainSchedaController.js';
 
-/**
- * Inizializza o imposta la condizione meteorologica iniziale della gara.
- * 
- * @param {string} condizioneMeteorologicaIniziale - Valori ammessi: 'sun' (Sole Fisso), 'rain' (Pioggia Fissa), 'var_dry' (Variabile Asciutto), 'var_wet' (Variabile Bagnato)
- */
-export function inizializzaMeteoGara(condizioneMeteorologicaIniziale) {
-    updateGameState({
-        weather: condizioneMeteorologicaIniziale,
-        weatherLastCheck: null
+
+// ---- ESPOSIZIONE GLOBALE DELLE FUNZIONI MESCOLE E GESTORI INLINE NEL DOM
+window.selectTyre = selectTyreFromUI;
+window.toggleTyreLap = handleTyreClick;
+
+
+// --- ESPORTAZIONE GLOBALE PER I PULSANTI HTML (onclick) ---
+
+window.changeTheme = function(themeName) {
+    applyTheme(themeName);
+    updateGameState({ theme: themeName });
+};
+
+window.showScreen = function(screenId) {
+    document.querySelectorAll('.screen').forEach(screen => {
+        screen.classList.remove('active');
     });
-}
+    const targetScreen = document.getElementById(screenId);
+    if (targetScreen) {
+        targetScreen.classList.add('active');
+    }
+};
 
-/**
- * Verifica se lo stato corrente dell'asfalto è bagnato in base alle regole di business della gara.
- * 
- * @returns {boolean} - Restituisce 'true' se l'asfalto è bagnato (Pioggia o Variabile Bagnato), 'false' se asciutto.
- */
-export function verificaSeAsfaltoBagnato() {
-    // Sostituisci conditioneMeteoCorrente con gameState.weather
-    const meteoAttuale = gameState.weather; 
+window.createGame = function() {
+    const circuit = document.getElementById('input-circuit').value;
+    const host = document.getElementById('input-host').value;
+    const weather = document.getElementById('input-weather').value;
+    console.log("Valore meteo letto dalla UI:", weather);
     
-    if (meteoAttuale === 'rain') return true;
-    if (meteoAttuale === 'sun') return false;
-    if (meteoAttuale === 'var_wet') {
-        if (gameState.weatherLastCheck === 'sun') return false;
-        return true;
-    }
-    if (meteoAttuale === 'var_dry') {
-        if (gameState.weatherLastCheck === 'rain') return true;
-        return false;
-    }
-    return false;
-}
 
-/**
- * Esegue il turno di controllo e transizione per il meteo variabile tramite il tiro del dado.
- * 
- * @param {string} esitoTiroDadoMeteo - Risultato del lancio del dado ('sun' oppure 'rain')
- * @returns {Object} - Restituisce un oggetto contenente l'esito dell'operazione, lo stato aggiornato e un messaggio descrittivo per l'utente.
- */
-export function eseguiControlloMeteoVariabile(esitoTiroDadoMeteo) {
-    const condizioneMeteoCorrente = gameState.weather;
+    if (!circuit || !host || !weather) {
+        alert("Compila tutti i campi per creare la partita!");
+        return;
+    }
+
+    inizializzaMeteoGara(weather);
+
+    const todayFormatted = new Date().toLocaleDateString('it-IT', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+    });
+
+    inizializzaSchedaPilota({
+        code: Math.floor(1000 + Math.random() * 9000).toString(),
+        playerName: host,
+        playerId: 'player_' + Date.now(),
+        theme: gameState.theme
+    });
+
+    updateGameState({
+        circuit: circuit,
+        host: host,
+        weather: weather,
+        isSetupMode: true
+    });
+
+    window.showScreen('screen-setup');
     
-    const ilMeteoNonEVariabile = (condizioneMeteoCorrente !== 'var_dry' && condizioneMeteoCorrente !== 'var_wet');
-    if (ilMeteoNonEVariabile) {
-        return { 
-            operazioneRiuscita: false, 
-            messaggioDescrittivo: "Il meteo attuale non è di tipo variabile; il controllo meteo non è applicabile." 
-        };
+    document.getElementById('display-circuit').innerText = circuit.toUpperCase();
+    document.getElementById('display-meta').innerText = `Data: ${todayFormatted} | Pilota: ${host}`;
+    document.getElementById('display-code').innerText = gameState.code;
+    
+    // Aggiorna il badge grafico sfruttando il modulo weather.js
+    const weatherBadge = document.querySelector('.badge-meteo'); 
+    if (weatherBadge) {
+        weatherBadge.innerText = ottieniEtichettaMeteo(weather);
+    }
+};
+
+window.startConfiguration = function() {
+    updateGameState({
+        isSetupMode: true,
+        budget: 13 
+    });
+
+    const setupScreen = document.getElementById('screen-setup');
+    if (setupScreen) {
+        setupScreen.classList.add('setup-active');
     }
 
-    const ultimoEsitoRegistrato = gameState.weatherLastCheck;
-    let messaggioRisultato = "";
-    let nuovaCondizioneMeteo = condizioneMeteoCorrente;
+    const btnStart = document.getElementById('btn-start-config');
+    const btnLock = document.getElementById('btn-lock-setup');
+    const budgetBar = document.getElementById('budget-bar');
+    const budgetCount = document.getElementById('budget-count');
 
-    const nessunControlloPrecedenteRegistrato = (ultimoEsitoRegistrato === null);
-    const esitoTiroCorrenteUgualeAlPrecedente = (ultimoEsitoRegistrato === esitoTiroDadoMeteo);
+    if (btnStart) btnStart.style.display = 'none';
+    if (btnLock) {
+        btnLock.style.display = 'block';
+        btnLock.disabled = true; 
+    }
+    if (budgetBar) budgetBar.style.display = 'block';
+    if (budgetCount) budgetCount.innerText = gameState.budget;
 
-    if (nessunControlloPrecedenteRegistrato) {
-        // Primo tiro di controllo della sessione variabile
-        updateGameState({ weatherLastCheck: esitoTiroDadoMeteo });
-        
-        nuovaCondizioneMeteo = (esitoTiroDadoMeteo === 'rain') ? 'var_wet' : 'var_dry';
-        updateGameState({ weather: nuovaCondizioneMeteo });
-        
-        messaggioRisultato = `Primo controllo meteo eseguito: esito registrato [${esitoTiroDadoMeteo.toUpperCase()}]. Stato dell'asfalto aggiornato transitoriamente.`;
-        
-    } else if (esitoTiroCorrenteUgualeAlPrecedente) {
-        // Tiro consecutivo IDENTICO -> Stabilizzazione definitiva del meteo
-        const condizioneMeteoFissaDefinitiva = (esitoTiroDadoMeteo === 'rain') ? 'rain' : 'sun';
-        
-        updateGameState({
-            weather: condizioneMeteoFissaDefinitiva,
-            weatherLastCheck: null
-        });
-        
-        const nomeMeteoUmano = (condizioneMeteoFissaDefinitiva === 'rain') ? 'Pioggia Fissa' : 'Sole Fisso';
-        messaggioRisultato = `Doppio esito consecutivo [${esitoTiroDadoMeteo.toUpperCase()}]! Il meteo si è STABILIZZATO definitivamente ed è diventato: ${nomeMeteoUmano}.`;
-        
-    } else {
-        // Tiro consecutivo ALTERNATO -> Cambio della perturbazione ma permanenza nello stato variabile
-        nuovaCondizioneMeteo = (esitoTiroDadoMeteo === 'rain') ? 'var_wet' : 'var_dry';
-        
-        updateGameState({
-            weather: nuovaCondizioneMeteo,
-            weatherLastCheck: esitoTiroDadoMeteo
-        });
-        
-        messaggioRisultato = `Esito alternato rilevato ([${esitoTiroDadoMeteo.toUpperCase()}]): la perturbazione cambia stato dell'asfalto, ma il regime meteo rimane variabile.`;
+    console.log("Fase di configurazione avviata. Budget disponibile: 13 punti.");
+};
+
+window.officializeSetup = function() {
+    const risultato = ufficializzaSchedaPerGara();
+
+    if (!risultato.operazioneRiuscita) {
+        alert(risultato.messaggioDescrittivo);
+        return;
     }
 
-    return { 
-        operazioneRiuscita: true, 
-        meteoAggiornato: gameState.weather, 
-        ultimoCheckAggiornato: gameState.weatherLastCheck, 
-        messaggioDescrittivo: messaggioRisultato 
+    const btnLock = document.getElementById('btn-lock-setup');
+    const budgetBar = document.getElementById('budget-bar');
+    const raceControls = document.getElementById('race-controls');
+
+    if (btnLock) btnLock.style.display = 'none';
+    if (budgetBar) budgetBar.style.display = 'none';
+    if (raceControls) raceControls.style.display = 'flex';
+
+    alert(risultato.messaggioDescrittivo);
+    console.log("Gara ufficialmente avviata!");
+};
+
+
+window.openJoinGameScreen = function() {
+    window.showScreen('screen-join-game');
+};
+
+window.loadSavedGameModal = function() {
+    const modal = document.getElementById('modal-load-game');
+    if (modal) modal.style.display = 'flex';
+};
+
+window.closeModal = function(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) modal.style.display = 'none';
+};
+
+
+// --- INIZIALIZZAZIONE INTERFACCIA ---
+document.addEventListener("DOMContentLoaded", () => {
+    // 1. Inizializzazione visiva e dei temi
+    inizializzaLayout();
+
+    // 2. Attivazione dei listener sulla plancia di setup
+    inizializzaInterazionePlancia();
+
+    // 3. Renderizzazione iniziale del deck pneumatici e stint
+    renderTyreDeck();
+});
+
+
+// --- GESTIONE DEI CLICK SULLA PLANCIA (SETUP BUDGET) ---
+document.addEventListener("DOMContentLoaded", () => {
+    const righeComponenti = {
+        'row-tyres': 'tyres',
+        'row-body': 'body',
+        'row-brakes': 'brakes',
+        'row-engine': 'engine',
+        'row-fuel': 'fuel',
+        'row-suspension': 'suspension'
     };
-}
 
-/**
- * Restituisce l'elenco delle mescole di pneumatici che sono legalmente abilitate in base allo stato attuale dell'asfalto.
- * 
- * @returns {Array<string>} - Array contenente i nomi delle mescole permesse (es. ['Prime', 'Option', 'Intermedie'])
- */
-export function ottieniMescoleAbilitatePerAsfaltoCorrente() {
-    const asfaltoBagnatoAttivo = verificaSeAsfaltoBagnato();
+    // Sezioni che riempiono da destra verso sinistra
+    const componentiDaDestra = ['body', 'engine', 'suspension'];
+
+    Object.keys(righeComponenti).forEach(rowId => {
+        const container = document.getElementById(rowId);
+        if (container) {
+            container.addEventListener('click', (e) => {
+                if (!gameState.isSetupMode) return;
+                
+                const box = e.target.closest('.box');
+                if (!box) return;
+
+                // Ignora caselle base fisse o disabilitate dall'alettone
+                if (box.dataset.base === "true" || box.classList.contains('wing-disabled')) return;
+
+                const tipoComponente = righeComponenti[rowId];
+                const boxesNellaRiga = Array.from(container.querySelectorAll('.box'));
+                const isDaDestra = componentiDaDestra.includes(tipoComponente);
+                const indiceBox = boxesNellaRiga.indexOf(box);
+
+                let delta = 0;
+
+                if (isDaDestra) {
+                    // SEZIONI DI DESTRA: riempimento da destra a sinistra
+                    // Filtra le caselle escludendo quelle disabilitate dall'alettone
+                    const boxesValide = boxesNellaRiga.filter(b => !b.classList.contains('wing-disabled'));
+                    const primeVuoteDaDestra = boxesValide.reverse();
+                    
+                    // Trova la prima casella disponibile partendo da destra (la prima vuota)
+                    const primaCasellaVuota = primeVuoteDaDestra.find(b => b.innerText.trim() === '');
+                    const ultimaAllocata = boxesValide.find(b => b.classList.contains('user-allocated') && boxesValide.indexOf(b) === boxesValide.lastIndexOf(b)); // o l'ultima della serie
+
+                    // Se clicchi sull'ultima casella allocata, la rimuove (-1)
+                    if (box.classList.contains('user-allocated')) {
+                        // Verifica se Ã¨ l'ultima casella attiva della sequenza da destra
+                        const caselleAllocate = boxesValide.filter(b => b.classList.contains('user-allocated'));
+                        if (caselleAllocate.length > 0 && box === caselleAllocate[0]) { // la piÃ¹ a destra tra le allocate
+                            delta = -1;
+                        } else {
+                            return;
+                        }
+                    } else if (box.innerText.trim() === '' && primaCasellaVuota && box === primaCasellaVuota) {
+                        // Cliccando su qualsiasi casella vuota, attiva la prima disponibile da destra
+                        delta = 1;
+                    } else {
+                        // Se clicchi su una casella vuota ma ce n'Ã¨ una piÃ¹ a destra libera, forza la prima disponibile
+                        if (primaCasellaVuota) {
+                            delta = 1;
+                            // Reindirizza l'azione sulla vera prima casella vuota da destra
+                            const risultato = gestisciAssegnazioneBudget(tipoComponente, 1);
+                            if (risultato.operazioneRiuscita) {
+                                primaCasellaVuota.classList.add('user-allocated');
+                                primaCasellaVuota.innerText = '1';
+                                aggiornaInterfacciaBudget(risultato.budgetResiduo);
+                            } else {
+                                alert(risultato.messaggioDescrittivo);
+                            }
+                        }
+                        return;
+                    }
+                } else {
+                    // SEZIONI DI SINISTRA (Pneumatici, Freni, Carburante): riempimento da sinistra a destra
+                    const boxesValide = boxesNellaRiga.filter(b => !b.classList.contains('wing-disabled'));
+                    const primaCasellaVuota = boxesValide.find(b => b.innerText.trim() === '');
+                    
+                    // Trova l'ultima casella allocata dall'utente per permetterne la rimozione
+                    const caselleAllocate = boxesValide.filter(b => b.classList.contains('user-allocated'));
+                    const ultimaAllocataDallUtente = caselleAllocate.length > 0 ? caselleAllocate[caselleAllocate.length - 1] : null;
+
+                    if (box.classList.contains('user-allocated') && box === ultimaAllocataDallUtente) {
+                        delta = -1;
+                    } else if (box.innerText.trim() === '') {
+                        // Indipendentemente da quale casella vuota si clicca, attiva la prima disponibile da sinistra
+                        if (primaCasellaVuota) {
+                            const risultato = gestisciAssegnazioneBudget(tipoComponente, 1);
+                            if (risultato.operazioneRiuscita) {
+                                primaCasellaVuota.classList.add('user-allocated');
+                                primaCasellaVuota.innerText = '1';
+                                aggiornaInterfacciaBudget(risultato.budgetResiduo);
+                            } else {
+                                alert(risultato.messaggioDescrittivo);
+                            }
+                        }
+                        return;
+                    } else {
+                        return;
+                    }
+                }
+
+                // Gestione rimozione punto (-1)
+                if (delta < 0) {
+                    const risultato = gestisciAssegnazioneBudget(tipoComponente, delta);
+                    if (risultato.operazioneRiuscita) {
+                        box.classList.remove('user-allocated');
+                        box.innerText = '';
+                        aggiornaInterfacciaBudget(risultato.budgetResiduo);
+                        
+                        const boxWing = document.getElementById('box-wing');
+                        if (tipoComponente === 'body' && boxWing && boxWing.classList.contains('wing-active')) {
+                        aggiornaStatoAlettoneTelaio(true);
+        }
+                    }
+                }
+            });
+        }
+    });
+});
+
+// --- GESTIONE DEI ALETTONE SULLA PLANCIA ---
+window.toggleWing = function() {
+    const boxWing = document.getElementById('box-wing');
+    if (!boxWing) return;
+
+    let isWingActive = boxWing.classList.contains('wing-active');
     
-    if (asfaltoBagnatoAttivo) {
-        // Con asfalto bagnato sono permesse solo Intermedie e Pioggia
-        return ['Intermedie', 'Pioggia'];
-    } else {
-        // Con asfalto asciutto sono permesse Prime, Option e Intermedie
-        return ['Prime', 'Option', 'Intermedie'];
+    //SE L'ALETTONE NON E' ATTIVO GENERA L'ICONA E RIEMPIE LA CASELLA
+    if (!isWingActive) {
+        const wingSvg = `
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;color:inherit;">
+            <path d="M 2 6 L 22 6 L 20 10 L 4 10 Z" fill="currentColor" fill-opacity="0.2"/>
+            <path d="M 2 4 L 4 14 L 2 14 Z"/>
+            <path d="M 22 4 L 20 14 L 22 14 Z"/>
+            <line x1="9" y1="10" x2="9" y2="17"/>
+            <line x1="15" y1="10" x2="15" y2="17"/>
+        </svg>
+    `;
+        boxWing.classList.add('wing-active', 'circle-green');
+        boxWing.innerHTML = wingSvg;
+        isWingActive = true
+    } 
+    //SE L'AETTONE E' GIA' ATTIVATO, LO SI VUOLE SPEGNERE E TOGLIE L'ICONA DA UI
+    else {
+        boxWing.classList.remove('wing-active', 'circle-green');
+        boxWing.innerHTML = '';
+        isWingActive = false
     }
-}
-
-
-/**
- * Restituisce l'etichetta testuale leggibile per l'interfaccia utente in base al codice meteo.
- * 
- * @param {string} codiceMeteo - Codice interno (es. 'sun', 'rain', ecc.)
- * @returns {string} - Nome descrittivo per il badge UI
- */
-export function ottieniEtichettaMeteo(codiceMeteo) {
-    const etichetteMeteo = {
-        'sun': 'SOLE',
-        'rain': 'PIOGGIA',
-        'var_dry': 'VARIABILE (ASCIUTTO)',
-        'var_wet': 'VARIABILE (BAGNATO)'
-    };
-    return etichetteMeteo[codiceMeteo] || codiceMeteo.toUpperCase();
-}
+       
+    // Ricalcola la posizione della X sul telaio
+    aggiornaStatoAlettoneTelaio(isWingActive);
+};
+console.log("Lotus Cup 2k25: Script Main orchestrato correttamente.");
