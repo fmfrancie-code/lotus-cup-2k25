@@ -3,17 +3,15 @@
 // Collega l'HTML monolitico ai moduli JavaScript moderni
 // ==========================================
 
-import { applyTheme, inizializzaLayout, aggiornaInterfacciaBudget, inizializzaInterazionePlancia,aggiornaStatoAlettoneTelaio } from './layout.js';          // 1. Gestione Tema Grafico
-import { gameState, updateGameState } from './state.js';                                                                                                    // 2. Gestione Stato Globale
-import { inizializzaMeteoGara, ottieniEtichettaMeteo } from './weather.js';                                                                                                               // 3. Gestione Meteo
-import { aggiornaTelemetria } from './telemetryGrid.js';                                                                                                    // 4. Gestione Telemetria
-import { inizializzaSchedaPilota, gestisciAssegnazioneBudget, ufficializzaSchedaPerGara, renderTyreDeck, selectTyreFromUI, handleTyreClick} from './mainSchedaController.js';
-
+import { applyTheme, inizializzaLayout, aggiornaInterfacciaBudget, inizializzaInterazionePlancia, aggiornaStatoAlettoneTelaio } from './layout.js';
+import { gameState, updateGameState } from './state.js';
+import { inizializzaMeteoGara, ottieniEtichettaMeteo } from './weather.js';
+import { aggiornaTelemetria } from './telemetryGrid.js';
+import { inizializzaSchedaPilota, gestisciAssegnazioneBudget, ufficializzaSchedaPerGara, renderTyreDeck, selectTyreFromUI, handleTyreClick } from './mainSchedaController.js';
 
 // ---- ESPOSIZIONE GLOBALE DELLE FUNZIONI MESCOLE E GESTORI INLINE NEL DOM
 window.selectTyre = selectTyreFromUI;
 window.toggleTyreLap = handleTyreClick;
-
 
 // --- ESPORTAZIONE GLOBALE PER I PULSANTI HTML (onclick) ---
 
@@ -23,18 +21,13 @@ window.changeTheme = function(themeName) {
 };
 
 window.showScreen = function(screenId) {
-    document.getElementById('display-circuit').innerText = circuit.toUpperCase();
-    document.getElementById('display-meta').innerText = `Data: ${todayFormatted} | Pilota: ${host}`;
-    document.getElementById('display-code').innerText = gameState.code;
-    
-    // Aggiorna il testo del badge meteo usando l'ID corretto presente in index.html
-    const weatherTextEl = document.getElementById('weather-text'); 
-    if (weatherTextEl) {
-        weatherTextEl.innerText = ottieniEtichettaMeteo(weather);
+    document.querySelectorAll('.screen').forEach(screen => {
+        screen.classList.remove('active');
+    });
+    const targetScreen = document.getElementById(screenId);
+    if (targetScreen) {
+        targetScreen.classList.add('active');
     }
-
-    // Forza l'aggiornamento visivo del deck delle gomme in base al nuovo meteo
-    renderTyreDeck();
 };
 
 window.createGame = function() {
@@ -42,7 +35,6 @@ window.createGame = function() {
     const host = document.getElementById('input-host').value;
     const weather = document.getElementById('input-weather').value;
     console.log("Valore meteo letto dalla UI:", weather);
-    
 
     if (!circuit || !host || !weather) {
         alert("Compila tutti i campi per creare la partita!");
@@ -77,11 +69,13 @@ window.createGame = function() {
     document.getElementById('display-meta').innerText = `Data: ${todayFormatted} | Pilota: ${host}`;
     document.getElementById('display-code').innerText = gameState.code;
     
+    // Aggiorna correttamente il testo del meteo tramite l'ID corretto
     const weatherTextEl = document.getElementById('weather-text'); 
     if (weatherTextEl) {
         weatherTextEl.innerText = ottieniEtichettaMeteo(weather);
     }
     
+    // Rendi reattivo il deck delle gomme in base al meteo scelto
     renderTyreDeck();
 };
 
@@ -108,8 +102,6 @@ window.startConfiguration = function() {
     }
     if (budgetBar) budgetBar.style.display = 'block';
     if (budgetCount) budgetCount.innerText = gameState.budget;
-
-    console.log("Fase di configurazione avviata. Budget disponibile: 13 punti.");
 };
 
 window.officializeSetup = function() {
@@ -129,9 +121,7 @@ window.officializeSetup = function() {
     if (raceControls) raceControls.style.display = 'flex';
 
     alert(risultato.messaggioDescrittivo);
-    console.log("Gara ufficialmente avviata!");
 };
-
 
 window.openJoinGameScreen = function() {
     window.showScreen('screen-join-game');
@@ -147,19 +137,12 @@ window.closeModal = function(modalId) {
     if (modal) modal.style.display = 'none';
 };
 
-
 // --- INIZIALIZZAZIONE INTERFACCIA ---
 document.addEventListener("DOMContentLoaded", () => {
-    // 1. Inizializzazione visiva e dei temi
     inizializzaLayout();
-
-    // 2. Attivazione dei listener sulla plancia di setup
     inizializzaInterazionePlancia();
-
-    // 3. Renderizzazione iniziale del deck pneumatici e stint
     renderTyreDeck();
 });
-
 
 // --- GESTIONE DEI CLICK SULLA PLANCIA (SETUP BUDGET) ---
 document.addEventListener("DOMContentLoaded", () => {
@@ -172,7 +155,6 @@ document.addEventListener("DOMContentLoaded", () => {
         'row-suspension': 'suspension'
     };
 
-    // Sezioni che riempiono da destra verso sinistra
     const componentiDaDestra = ['body', 'engine', 'suspension'];
 
     Object.keys(righeComponenti).forEach(rowId => {
@@ -184,43 +166,32 @@ document.addEventListener("DOMContentLoaded", () => {
                 const box = e.target.closest('.box');
                 if (!box) return;
 
-                // Ignora caselle base fisse o disabilitate dall'alettone
                 if (box.dataset.base === "true" || box.classList.contains('wing-disabled')) return;
 
                 const tipoComponente = righeComponenti[rowId];
                 const boxesNellaRiga = Array.from(container.querySelectorAll('.box'));
                 const isDaDestra = componentiDaDestra.includes(tipoComponente);
-                const indiceBox = boxesNellaRiga.indexOf(box);
 
                 let delta = 0;
 
                 if (isDaDestra) {
-                    // SEZIONI DI DESTRA: riempimento da destra a sinistra
-                    // Filtra le caselle escludendo quelle disabilitate dall'alettone
                     const boxesValide = boxesNellaRiga.filter(b => !b.classList.contains('wing-disabled'));
                     const primeVuoteDaDestra = boxesValide.reverse();
                     
-                    // Trova la prima casella disponibile partendo da destra (la prima vuota)
                     const primaCasellaVuota = primeVuoteDaDestra.find(b => b.innerText.trim() === '');
-                    const ultimaAllocata = boxesValide.find(b => b.classList.contains('user-allocated') && boxesValide.indexOf(b) === boxesValide.lastIndexOf(b)); // o l'ultima della serie
 
-                    // Se clicchi sull'ultima casella allocata, la rimuove (-1)
                     if (box.classList.contains('user-allocated')) {
-                        // Verifica se Ã¨ l'ultima casella attiva della sequenza da destra
                         const caselleAllocate = boxesValide.filter(b => b.classList.contains('user-allocated'));
-                        if (caselleAllocate.length > 0 && box === caselleAllocate[0]) { // la piÃ¹ a destra tra le allocate
+                        if (caselleAllocate.length > 0 && box === caselleAllocate[0]) {
                             delta = -1;
                         } else {
                             return;
                         }
                     } else if (box.innerText.trim() === '' && primaCasellaVuota && box === primaCasellaVuota) {
-                        // Cliccando su qualsiasi casella vuota, attiva la prima disponibile da destra
                         delta = 1;
                     } else {
-                        // Se clicchi su una casella vuota ma ce n'Ã¨ una piÃ¹ a destra libera, forza la prima disponibile
                         if (primaCasellaVuota) {
                             delta = 1;
-                            // Reindirizza l'azione sulla vera prima casella vuota da destra
                             const risultato = gestisciAssegnazioneBudget(tipoComponente, 1);
                             if (risultato.operazioneRiuscita) {
                                 primaCasellaVuota.classList.add('user-allocated');
@@ -233,18 +204,15 @@ document.addEventListener("DOMContentLoaded", () => {
                         return;
                     }
                 } else {
-                    // SEZIONI DI SINISTRA (Pneumatici, Freni, Carburante): riempimento da sinistra a destra
                     const boxesValide = boxesNellaRiga.filter(b => !b.classList.contains('wing-disabled'));
                     const primaCasellaVuota = boxesValide.find(b => b.innerText.trim() === '');
                     
-                    // Trova l'ultima casella allocata dall'utente per permetterne la rimozione
                     const caselleAllocate = boxesValide.filter(b => b.classList.contains('user-allocated'));
                     const ultimaAllocataDallUtente = caselleAllocate.length > 0 ? caselleAllocate[caselleAllocate.length - 1] : null;
 
                     if (box.classList.contains('user-allocated') && box === ultimaAllocataDallUtente) {
                         delta = -1;
                     } else if (box.innerText.trim() === '') {
-                        // Indipendentemente da quale casella vuota si clicca, attiva la prima disponibile da sinistra
                         if (primaCasellaVuota) {
                             const risultato = gestisciAssegnazioneBudget(tipoComponente, 1);
                             if (risultato.operazioneRiuscita) {
@@ -261,7 +229,6 @@ document.addEventListener("DOMContentLoaded", () => {
                     }
                 }
 
-                // Gestione rimozione punto (-1)
                 if (delta < 0) {
                     const risultato = gestisciAssegnazioneBudget(tipoComponente, delta);
                     if (risultato.operazioneRiuscita) {
@@ -271,8 +238,8 @@ document.addEventListener("DOMContentLoaded", () => {
                         
                         const boxWing = document.getElementById('box-wing');
                         if (tipoComponente === 'body' && boxWing && boxWing.classList.contains('wing-active')) {
-                        aggiornaStatoAlettoneTelaio(true);
-        }
+                            aggiornaStatoAlettoneTelaio(true);
+                        }
                     }
                 }
             });
@@ -280,14 +247,12 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 });
 
-// --- GESTIONE DEI ALETTONE SULLA PLANCIA ---
 window.toggleWing = function() {
     const boxWing = document.getElementById('box-wing');
     if (!boxWing) return;
 
     let isWingActive = boxWing.classList.contains('wing-active');
     
-    //SE L'ALETTONE NON E' ATTIVO GENERA L'ICONA E RIEMPIE LA CASELLA
     if (!isWingActive) {
         const wingSvg = `
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;color:inherit;">
@@ -300,16 +265,14 @@ window.toggleWing = function() {
     `;
         boxWing.classList.add('wing-active', 'circle-green');
         boxWing.innerHTML = wingSvg;
-        isWingActive = true
-    } 
-    //SE L'AETTONE E' GIA' ATTIVATO, LO SI VUOLE SPEGNERE E TOGLIE L'ICONA DA UI
-    else {
+        isWingActive = true;
+    } else {
         boxWing.classList.remove('wing-active', 'circle-green');
         boxWing.innerHTML = '';
-        isWingActive = false
+        isWingActive = false;
     }
        
-    // Ricalcola la posizione della X sul telaio
     aggiornaStatoAlettoneTelaio(isWingActive);
 };
+
 console.log("Lotus Cup 2k25: Script Main orchestrato correttamente.");
