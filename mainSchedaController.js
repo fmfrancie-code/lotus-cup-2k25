@@ -10,6 +10,7 @@ import { gestisciUsuraMotore } from './engine.js';
 import { gestisciModificaUsuraFreniETrafilamentoKers } from './brakesKers.js';
 import { gestisciUsuraTelaio } from './chassis.js';
 import { gestisciUsuraSospensioni } from './suspension.js';
+import { renderTyreDeck, selectTyreFromUI, handleTyreClick } from './compoundsTyres.js';
 
 /**
  * Inizializza la scheda del pilota caricando le preferenze e impostando il tema grafico.
@@ -37,7 +38,7 @@ export function inizializzaSchedaPilota(datiInizialiPilota) {
 
 /**
  * Transizione della scheda verso la fase di Ufficializzazione / Gara.
- * Vengono bloccati i punti di setup e attivata la modalità di gara.
+ * Vengono bloccati i punti di setup e attivata la modalità  di gara.
  */
 export function ufficializzaSchedaPerGara() {
     const budgetRimanenteInSetup = gameState.budget;
@@ -66,10 +67,11 @@ export function ufficializzaSchedaPerGara() {
  * Gestisce l'assegnazione o la modifica di un punto budget per una specifica area della monoposto.
  * 
  * @param {string} tipoArea - L'area della scheda (es. 'tyres', 'brakes', ecc.)
- * @param {number} delta - Quantità da aggiungere o sottrarre (es. +1 o -1)
+ * @param {number} delta - Quantità  da aggiungere o sottrarre (es. +1 o -1)
  * @returns {Object} Risultato dell'operazione di budget
  */
 export function gestisciAssegnazioneBudget(tipoArea, delta) {
     return assegnaPuntoBudgetSetup(tipoArea, delta);
 }
 
+export { renderTyreDeck, selectTyreFromUI, handleTyreClick };
