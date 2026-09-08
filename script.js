@@ -36,6 +36,7 @@ window.createGame = function() {
     const circuit = document.getElementById('input-circuit').value;
     const host = document.getElementById('input-host').value;
     const weather = document.getElementById('input-weather').value;
+    console.log("Valore meteo letto dalla UI:", weather);
     
 
     if (!circuit || !host || !weather) {
