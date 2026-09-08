@@ -23,13 +23,18 @@ window.changeTheme = function(themeName) {
 };
 
 window.showScreen = function(screenId) {
-    document.querySelectorAll('.screen').forEach(screen => {
-        screen.classList.remove('active');
-    });
-    const targetScreen = document.getElementById(screenId);
-    if (targetScreen) {
-        targetScreen.classList.add('active');
+    document.getElementById('display-circuit').innerText = circuit.toUpperCase();
+    document.getElementById('display-meta').innerText = `Data: ${todayFormatted} | Pilota: ${host}`;
+    document.getElementById('display-code').innerText = gameState.code;
+    
+    // Aggiorna il testo del badge meteo usando l'ID corretto presente in index.html
+    const weatherTextEl = document.getElementById('weather-text'); 
+    if (weatherTextEl) {
+        weatherTextEl.innerText = ottieniEtichettaMeteo(weather);
     }
+
+    // Forza l'aggiornamento visivo del deck delle gomme in base al nuovo meteo
+    renderTyreDeck();
 };
 
 window.createGame = function() {
@@ -72,11 +77,12 @@ window.createGame = function() {
     document.getElementById('display-meta').innerText = `Data: ${todayFormatted} | Pilota: ${host}`;
     document.getElementById('display-code').innerText = gameState.code;
     
-    // Aggiorna il badge grafico sfruttando il modulo weather.js
-    const weatherBadge = document.querySelector('.badge-meteo'); 
-    if (weatherBadge) {
-        weatherBadge.innerText = ottieniEtichettaMeteo(weather);
+    const weatherTextEl = document.getElementById('weather-text'); 
+    if (weatherTextEl) {
+        weatherTextEl.innerText = ottieniEtichettaMeteo(weather);
     }
+    
+    renderTyreDeck();
 };
 
 window.startConfiguration = function() {
