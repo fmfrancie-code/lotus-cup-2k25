@@ -5,7 +5,7 @@
 
 import { applyTheme, inizializzaLayout, aggiornaInterfacciaBudget, inizializzaInterazionePlancia,aggiornaStatoAlettoneTelaio } from './layout.js';          // 1. Gestione Tema Grafico
 import { gameState, updateGameState } from './state.js';                                                                                                    // 2. Gestione Stato Globale
-import { gestisciMeteo } from './weather.js';                                                                                                               // 3. Gestione Meteo
+import { gestisciMeteo, inizializzaMeteoGara, ottieniEtichettaMeteo } from './weather.js';                                                                                                               // 3. Gestione Meteo
 import { aggiornaTelemetria } from './telemetryGrid.js';                                                                                                    // 4. Gestione Telemetria
 import { inizializzaSchedaPilota, gestisciAssegnazioneBudget, ufficializzaSchedaPerGara, renderTyreDeck, selectTyreFromUI, handleTyreClick} from './mainSchedaController.js';
 
@@ -36,11 +36,14 @@ window.createGame = function() {
     const circuit = document.getElementById('input-circuit').value;
     const host = document.getElementById('input-host').value;
     const weather = document.getElementById('input-weather').value;
+    
 
     if (!circuit || !host || !weather) {
         alert("Compila tutti i campi per creare la partita!");
         return;
     }
+
+    inizializzaMeteoGara(weather);
 
     const todayFormatted = new Date().toLocaleDateString('it-IT', {
         day: '2-digit',
@@ -67,6 +70,12 @@ window.createGame = function() {
     document.getElementById('display-circuit').innerText = circuit.toUpperCase();
     document.getElementById('display-meta').innerText = `Data: ${todayFormatted} | Pilota: ${host}`;
     document.getElementById('display-code').innerText = gameState.code;
+    
+    // Aggiorna il badge grafico sfruttando il modulo weather.js
+    const weatherBadge = document.querySelector('.badge-meteo'); 
+    if (weatherBadge) {
+        weatherBadge.innerText = ottieniEtichettaMeteo(weather);
+    }
 };
 
 window.startConfiguration = function() {
