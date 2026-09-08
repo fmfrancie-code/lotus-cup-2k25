@@ -5,7 +5,7 @@
 
 import { applyTheme, inizializzaLayout, aggiornaInterfacciaBudget, inizializzaInterazionePlancia, aggiornaStatoAlettoneTelaio } from './layout.js';
 import { gameState, updateGameState } from './state.js';
-import { inizializzaMeteoGara, ottieniEtichettaMeteo } from './weather.js';
+import { inizializzaMeteoGara, ottieniEtichettaMeteo, ottieniIconaMeteo } from './weather.js';
 import { aggiornaTelemetria } from './telemetryGrid.js';
 import { inizializzaSchedaPilota, gestisciAssegnazioneBudget, ufficializzaSchedaPerGara, renderTyreDeck, selectTyreFromUI, handleTyreClick } from './mainSchedaController.js';
 
@@ -74,6 +74,11 @@ window.createGame = function() {
     if (weatherTextEl) {
         weatherTextEl.innerText = ottieniEtichettaMeteo(weather);
     }
+    // Aggiorna correttamente l'icona del meteo tramite l'ID corretto
+    const weatherIconEl = document.getElementById('weather-icon');
+    if (weatherIconEl) {
+    weatherIconEl.innerHTML = ottieniIconaMeteo(weather);
+}
     
     // Rendi reattivo il deck delle gomme in base al meteo scelto
     renderTyreDeck();
