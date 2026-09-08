@@ -25,6 +25,13 @@ export function inizializzaSchedaPilota(datiInizialiPilota) {
         theme: datiInizialiPilota.theme,
         budget: 13,
         alettoneAttivo: false,
+        selectedTyre: 'Prime',
+        tyreLaps: {
+            Prime: [],
+            Option: [],
+            Intermedie: [],
+            Pioggia: []
+        },
         allocations: {
             tyres: 0,
             brakes: 0,
