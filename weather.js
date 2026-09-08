@@ -23,19 +23,19 @@ export function inizializzaMeteoGara(condizioneMeteorologicaIniziale) {
  * @returns {boolean} - Restituisce 'true' se l'asfalto è bagnato (Pioggia o Variabile Bagnato), 'false' se asciutto.
  */
 export function verificaSeAsfaltoBagnato() {
-    const condizioneMeteoCorrente = gameState.weather;
+    // Sostituisci conditioneMeteoCorrente con gameState.weather
+    const meteoAttuale = gameState.weather; 
     
-    const corrispondeABagnatoFissoOVariabileBagnato = (condizioneMeteoCorrente === 'rain' || condizioneMeteoCorrente === 'var_wet');
-    const corrispondeAAsciuttoFissoOVariabileAsciutto = (condizioneMeteoCorrente === 'sun' || conditioneMeteoCorrente === 'var_dry');
-    
-    if (corrispondeABagnatoFissoOVariabileBagnato) {
+    if (meteoAttuale === 'rain') return true;
+    if (meteoAttuale === 'sun') return false;
+    if (meteoAttuale === 'var_wet') {
+        if (gameState.weatherLastCheck === 'sun') return false;
         return true;
     }
-    
-    if (corrispondeAAsciuttoFissoOVariabileAsciutto) {
+    if (meteoAttuale === 'var_dry') {
+        if (gameState.weatherLastCheck === 'rain') return true;
         return false;
     }
-    
     return false;
 }
 
