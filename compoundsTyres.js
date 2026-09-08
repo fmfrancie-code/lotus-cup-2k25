@@ -219,7 +219,7 @@ export function renderTyreDeck() {
                 isMarked ? 'marked' : '',
                 (!isMarked && isPreSelectedStyle) ? 'pre-selected' : '',
                 isClickable ? 'clickable' : 'disabled'
-            ].filter(Boolean).join(';');
+            ].filter(Boolean).join(' ');
 
             lapsHtml += `<div class="${classList}" ${isClickable ? `onclick="handleTyreClick('${t}', ${lap})"` : ''}>${lap}</div>`;
         });
