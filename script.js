@@ -5,7 +5,7 @@
 
 import { applyTheme, inizializzaLayout, aggiornaInterfacciaBudget, inizializzaInterazionePlancia,aggiornaStatoAlettoneTelaio } from './layout.js';          // 1. Gestione Tema Grafico
 import { gameState, updateGameState } from './state.js';                                                                                                    // 2. Gestione Stato Globale
-import { gestisciMeteo, inizializzaMeteoGara, ottieniEtichettaMeteo } from './weather.js';                                                                                                               // 3. Gestione Meteo
+import { inizializzaMeteoGara, ottieniEtichettaMeteo } from './weather.js';                                                                                                               // 3. Gestione Meteo
 import { aggiornaTelemetria } from './telemetryGrid.js';                                                                                                    // 4. Gestione Telemetria
 import { inizializzaSchedaPilota, gestisciAssegnazioneBudget, ufficializzaSchedaPerGara, renderTyreDeck, selectTyreFromUI, handleTyreClick} from './mainSchedaController.js';
 
