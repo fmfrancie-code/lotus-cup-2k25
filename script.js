@@ -8,10 +8,12 @@ import { gameState, updateGameState } from './state.js';
 import { inizializzaMeteoGara, ottieniEtichettaMeteo, ottieniIconaMeteo } from './weather.js';
 import { aggiornaTelemetria } from './telemetryGrid.js';
 import { inizializzaSchedaPilota, gestisciAssegnazioneBudget, ufficializzaSchedaPerGara, renderTyreDeck, selectTyreFromUI, handleTyreClick } from './mainSchedaController.js';
+import { toggleRaceEdit } from './editOutsideBoxes.js';
 
 // ---- ESPOSIZIONE GLOBALE DELLE FUNZIONI MESCOLE E GESTORI INLINE NEL DOM
 window.selectTyre = selectTyreFromUI;
 window.toggleTyreLap = handleTyreClick;
+window.toggleRaceEdit = toggleRaceEdit;
 
 // --- ESPORTAZIONE GLOBALE PER I PULSANTI HTML (onclick) ---
 
