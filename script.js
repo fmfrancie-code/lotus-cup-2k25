@@ -87,7 +87,6 @@ window.createGame = function() {
 window.startConfiguration = function() {
     updateGameState({
         isSetupMode: true,
-        budget: 13 
     });
 
     const setupScreen = document.getElementById('screen-setup');
@@ -107,6 +106,11 @@ window.startConfiguration = function() {
     }
     if (budgetBar) budgetBar.style.display = 'block';
     if (budgetCount) budgetCount.innerText = gameState.budget;
+    
+    // Aggiorna subito il deck delle gomme per mostrare la pre-selezione attiva
+    renderTyreDeck();
+
+    console.log("Fase di configurazione avviata con mescola predefinita:", gameState.selectedTyre);
 };
 
 window.officializeSetup = function() {
