@@ -35,7 +35,7 @@ window.createGame = function() {
     const host = document.getElementById('input-host').value;
     const weather = document.getElementById('input-weather').value;
     console.log("Valore meteo letto dalla UI:", weather);
-
+    
     if (!circuit || !host || !weather) {
         alert("Compila tutti i campi per creare la partita!");
         return;
@@ -60,7 +60,7 @@ window.createGame = function() {
         circuit: circuit,
         host: host,
         weather: weather,
-        isSetupMode: true
+        isSetupMode: false
     });
 
     window.showScreen('screen-setup');
