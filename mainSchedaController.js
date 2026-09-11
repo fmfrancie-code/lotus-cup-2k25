@@ -18,6 +18,18 @@ import { renderTyreDeck, selectTyreFromUI, handleTyreClick } from './compoundsTy
  * @param {Object} datiInizialiPilota - Informazioni di base (nome, id, codice stanza, tema)
  */
 export function inizializzaSchedaPilota(datiInizialiPilota) {
+    
+    let defaultTyre;
+
+    if (gameState.weather === 'rain') {
+        defaultTyre = 'Pioggia';
+    } else if (gameState.weather === 'var_dry' || gameState.weather === 'var_wet') {
+        defaultTyre = 'Intermedie';
+    } else {
+        defaultTyre = 'Prime'; // Gestisce 'sun' e qualsiasi altro caso di fallback
+    }
+    
+    
     updateGameState({
         code: datiInizialiPilota.code,
         playerName: datiInizialiPilota.playerName,
@@ -25,12 +37,12 @@ export function inizializzaSchedaPilota(datiInizialiPilota) {
         theme: datiInizialiPilota.theme,
         budget: 13,
         alettoneAttivo: false,
-        selectedTyre: null,
+        selectedTyre: defaultTyre,
         tyreLaps: {
-            Prime: [],
-            Option: [],
-            Intermedie: [],
-            Pioggia: []
+            Prime: defaultTyre === 'Prime' ? [1] : [],
+            Option: defaultTyre === 'Option' ? [1] : [],
+            Intermedie: defaultTyre === 'Intermedie' ? [1] : [],
+            Pioggia: defaultTyre === 'Pioggia' ? [1] : []
         },
         allocations: {
             tyres: 0,
