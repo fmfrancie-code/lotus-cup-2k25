@@ -42,7 +42,6 @@ export function ottieniDirezioneGeometricaComponente(nomeComponente) {
     return 'sinistra';
 }
 
-
 /**
  * Gestisce l'interazione UI per attivare o disattivare la modalità edit in gara.
  */
