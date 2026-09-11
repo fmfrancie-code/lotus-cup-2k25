@@ -35,9 +35,9 @@ export function ottieniDirezioneGeometricaComponente(nomeComponente) {
     const componentiSezioneDestra = ['body', 'engine', 'suspension'];
 
     if (componentiSezioneSinistra.includes(nomeComponente)) {
-        return 'sinistra';[cite: 3]
+        return 'sinistra';
     } else if (componentiSezioneDestra.includes(nomeComponente)) {
-        return 'destra';[cite: 3]
+        return 'destra';
     }
     return 'sinistra';
 }
