@@ -225,7 +225,7 @@ export function renderTyreDeck() {
         });
 
         card.innerHTML = `
-            <button class="tyre-title-btn" ${(!isDisabledByWeather && !isInspecting) ? `onclick="selectTyreFromUI('${t}')"` : ''}>${t}</button>
+            <button class="tyre-title-btn" ${(!isDisabledByWeather && !isInspecting) ? `onclick="selectTyre('${t}')"` : ''}>${t}</button>
             <div class="laps-container">${lapsHtml}</div>
         `;
         container.appendChild(card);
