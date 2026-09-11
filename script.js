@@ -121,6 +121,12 @@ window.officializeSetup = function() {
         return;
     }
 
+    // Rimuove la classe di setup per disattivare l'interattività CSS di plancia e alettone
+    const setupScreen = document.getElementById('screen-setup');
+    if (setupScreen) {
+        setupScreen.classList.remove('setup-active');
+    }
+    
     const btnLock = document.getElementById('btn-lock-setup');
     const budgetBar = document.getElementById('budget-bar');
     const raceControls = document.getElementById('race-controls');
