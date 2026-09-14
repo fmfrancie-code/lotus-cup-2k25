@@ -222,6 +222,7 @@ function sincronizzaOndaVuote() {
         box.style.setProperty('animation', 'none', 'important');
         box.offsetHeight; // Trigger del reflow del browser
         box.style.setProperty('animation', 'pulse-yellow 1.5s infinite ease-in-out', 'important');
+    });
 }
 
 /**
