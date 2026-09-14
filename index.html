@@ -598,7 +598,7 @@
     }
 
     /* Le caselle vuote lampeggiano all'unisono azzerando il delay dell'animazione */
-    #screen-setup.setup-active:not(.budget-zero) .box:empty {
+    #screen-setup.setup-active:not(.budget-zero) .box:empty:not(#box-wing):not(#box-kers) {
       pointer-events: auto !important;
       cursor: pointer !important;
       animation: pulse-yellow 1.5s infinite ease-in-out !important;
