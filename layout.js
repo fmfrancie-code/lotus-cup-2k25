@@ -218,16 +218,18 @@ export function inizializzaInterazionePlancia() {
  * Riavvia l'animazione CSS in modo sincronizzato su tutte le caselle vuote
  */
 function sincronizzaOndaVuote() {
-    // Se il budget è esaurito (0 o meno), non riavviare l'animazione
     const budgetCountEl = document.getElementById('budget-count');
-    if (budgetCountEl && Number(budgetCountEl.innerText) <= 0) {
-        return;
-    }
+    const budgetResiduo = budgetCountEl ? Number(budgetCountEl.innerText) : 0;
 
     document.querySelectorAll('.box:empty:not(#box-wing):not(#box-kers)').forEach(box => {
-        box.style.setProperty('animation', 'none', 'important');
-        box.offsetHeight; // Trigger del reflow del browser
-        box.style.setProperty('animation', 'pulse-yellow 1.5s infinite ease-in-out', 'important');
+        if (budgetResiduo <= 0) {
+            // Rimuove completamente lo stile inline dell'animazione per lasciare spazio al CSS .budget-zero
+            box.style.removeProperty('animation');
+        } else {
+            box.style.setProperty('animation', 'none', 'important');
+            box.offsetHeight; // Trigger del reflow del browser
+            box.style.setProperty('animation', 'pulse-yellow 1.5s infinite ease-in-out', 'important');
+        }
     });
 }
 
