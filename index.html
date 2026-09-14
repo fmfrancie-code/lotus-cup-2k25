@@ -590,7 +590,7 @@
       font-weight: 700;
     }
 
-    /* INTERATTIVITÃ€ DINAMICA DELLE CASELLA ALLOCATE (User-Allocated) */
+    /* INTERATTIVITA' DINAMICA DELLE CASELLA ALLOCATE (User-Allocated) */
     #screen-setup.setup-active .box.user-allocated,
     body.edit-mode-active .box.user-allocated,
     body.pitstop-mode-active .box.user-allocated {
@@ -611,7 +611,7 @@
     }
 
     /* Quando il budget arriva a 0, le caselle smettono di illuminarsi/lampeggiare */
-    #screen-setup.setup-active.budget-zero .box:empty {
+    #screen-setup.setup-active.budget-zero .box:empty:not(#box-wing):not(#box-kers) {
       pointer-events: none !important;
       animation: none !important;
       opacity: 0.6;
@@ -776,7 +776,7 @@
       
       <div id="race-controls" style="display: none; gap: 8px; flex-direction: column;">
         <div style="display: flex; gap: 8px;">
-          <button id="btn-toggle-edit" class="btn btn-read-mode" onclick="toggleRaceEdit()" style="flex:1; margin:0; text-transform:none !important;">Modalità edit (clicca per sbloccare)</button>
+          <button id="btn-toggle-edit" class="btn btn-read-mode" onclick="toggleRaceEdit()" style="flex:1; margin:0; text-transform:none !important;">Modalità  edit attiva (clicca per sbloccare)</button>
           <button id="btn-pitstop-action" class="btn btn-pitstop-mode" onclick="handlePitStopButtonClick()" style="display: none; flex:1; margin:0; text-transform:none !important;">Entrata ai Box (Pit Stop)</button>
         </div>
         <button id="btn-weather-test" class="btn btn-weather-test" onclick="openWeatherModal()" style="display: none; margin: 4px 0 0 0;">Test Motore / Controllo Meteo</button>
