@@ -218,6 +218,12 @@ export function inizializzaInterazionePlancia() {
  * Riavvia l'animazione CSS in modo sincronizzato su tutte le caselle vuote
  */
 function sincronizzaOndaVuote() {
+    // Se il budget è esaurito (0 o meno), non riavviare l'animazione
+    const budgetCountEl = document.getElementById('budget-count');
+    if (budgetCountEl && Number(budgetCountEl.innerText) <= 0) {
+        return;
+    }
+
     document.querySelectorAll('.box:empty:not(#box-wing):not(#box-kers)').forEach(box => {
         box.style.setProperty('animation', 'none', 'important');
         box.offsetHeight; // Trigger del reflow del browser
