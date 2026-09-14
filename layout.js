@@ -218,7 +218,7 @@ export function inizializzaInterazionePlancia() {
  * Riavvia l'animazione CSS in modo sincronizzato su tutte le caselle vuote
  */
 function sincronizzaOndaVuote() {
-    document.querySelectorAll('.box:empty').forEach(box => {
+    document.querySelectorAll('.box:empty:not(#box-wing):not(#box-kers)').forEach(box => {
         box.style.animation = 'none';
         box.offsetHeight; // Trigger del reflow del browser
         box.style.animation = null;
