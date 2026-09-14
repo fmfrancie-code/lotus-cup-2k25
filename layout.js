@@ -219,10 +219,9 @@ export function inizializzaInterazionePlancia() {
  */
 function sincronizzaOndaVuote() {
     document.querySelectorAll('.box:empty:not(#box-wing):not(#box-kers)').forEach(box => {
-        box.style.animation = 'none';
+        box.style.setProperty('animation', 'none', 'important');
         box.offsetHeight; // Trigger del reflow del browser
-        box.style.animation = null;
-    });
+        box.style.setProperty('animation', 'pulse-yellow 1.5s infinite ease-in-out', 'important');
 }
 
 /**
