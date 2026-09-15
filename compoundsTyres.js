@@ -6,6 +6,48 @@
 import { gameState, updateGameState } from './state.js';
 import { verificaSeAsfaltoBagnato } from './weather.js';
 
+
+
+/**
+ * Gestisce l'inserimento o la rimozione manuale di una X di usura sulla barra dei Pneumatici in gara.
+ * 
+ * @param {number} indiceCasellaSelezionata - Indice della casella su cui l'utente ha cliccato
+ * @returns {Object} - Stato aggiornato dei pneumatici
+ */
+export function gestisciModificaUsuraPneumaticiInGara(indiceCasellaSelezionata) {
+    const arrayCasellePneumaticiCorrente = [...gameState.markedUsages.tyres];
+    const laCasellaContieneGiaUnaX = arrayCasellePneumaticiCorrente.includes(indiceCasellaSelezionata);
+
+    if (laCasellaContieneGiaUnaX) {
+        // Rimozione della X se già presente
+        const indiceDaRimuovere = arrayCasellePneumaticiCorrente.indexOf(indiceCasellaSelezionata);
+        if (indiceDaRimuovere !== -1) {
+            arrayCasellePneumaticiCorrente.splice(indiceDaRimuovere, 1);
+        }
+    } else {
+        // Inserimento della X sulla casella esatta cliccata
+        arrayCasellePneumaticiCorrente.push(indiceCasellaSelezionata);
+    }
+
+    // Aggiornamento dello stato globale
+    updateGameState({
+        markedUsages: {
+            ...gameState.markedUsages,
+            tyres: arrayCasellePneumaticiCorrente
+        }
+    });
+
+    return {
+        operazioneRiuscita: true,
+        tyresAggiornati: arrayCasellePneumaticiCorrente,
+        messaggioDescrittivo: "Usura pneumatici aggiornata con successo."
+    };
+}
+
+
+
+
+
 /**
  * Registra o aggiorna lo stint e la selezione della mescola attiva del pilota.
  * 
@@ -46,125 +88,6 @@ export function gestisciSelezioneMescolaEGiri(nomeMescolaSelezionata, numeroGiro
         operazioneRiuscita: true, 
         messaggioDescrittivo: `Mescola [${nomeMescolaSelezionata}] impostata correttamente per il giro ${numeroGiroStint}.` 
     };
-}
-
-/**
- * Applica il consumo dei pneumatici in base alla mescola attiva, al meteo e all'asfalto,
- * gestendo l'eventuale tracimazione dell'usura sui freni.
- * 
- * @returns {Object} - Dettagli sull'usura applicata e su eventuali penalità  sui freni
- */
-export function applicaConsumoPneumaticiInBaseAMescolaEMeteo() {
-    const mescolaAttivaAlMomento = gameState.selectedTyre;
-    const asfaltoBagnatoInAtto = verificaSeAsfaltoBagnato();
-    
-    let quantitaCasellePneumaticiDaBarrare = 0;
-
-    // Regole di consumo basate sul tipo di mescola e sullo stato dell'asfalto
-    if (mescolaAttivaAlMomento === 'Prime' || mescolaAttivaAlMomento === 'Option') {
-        quantitaCasellePneumaticiDaBarrare = asfaltoBagnatoInAtto ? 3 : 2;
-    } else if (mescolaAttivaAlMomento === 'Intermedie') {
-        quantitaCasellePneumaticiDaBarrare = asfaltoBagnatoInAtto ? 2 : 1;
-    } else if (mescolaAttivaAlMomento === 'Pioggia') {
-        quantitaCasellePneumaticiDaBarrare = !asfaltoBagnatoInAtto ? 2 : 1;
-    }
-
-    const arrayCasellePneumaticiCorrente = [...gameState.markedUsages.tyres];
-    const arrayCaselleFreniCorrente = [...gameState.markedUsages.brakes];
-
-    // GESTIONE INVERSIONE (RIMONZIONE A BLOCCHI): Se ci sono già X, il click rimuove il blocco corrispondente
-    const isEditModeActive = document.body.classList.contains('edit-mode-active');
-    if (isEditModeActive && arrayCasellePneumaticiCorrente.length > 0) {
-        let freniDaRipulire = 0;
-        for (let i = 0; i < quantitaCasellePneumaticiDaBarrare; i++) {
-            if (arrayCasellePneumaticiCorrente.length > 0) {
-                arrayCasellePneumaticiCorrente.pop(); // Rimuove da destra verso sinistra
-            } else {
-                freniDaRipulire++;
-            }
-        }
-
-        for (let i = 0; i < freniDaRipulire; i++) {
-            if (arrayCaselleFreniCorrente.length > 0) {
-                arrayCaselleFreniCorrente.pop();
-            }
-        }
-
-        updateGameState({
-            markedUsages: {
-                ...gameState.markedUsages,
-                tyres: arrayCasellePneumaticiCorrente,
-                brakes: arrayCaselleFreniCorrente
-            }
-        });
-
-        return {
-            gommeBarrate: -quantitaCasellePneumaticiDaBarrare,
-            freniCoinvoltiPerEccesso: -freniDaRipulire,
-            messaggioDescrittivo: `Blocco usura pneumatici rimosso per mescola [${mescolaAttivaAlMomento}].`
-        };
-    }
-
-    // LOGICA STANDARD DI INSERIMENTO (Aggiunta a blocchi con tracimazione)
-    let puntiEccessoDaScalareDaiFreni = 0;
-    
-    for (let passoUsura = 0; passoUsura < quantitaCasellePneumaticiDaBarrare; passoUsura++) {
-        const indicePrimaCasellaDisponibileDaDestra = troviIndiceCasellaPneumaticoDisponibileDaDestra(arrayCasellePneumaticiCorrente);
-        
-        if (indicePrimaCasellaDisponibileDaDestra !== -1) {
-            arrayCasellePneumaticiCorrente.push(indicePrimaCasellaDisponibileDaDestra);
-        } else {
-            puntiEccessoDaScalareDaiFreni++;
-        }
-    }
-
-    for (let passoFreno = 0; passoFreno < puntiEccessoDaScalareDaiFreni; passoFreno++) {
-        const indicePrimaCasellaFrenoDisponibileDaDestra = troviIndiceCasellaFrenoDisponibileDaDestra(arrayCaselleFreniCorrente);
-        if (indicePrimaCasellaFrenoDisponibileDaDestra !== -1) {
-            arrayCaselleFreniCorrente.push(indicePrimaCasellaFrenoDisponibileDaDestra);
-        }
-    }
-
-    // Aggiornamento dello stato globale
-    updateGameState({
-        markedUsages: {
-            ...gameState.markedUsages,
-            tyres: arrayCasellePneumaticiCorrente,
-            brakes: arrayCaselleFreniCorrente
-        }
-    });
-
-    return {
-        gommeBarrate: quantitaCasellePneumaticiDaBarrare,
-        freniCoinvoltiPerEccesso: puntiEccessoDaScalareDaiFreni,
-        messaggioDescrittivo: `Consumo applicato per mescola [${mescolaAttivaAlMomento}]: ${quantitaCasellePneumaticiDaBarrare} punti pneumatici consumati.` + 
-            (puntiEccessoDaScalareDaiFreni > 0 ? ` Eccesso di usura di ${puntiEccessoDaScalareDaiFreni} punti scalato sui Freni!` : '')
-    };
-}
-/**
- * Funzione di utilità  interna per trovare la casella dei pneumatici da marcare (da destra a sinistra).
- */
-export function troviIndiceCasellaPneumaticoDisponibileDaDestra(arrayCaselleUsurateGomme) {
-    const totaleCaselleDisponibiliPneumatici = 4 + gameState.allocations.tyres; // Valore base + assegnate in setup
-    for (let indiceCasella = totaleCaselleDisponibiliPneumatici - 1; indiceCasella >= 0; indiceCasella--) {
-        if (!arrayCaselleUsurateGomme.includes(indiceCasella)) {
-            return indiceCasella;
-        }
-    }
-    return -1; // Nessuna casella disponibile
-}
-
-/**
- * Funzione di utilità  interna per trovare la casella dei freni da marcare (da destra a sinistra).
- */
-function troviIndiceCasellaFrenoDisponibileDaDestra(arrayCaselleUsurateFreni) {
-    const totaleCaselleDisponibiliFreni = 2 + gameState.allocations.brakes; // Valore base + assegnate in setup
-    for (let indiceCasella = totaleCaselleDisponibiliFreni - 1; indiceCasella >= 0; indiceCasella--) {
-        if (!arrayCaselleUsurateFreni.includes(indiceCasella)) {
-            return indiceCasella;
-        }
-    }
-    return -1; // Nessuna casella disponibile
 }
 
 /**
