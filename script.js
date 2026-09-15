@@ -218,33 +218,28 @@ function inizializzaListenerEditGara() {
                 const box = e.target.closest('.box');
                 if (!box) return;
 
-                // Esclude solo l'alettone disabilitato o elementi non validi
+                // Esclude elementi non validi
                 if (box.classList.contains('wing-disabled') || box.classList.contains('wing-x')) return;
 
                 const tipoComponente = righeComponenti[rowId];
                 const boxesNellaRiga = Array.from(container.querySelectorAll('.box'));
                 const indiceBox = boxesNellaRiga.indexOf(box);
 
-                // Legge lo stato attuale delle usure per questo componente
-                let usureCorrenti = [...(gameState.markedUsages[tipoComponente] || [])];
-
-                // Toggle manuale della casella esatta cliccata (Metti/Togli X)
-                if (usureCorrenti.includes(indiceBox)) {
-                    usureCorrenti = usureCorrenti.filter(idx => idx !== indiceBox);
-                } else {
-                    usureCorrenti.push(indiceBox);
-                }
-
-                // Aggiorna lo stato globale rispettando la regola d'oro (tramite updateGameState)
-                const nuovoMarkedUsages = {
-                    ...gameState.markedUsages,
-                    [tipoComponente]: usureCorrenti
-                };
+                // RISPETTO DELLA REGOLE D'ORO: Passaggio obbligato per il coordinatore centrale
+                const risultato = gestisciModificaUsuraInGara(tipoComponente, indiceBox);
                 
-                updateGameState({ markedUsages: nuovoMarkedUsages });
+                if (risultato && risultato.operazioneRiuscita) {
+                    // Estrae l'array aggiornato indipendentemente dal componente restituito dal controller
+                    const arrayAggiornato = risultato.tyresAggiornati || 
+                                           risultato.freniAggiornati || 
+                                           risultato.benzinaAggiornata || 
+                                           risultato.usureMotoreAggiornate || 
+                                           risultato.usureTelaioAggiornate || 
+                                           risultato.usureSospensioniAggiornate || [];
 
-                // Sincronizza visivamente la riga esatta
-                sincronizzaVisualizzazioneRiga(container, usureCorrenti);
+                    // Sincronizza visivamente la riga esatta
+                    sincronizzaVisualizzazioneRiga(container, arrayAggiornato);
+                }
             });
         }
     });
