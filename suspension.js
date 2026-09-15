@@ -17,20 +17,14 @@ export function gestisciUsuraSospensioni(indiceCasellaSelezionata) {
     let messaggioAllertaCritica = "";
 
     if (laCasellaContieneGiaUnaX) {
-        // Rimozione della X (da destra verso sinistra)
-        const indiceDaRimuovere = arrayUsureSospensioniCorrente.indexOf(indiceCasellaSelezionata);
-        if (indiceDaRimuovere !== -1) {
-            arrayUsureSospensioniCorrente.splice(indiceDaRimuovere, 1);
-        }
+        arrayUsureSospensioniCorrente.splice(arrayUsureSospensioniCorrente.indexOf(indiceCasellaSelezionata), 1);
     } else {
-        // Inserimento della X (da sinistra verso destra)
         arrayUsureSospensioniCorrente.push(indiceCasellaSelezionata);
     }
 
     const valoreBaseSospensioni = gameState.baseValues.suspension;
     const puntiAssegnatiSetupSospensioni = gameState.allocations.suspension;
     const totaleCaselleDisponibiliSospensioni = valoreBaseSospensioni + puntiAssegnatiSetupSospensioni;
-
     const tutteLeCaselleSospensioniSonoOccupate = (arrayUsureSospensioniCorrente.length === totaleCaselleDisponibiliSospensioni);
 
     if (tutteLeCaselleSospensioniSonoOccupate) {
