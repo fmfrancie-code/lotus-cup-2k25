@@ -586,8 +586,7 @@
 
     /* INTERATTIVITA' DINAMICA DELLE CASELLA ALLOCATE (User-Allocated) */
     #screen-setup.setup-active .box.user-allocated,
-    body.edit-mode-active .box.user-allocated,
-    body.edit-mode-active .box:not(:empty),
+    body.edit-mode-active .board-row .box,
     body.pitstop-mode-active .box.user-allocated {
       pointer-events: auto !important;
       cursor: pointer !important;
