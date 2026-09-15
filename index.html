@@ -554,15 +554,12 @@
       color: #00f0ff; 
     }
     
-    /* Consente l'interazione sul pulsante Alettone solo durante il setup (KERS resta bloccato) */
     #screen-setup.setup-active #box-wing {
       pointer-events: auto !important;
       cursor: pointer !important;
     }
 
-
-    /* Blocco totale e permanente dell'alettone fuori dalla fase di setup */
-    #box-wing {
+    #screen-setup:not(.setup-active) #box-wing {
       pointer-events: none !important;
       cursor: default !important;
     }
