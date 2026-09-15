@@ -11,7 +11,7 @@ import { gestisciModificaUsuraFreniETrafilamentoKers } from './brakesKers.js';
 import { gestisciUsuraTelaio } from './chassis.js';
 import { gestisciUsuraSospensioni } from './suspension.js';
 import { renderTyreDeck, selectTyreFromUI, handleTyreClick } from './compoundsTyres.js';
-
+export { toggleRaceEdit } from './editOutsideBoxes.js';
 /**
  * Inizializza la scheda del pilota caricando le preferenze e impostando il tema grafico.
  * 
@@ -94,3 +94,19 @@ export function gestisciAssegnazioneBudget(tipoArea, delta) {
 }
 
 export { renderTyreDeck, selectTyreFromUI, handleTyreClick };
+
+
+
+/**
+ * Coordina la modifica dell'usura di un componente durante la gara in modalità edit
+ * @param {string} tipoComponente - Il tipo di componente (es. 'brakes')
+ * @param {number} indiceCasella - L'indice della casella cliccata
+ * @returns {Object} Esito dell'operazione
+ */
+export function gestisciModificaUsuraInGara(tipoComponente, indiceCasella) {
+    if (tipoComponente === 'brakes') {
+        return gestisciModificaUsuraFreniETrafilamentoKers(indiceCasella);
+    }
+    // Qui in futuro potrai aggiungere gli altri componenti (fuel, engine, ecc.) passando sempre per i loro import nel main controller
+    return { operazioneRiuscita: false, messaggioDescrittivo: "Componente non gestito." };
+}
