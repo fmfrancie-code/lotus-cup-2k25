@@ -211,43 +211,40 @@ function inizializzaListenerEditGara() {
             container.dataset.editListenerAttached = "true";
 
             container.addEventListener('click', (e) => {
-                // Verifica che la modalità edit sia attiva tramite la classe sul body
+                // Verifica che la modalità edit sia attiva sul body
                 if (!document.body.classList.contains('edit-mode-active')) return;
                 
                 e.stopImmediatePropagation();
                 const box = e.target.closest('.box');
                 if (!box) return;
 
-                // Esclude caselle vuote o caselle base fisse / alettone protetto
-                if (box.innerText.trim() === '' || box.dataset.base === "true" || box.classList.contains('wing-disabled')) return;
+                // Esclude solo l'alettone disabilitato o elementi non validi
+                if (box.classList.contains('wing-disabled') || box.classList.contains('wing-x')) return;
 
                 const tipoComponente = righeComponenti[rowId];
                 const boxesNellaRiga = Array.from(container.querySelectorAll('.box'));
                 const indiceBox = boxesNellaRiga.indexOf(box);
 
-                // REGOLA RISPETTATA: Passaggio obbligato ed esclusivo per il mainSchedaController
-                const risultato = gestisciModificaUsuraInGara(tipoComponente, indiceBox);
-                
-                if (risultato && risultato.operazioneRiuscita) {
-                    if (tipoComponente === 'tyres') {
-                        // Gestione specifica per le gomme: aggiorna sia le gomme che l'eventuale eccesso sui freni
-                        const containerFreni = document.getElementById('row-brakes');
-                        
-                        sincronizzaVisualizzazioneRiga(container, risultato.tyresAggiornati);
-                        if (containerFreni && risultato.freniAggiornati) {
-                            sincronizzaVisualizzazioneRiga(containerFreni, risultato.freniAggiornati);
-                        }
-                    } else {
-                        // Gestione standard per tutti gli altri componenti
-                        const arrayAggiornato = risultato.freniAggiornati || 
-                                               risultato.benzinaAggiornata || 
-                                               risultato.usureMotoreAggiornate || 
-                                               risultato.usureTelaioAggiornate || 
-                                               risultato.usureSospensioniAggiornate || [];
+                // Legge lo stato attuale delle usure per questo componente
+                let usureCorrenti = [...(gameState.markedUsages[tipoComponente] || [])];
 
-                        sincronizzaVisualizzazioneRiga(container, arrayAggiornato);
-                    }
+                // Toggle manuale della casella esatta cliccata (Metti/Togli X)
+                if (usureCorrenti.includes(indiceBox)) {
+                    usureCorrenti = usureCorrenti.filter(idx => idx !== indiceBox);
+                } else {
+                    usureCorrenti.push(indiceBox);
                 }
+
+                // Aggiorna lo stato globale rispettando la regola d'oro (tramite updateGameState)
+                const nuovoMarkedUsages = {
+                    ...gameState.markedUsages,
+                    [tipoComponente]: usureCorrenti
+                };
+                
+                updateGameState({ markedUsages: nuovoMarkedUsages });
+
+                // Sincronizza visivamente la riga esatta
+                sincronizzaVisualizzazioneRiga(container, usureCorrenti);
             });
         }
     });
