@@ -157,6 +157,7 @@ window.closeModal = function(modalId) {
 document.addEventListener("DOMContentLoaded", () => {
     inizializzaLayout();
     inizializzaInterazionePlancia();
+    inizializzaListenerEditGara();
     renderTyreDeck();
 });
 
@@ -190,13 +191,18 @@ window.toggleWing = function() {
     aggiornaStatoAlettoneTelaio(isWingActive);
 };
 
+
 /**
- * Inizializza il listener in script.js per la modalità Edit in gara
+ * Inizializza il listener in script.js per la modalità Edit in gara su tutta la plancia
  */
 function inizializzaListenerEditGara() {
     const righeComponenti = {
+        'row-tyres': 'tyres',
         'row-brakes': 'brakes',
-        // 'row-fuel': 'fuel', ecc.
+        'row-fuel': 'fuel',
+        'row-engine': 'engine',
+        'row-body': 'body',
+        'row-suspension': 'suspension'
     };
 
     Object.keys(righeComponenti).forEach(rowId => {
@@ -205,25 +211,63 @@ function inizializzaListenerEditGara() {
             container.dataset.editListenerAttached = "true";
 
             container.addEventListener('click', (e) => {
+                // Verifica che la modalità edit sia attiva tramite la classe sul body
                 if (!document.body.classList.contains('edit-mode-active')) return;
                 
                 e.stopImmediatePropagation();
                 const box = e.target.closest('.box');
                 if (!box) return;
 
-                if (box.innerText.trim() === '' || box.dataset.base === "true") return;
+                // Esclude caselle vuote o caselle base fisse / alettone protetto
+                if (box.innerText.trim() === '' || box.dataset.base === "true" || box.classList.contains('wing-disabled')) return;
 
                 const tipoComponente = righeComponenti[rowId];
                 const boxesNellaRiga = Array.from(container.querySelectorAll('.box'));
                 const indiceBox = boxesNellaRiga.indexOf(box);
 
-                // REGOLA RISPETTATA: Chiamata pulita che passa per mainSchedaController
+                // REGOLA RISPETTATA: Passaggio obbligato ed esclusivo per il mainSchedaController
                 const risultato = gestisciModificaUsuraInGara(tipoComponente, indiceBox);
                 
-                if (risultato.operazioneRiuscita) {
-                    sincronizzaVisualizzazioneRiga(container, risultato.freniAggiornati);
+                if (risultato && risultato.operazioneRiuscita) {
+                    if (tipoComponente === 'tyres') {
+                        // Gestione specifica per le gomme: aggiorna sia le gomme che l'eventuale eccesso sui freni
+                        const containerFreni = document.getElementById('row-brakes');
+                        
+                        sincronizzaVisualizzazioneRiga(container, risultato.tyresAggiornati);
+                        if (containerFreni && risultato.freniAggiornati) {
+                            sincronizzaVisualizzazioneRiga(containerFreni, risultato.freniAggiornati);
+                        }
+                    } else {
+                        // Gestione standard per tutti gli altri componenti
+                        const arrayAggiornato = risultato.freniAggiornati || 
+                                               risultato.benzinaAggiornata || 
+                                               risultato.usureMotoreAggiornate || 
+                                               risultato.usureTelaioAggiornate || 
+                                               risultato.usureSospensioniAggiornate || [];
+
+                        sincronizzaVisualizzazioneRiga(container, arrayAggiornato);
+                    }
                 }
             });
+        }
+    });
+}
+
+/**
+ * Aggiorna la grafica della riga applicando o rimuovendo la classe .x-red sulle caselle
+ */
+function sincronizzaVisualizzazioneRiga(container, arrayIndiciUsurati) {
+    if (!arrayIndiciUsurati) return;
+    const boxes = container.querySelectorAll('.box');
+    boxes.forEach((box, index) => {
+        if (box.dataset.base === "true" || box.classList.contains('wing-disabled')) return;
+
+        if (arrayIndiciUsurati.includes(index)) {
+            box.classList.add('x-red');
+            box.innerText = 'X';
+        } else {
+            box.classList.remove('x-red');
+            box.innerText = '1';
         }
     });
 }
