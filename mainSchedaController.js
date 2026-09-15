@@ -10,7 +10,7 @@ import { gestisciUsuraMotore } from './engine.js';
 import { gestisciModificaUsuraFreniETrafilamentoKers } from './brakesKers.js';
 import { gestisciUsuraTelaio } from './chassis.js';
 import { gestisciUsuraSospensioni } from './suspension.js';
-import { renderTyreDeck, selectTyreFromUI, handleTyreClick, applicaConsumoPneumaticiInBaseAMescolaEMeteo } from './compoundsTyres.js';
+import { renderTyreDeck, selectTyreFromUI, handleTyreClick, gestisciModificaUsuraPneumaticiInGara } from './compoundsTyres.js';
 export { toggleRaceEdit } from './editOutsideBoxes.js';
 /**
  * Inizializza la scheda del pilota caricando le preferenze e impostando il tema grafico.
@@ -106,15 +106,7 @@ export { renderTyreDeck, selectTyreFromUI, handleTyreClick };
 export function gestisciModificaUsuraInGara(tipoComponente, indiceCasella) {
     switch (tipoComponente) {
         case 'tyres':
-            // I pneumatici usano la logica basata sulla mescola e meteo
-            const risultatoGomme = applicaConsumoPneumaticiInBaseAMescolaEMeteo();
-            return {
-                operazioneRiuscita: true,
-                // Restituisce l'array aggiornato delle gomme e l'eventuale aggiornamento freni per la sincronizzazione UI
-                tyresAggiornati: gameState.markedUsages.tyres,
-                freniAggiornati: gameState.markedUsages.brakes,
-                messaggioDescrittivo: risultatoGomme.messaggioDescrittivo
-            };
+            return gestisciModificaUsuraPneumaticiInGara(indiceCasella);
         case 'brakes':
             return gestisciModificaUsuraFreniETrafilamentoKers(indiceCasella);
         case 'fuel':
