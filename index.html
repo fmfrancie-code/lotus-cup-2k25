@@ -584,17 +584,40 @@
       font-weight: 700;
     }
 
+    /* --- GESTIONE INTERATTIVITÀ CASELLE: LE TRE REGOLE DISTINTE --- */
+
+    /* 1. FASE DI SETUP: 
+       Attiva le caselle vuote (per aggiungere punti) e quelle allocate dall'utente */
     #screen-setup.setup-active .box.user-allocated,
-    body.edit-mode-active .board-row .box:not(:empty),
-    body.pitstop-mode-active .box.user-allocated {
+    #screen-setup.setup-active .box:empty {
       pointer-events: auto !important;
       cursor: pointer !important;
     }
 
+    /* 2. FASE DI EDIT GARA (Fuori dai Box): 
+       Apre l'interattività a qualsiasi casella non vuota (:not(:empty)) su tutta la plancia, 
+       indipendentemente dalla classe user-allocated, per il toggle manuale della X rossa. 
+       (Il cambio gomme e l'alettone restano bloccati da logica di script). */
+    body.edit-mode-active .box:not(:empty) {
+      pointer-events: auto !important;
+      cursor: pointer !important;
+    }
+
+    /* 3. FASE DI EDIT NEI BOX (Pit Stop): 
+       Apre anch'essa l'interattività a qualsiasi casella non vuota (:not(:empty)) su tutta la plancia, 
+       indipendentemente dalla classe user-allocated, per il toggle manuale della X rossa. 
+       (In questa fase lo script sblocca anche la selezione dei nuovi pneumatici). */
+    body.pitstop-mode-active .box:not(:empty) {
+      pointer-events: auto !important;
+      cursor: pointer !important;
+    }
+
+    /* Fallback di protezione globale quando non siamo in alcuna modalità attiva */
     #screen-setup:not(.setup-active):not(.edit-mode-active) .box.user-allocated {
       pointer-events: none !important;
       cursor: default !important;
     }
+    
 
     /* Le caselle vuote lampeggiano all'unisono azzerando il delay dell'animazione */
     #screen-setup.setup-active:not(.budget-zero) .box:empty:not(#box-wing):not(#box-kers) {
