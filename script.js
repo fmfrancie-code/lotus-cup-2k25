@@ -7,8 +7,7 @@ import { applyTheme, inizializzaLayout, aggiornaInterfacciaBudget, inizializzaIn
 import { gameState, updateGameState } from './state.js';
 import { inizializzaMeteoGara, ottieniEtichettaMeteo, ottieniIconaMeteo } from './weather.js';
 import { aggiornaTelemetria } from './telemetryGrid.js';
-import { inizializzaSchedaPilota, gestisciAssegnazioneBudget, ufficializzaSchedaPerGara, renderTyreDeck, selectTyreFromUI, handleTyreClick } from './mainSchedaController.js';
-import { toggleRaceEdit } from './editOutsideBoxes.js';
+import { inizializzaSchedaPilota, gestisciAssegnazioneBudget, ufficializzaSchedaPerGara, renderTyreDeck, selectTyreFromUI, handleTyreClick, gestisciModificaUsuraInGara, toggleRaceEdit } from './mainSchedaController.js';
 
 // ---- ESPOSIZIONE GLOBALE DELLE FUNZIONI MESCOLE E GESTORI INLINE NEL DOM
 window.selectTyre = selectTyreFromUI;
@@ -190,5 +189,43 @@ window.toggleWing = function() {
        
     aggiornaStatoAlettoneTelaio(isWingActive);
 };
+
+/**
+ * Inizializza il listener in script.js per la modalità Edit in gara
+ */
+function inizializzaListenerEditGara() {
+    const righeComponenti = {
+        'row-brakes': 'brakes',
+        // 'row-fuel': 'fuel', ecc.
+    };
+
+    Object.keys(righeComponenti).forEach(rowId => {
+        const container = document.getElementById(rowId);
+        if (container && !container.dataset.editListenerAttached) {
+            container.dataset.editListenerAttached = "true";
+
+            container.addEventListener('click', (e) => {
+                if (!document.body.classList.contains('edit-mode-active')) return;
+                
+                e.stopImmediatePropagation();
+                const box = e.target.closest('.box');
+                if (!box) return;
+
+                if (box.innerText.trim() === '' || box.dataset.base === "true") return;
+
+                const tipoComponente = righeComponenti[rowId];
+                const boxesNellaRiga = Array.from(container.querySelectorAll('.box'));
+                const indiceBox = boxesNellaRiga.indexOf(box);
+
+                // REGOLA RISPETTATA: Chiamata pulita che passa per mainSchedaController
+                const risultato = gestisciModificaUsuraInGara(tipoComponente, indiceBox);
+                
+                if (risultato.operazioneRiuscita) {
+                    sincronizzaVisualizzazioneRiga(container, risultato.freniAggiornati);
+                }
+            });
+        }
+    });
+}
 
 console.log("Lotus Cup 2k25: Script Main orchestrato correttamente.");
