@@ -12,42 +12,31 @@ import { gameState, updateGameState } from './state.js';
  * @param {number} indiceCasellaBenzinaSelezionata - Indice della casella cliccata dall'utente
  * @returns {Object} - Stato aggiornato della benzina, stringa MOV attiva e messaggi di avviso
  */
-export function gestisciConsumoBenzinaEModifica(indiceCasellaBenzinaSelezionata) {
+ export function gestisciConsumoBenzinaEModifica(indiceCasellaBenzinaSelezionata) {
     const arrayCaselleBenzinaCorrente = [...gameState.markedUsages.fuel];
-    const totaleCaselleDisponibiliBenzina = 2 + gameState.allocations.fuel; // Valore base (2) + punti assegnati in setup
+    const totaleCaselleDisponibiliBenzina = 2 + gameState.allocations.fuel;
     
     const laCasellaContieneGiaUnaX = arrayCaselleBenzinaCorrente.includes(indiceCasellaBenzinaSelezionata);
     let messaggioAvvisoUtente = "";
     let stringaMovimentoAttiva = "+0 MOV";
 
     if (laCasellaContieneGiaUnaX) {
-        // Rimozione della X (da sinistra verso destra secondo le regole di edit)
-        const indiceDaRimuovere = arrayCaselleBenzinaCorrente.indexOf(indiceCasellaBenzinaSelezionata);
-        if (indiceDaRimuovere !== -1) {
-            arrayCaselleBenzinaCorrente.splice(indiceDaRimuovere, 1);
-        }
+        arrayCaselleBenzinaCorrente.splice(arrayCaselleBenzinaCorrente.indexOf(indiceCasellaBenzinaSelezionata), 1);
     } else {
-        // Inserimento della X (da destra verso sinistra secondo le regole di edit)
         arrayCaselleBenzinaCorrente.push(indiceCasellaBenzinaSelezionata);
     }
 
-    // Calcolo delle caselle libere (senza X)
     const numeroCaselleBenzinaSenzaX = totaleCaselleDisponibiliBenzina - arrayCaselleBenzinaCorrente.length;
 
-    // REGOLA DI BUSINESS: Se la benzina ha un numero di caselle senza X che sia 3 o inferiore, la stringa passa da "+0 MOV" a "+1 MOV"
     if (numeroCaselleBenzinaSenzaX <= 3 && numeroCaselleBenzinaSenzaX > 0) {
         stringaMovimentoAttiva = "+1 MOV";
     }
 
-    // REGOLA DI BUSINESS: Se l'ultima casella della benzina disponibile (quella più a sinistra, indice 0) viene marcata con una X, il carburante è esaurito
     const indiceUltimaCasellaPiuALeft = 0;
-    const ultimaCasellaEStataMarcata = arrayCaselleBenzinaCorrente.includes(indiceUltimaCasellaPiuALeft);
-    
-    if (ultimaCasellaEStataMarcata) {
+    if (arrayCaselleBenzinaCorrente.includes(indiceUltimaCasellaPiuALeft)) {
         messaggioAvvisoUtente = "Attenzione: Hai finito la benzina!";
     }
 
-    // Aggiornamento dello stato globale
     updateGameState({
         markedUsages: {
             ...gameState.markedUsages,
@@ -87,7 +76,7 @@ export function gestisciRipristinoBenzinaAiBox(modalitaSceltaBox, numeroCaselleD
         // Leggerezza: il pilota decide la strategia lasciando scoperte le ultime caselle disponibili
         const totaleCaselleDisponibiliBenzina = 2 + gameState.allocations.fuel;
         
-        // Ricostruisce lo scenario lasciando libere le ultime caselle richieste (es. le 3 più a sinistra)
+        // Ricostruisce lo scenario lasciando libere le ultime caselle richieste (es. le 3 piÃ¹ a sinistra)
         arrayCaselleBenzinaAggiornato = [];
         for (let indiceCasella = numeroCaselleDaMantenereLibere; indiceCasella < totaleCaselleDisponibiliBenzina; indiceCasella++) {
             arrayCaselleBenzinaAggiornato.push(indiceCasella);
