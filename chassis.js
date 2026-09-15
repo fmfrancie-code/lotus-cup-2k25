@@ -18,24 +18,17 @@ export function gestisciUsuraTelaio(indiceCasellaSelezionata) {
     let alettoneAttivoAggiornato = gameState.wingActive;
 
     if (laCasellaContieneGiaUnaX) {
-        // Rimozione della X (da destra verso sinistra per i componenti di destra)
-        const indiceDaRimuovere = arrayUsureTelaioCorrente.indexOf(indiceCasellaSelezionata);
-        if (indiceDaRimuovere !== -1) {
-            arrayUsureTelaioCorrente.splice(indiceDaRimuovere, 1);
-        }
+        arrayUsureTelaioCorrente.splice(arrayUsureTelaioCorrente.indexOf(indiceCasellaSelezionata), 1);
     } else {
-        // Inserimento della X (da sinistra verso destra per i componenti di destra)
         arrayUsureTelaioCorrente.push(indiceCasellaSelezionata);
     }
 
     const valoreBaseTelaio = gameState.baseValues.body;
     const puntiAssegnatiSetupTelaio = gameState.allocations.body;
     const totaleCaselleDisponibiliTelaio = valoreBaseTelaio + puntiAssegnatiSetupTelaio;
-
     const tutteLeCaselleTelaioSonoOccupate = (arrayUsureTelaioCorrente.length === totaleCaselleDisponibiliTelaio);
 
     if (tutteLeCaselleTelaioSonoOccupate) {
-        // Regola critica Telaio: esaurimento totale rompe l'alettone se attivo
         if (gameState.wingActive) {
             alettoneAttivoAggiornato = false;
         }
