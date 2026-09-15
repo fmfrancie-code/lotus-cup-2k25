@@ -23,7 +23,7 @@ export function gestisciSelezioneMescolaEGiri(nomeMescolaSelezionata, numeroGiro
     // Copia dello stato attuale dei giri per le mescole
     const mappaGiriStintAggiornata = { ...gameState.tyreLaps };
 
-    // Regola di esclusivitÃ : rimuove il giro selezionato da tutte le altre mescole per evitare sovrapposizioni
+    // Regola di esclusività : rimuove il giro selezionato da tutte le altre mescole per evitare sovrapposizioni
     for (const mescolaCorrente of elencoMescoleValide) {
         if (mescolaCorrente !== nomeMescolaSelezionata) {
             mappaGiriStintAggiornata[mescolaCorrente] = mappaGiriStintAggiornata[mescolaCorrente].filter(
@@ -62,43 +62,62 @@ export function applicaConsumoPneumaticiInBaseAMescolaEMeteo() {
 
     // Regole di consumo basate sul tipo di mescola e sullo stato dell'asfalto
     if (mescolaAttivaAlMomento === 'Prime' || mescolaAttivaAlMomento === 'Option') {
-        if (asfaltoBagnatoInAtto) {
-            quantitaCasellePneumaticiDaBarrare = 3;
-        } else {
-            quantitaCasellePneumaticiDaBarrare = 2;
-        }
+        quantitaCasellePneumaticiDaBarrare = asfaltoBagnatoInAtto ? 3 : 2;
     } else if (mescolaAttivaAlMomento === 'Intermedie') {
-        if (asfaltoBagnatoInAtto) {
-            quantitaCasellePneumaticiDaBarrare = 2;
-        } else {
-            quantitaCasellePneumaticiDaBarrare = 1;
-        }
+        quantitaCasellePneumaticiDaBarrare = asfaltoBagnatoInAtto ? 2 : 1;
     } else if (mescolaAttivaAlMomento === 'Pioggia') {
-        if (!asfaltoBagnatoInAtto) {
-            quantitaCasellePneumaticiDaBarrare = 2;
-        } else {
-            quantitaCasellePneumaticiDaBarrare = 1;
-        }
+        quantitaCasellePneumaticiDaBarrare = !asfaltoBagnatoInAtto ? 2 : 1;
     }
 
     const arrayCasellePneumaticiCorrente = [...gameState.markedUsages.tyres];
     const arrayCaselleFreniCorrente = [...gameState.markedUsages.brakes];
-    
+
+    // GESTIONE INVERSIONE (RIMONZIONE A BLOCCHI): Se ci sono già X, il click rimuove il blocco corrispondente
+    const isEditModeActive = document.body.classList.contains('edit-mode-active');
+    if (isEditModeActive && arrayCasellePneumaticiCorrente.length > 0) {
+        let freniDaRipulire = 0;
+        for (let i = 0; i < quantitaCasellePneumaticiDaBarrare; i++) {
+            if (arrayCasellePneumaticiCorrente.length > 0) {
+                arrayCasellePneumaticiCorrente.pop(); // Rimuove da destra verso sinistra
+            } else {
+                freniDaRipulire++;
+            }
+        }
+
+        for (let i = 0; i < freniDaRipulire; i++) {
+            if (arrayCaselleFreniCorrente.length > 0) {
+                arrayCaselleFreniCorrente.pop();
+            }
+        }
+
+        updateGameState({
+            markedUsages: {
+                ...gameState.markedUsages,
+                tyres: arrayCasellePneumaticiCorrente,
+                brakes: arrayCaselleFreniCorrente
+            }
+        });
+
+        return {
+            gommeBarrate: -quantitaCasellePneumaticiDaBarrare,
+            freniCoinvoltiPerEccesso: -freniDaRipulire,
+            messaggioDescrittivo: `Blocco usura pneumatici rimosso per mescola [${mescolaAttivaAlMomento}].`
+        };
+    }
+
+    // LOGICA STANDARD DI INSERIMENTO (Aggiunta a blocchi con tracimazione)
     let puntiEccessoDaScalareDaiFreni = 0;
     
-    // Logica di inserimento delle X sui pneumatici (da destra verso sinistra secondo le regole)
     for (let passoUsura = 0; passoUsura < quantitaCasellePneumaticiDaBarrare; passoUsura++) {
         const indicePrimaCasellaDisponibileDaDestra = troviIndiceCasellaPneumaticoDisponibileDaDestra(arrayCasellePneumaticiCorrente);
         
         if (indicePrimaCasellaDisponibileDaDestra !== -1) {
             arrayCasellePneumaticiCorrente.push(indicePrimaCasellaDisponibileDaDestra);
         } else {
-            // Se non ci sono piÃ¹ punti pneumatici liberi, si scala la differenza sui freni
             puntiEccessoDaScalareDaiFreni++;
         }
     }
 
-    // Se c'Ã¨ eccesso, applichiamo la X anche sui freni (da destra verso sinistra)
     for (let passoFreno = 0; passoFreno < puntiEccessoDaScalareDaiFreni; passoFreno++) {
         const indicePrimaCasellaFrenoDisponibileDaDestra = troviIndiceCasellaFrenoDisponibileDaDestra(arrayCaselleFreniCorrente);
         if (indicePrimaCasellaFrenoDisponibileDaDestra !== -1) {
@@ -122,7 +141,6 @@ export function applicaConsumoPneumaticiInBaseAMescolaEMeteo() {
             (puntiEccessoDaScalareDaiFreni > 0 ? ` Eccesso di usura di ${puntiEccessoDaScalareDaiFreni} punti scalato sui Freni!` : '')
     };
 }
-
 /**
  * Funzione di utilità  interna per trovare la casella dei pneumatici da marcare (da destra a sinistra).
  */
