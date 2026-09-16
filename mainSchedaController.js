@@ -12,23 +12,22 @@ import { gestisciUsuraTelaio } from './chassis.js';
 import { gestisciUsuraSospensioni } from './suspension.js';
 import { renderTyreDeck, selectTyreFromUI, handleTyreClick, gestisciModificaUsuraPneumaticiInGara } from './compoundsTyres.js';
 export { toggleRaceEdit } from './editOutsideBoxes.js';
+
+export { renderTyreDeck, selectTyreFromUI, handleTyreClick };
+
 /**
  * Inizializza la scheda del pilota caricando le preferenze e impostando il tema grafico.
- * 
- * @param {Object} datiInizialiPilota - Informazioni di base (nome, id, codice stanza, tema)
  */
 export function inizializzaSchedaPilota(datiInizialiPilota) {
-    
     let defaultTyre;
 
-    if (gameState.weather === 'rain') {
+    if (datiInizialiPilota.weather === 'rain') {
         defaultTyre = 'Pioggia';
-    } else if (gameState.weather === 'var_dry' || gameState.weather === 'var_wet') {
+    } else if (datiInizialiPilota.weather === 'var_dry' || datiInizialiPilota.weather === 'var_wet') {
         defaultTyre = 'Intermedie';
     } else {
-        defaultTyre = 'Prime'; // Gestisce 'sun' e qualsiasi altro caso di fallback
+        defaultTyre = 'Prime';
     }
-    
     
     updateGameState({
         code: datiInizialiPilota.code,
@@ -57,7 +56,6 @@ export function inizializzaSchedaPilota(datiInizialiPilota) {
 
 /**
  * Transizione della scheda verso la fase di Ufficializzazione / Gara.
- * Vengono bloccati i punti di setup e attivata la modalità  di gara.
  */
 export function ufficializzaSchedaPerGara() {
     const budgetRimanenteInSetup = gameState.budget;
@@ -83,25 +81,14 @@ export function ufficializzaSchedaPerGara() {
 }
 
 /**
- * Gestisce l'assegnazione o la modifica di un punto budget per una specifica area della monoposto.
- * 
- * @param {string} tipoArea - L'area della scheda (es. 'tyres', 'brakes', ecc.)
- * @param {number} delta - Quantità  da aggiungere o sottrarre (es. +1 o -1)
- * @returns {Object} Risultato dell'operazione di budget
+ * Gestisce l'assegnazione o la modifica di un punto budget.
  */
 export function gestisciAssegnazioneBudget(tipoArea, delta) {
     return assegnaPuntoBudgetSetup(tipoArea, delta);
 }
 
-export { renderTyreDeck, selectTyreFromUI, handleTyreClick };
-
-
-
 /**
  * Coordina la modifica dell'usura di un componente durante la gara in modalità edit
- * @param {string} tipoComponente - Il tipo di componente (es. 'brakes')
- * @param {number} indiceCasella - L'indice della casella cliccata
- * @returns {Object} Esito dell'operazione
  */
 export function gestisciModificaUsuraInGara(tipoComponente, indiceCasella) {
     switch (tipoComponente) {
@@ -121,3 +108,216 @@ export function gestisciModificaUsuraInGara(tipoComponente, indiceCasella) {
             return { operazioneRiuscita: false, messaggioDescrittivo: "Componente non gestito." };
     }
 }
+
+
+// ==========================================
+// FUNZIONE DI RENDERING UNIFICATA DELLA PLANCIA (Stile Monolite)
+// ==========================================
+
+export function renderBoard() {
+    const components = ['tyres', 'brakes', 'fuel', 'body', 'engine', 'suspension'];
+    const rightAligned = ['body', 'engine', 'suspension'];
+    const isInspecting = false; 
+
+    components.forEach(comp => {
+        const container = document.getElementById(`row-${comp}`);
+        if (!container) return;
+        container.innerHTML = '';
+
+        const totalBoxes = (comp === 'tyres') ? 10 : 6;
+        const baseVal = gameState.baseValues[comp];
+        const addedVal = gameState.allocations[comp];
+        const totalPoints = baseVal + addedVal;
+        const isRight = rightAligned.includes(comp);
+        const wingBoxIndex = totalBoxes - totalPoints;
+        const isWingActive = gameState.alettoneAttivo || false;
+
+        for (let i = 0; i < totalBoxes; i++) {
+            const box = document.createElement('div');
+            box.className = 'box';
+
+            if (!isRight) {
+                // Sezioni di sinistra (Tyres, Brakes, Fuel)
+                if (comp === 'tyres' && i === 0) {
+                    box.innerHTML = `<svg viewBox="0 0 100 100" style="width:22px;height:22px;color:currentColor;"><path d="M 50 15 A 35 35 0 1 1 20 60" fill="none" stroke="currentColor" stroke-width="8" stroke-dasharray="6,4"/><polygon points="12,50 25,65 30,45" fill="currentColor"/><text x="50" y="62" font-size="34" font-weight="bold" text-anchor="middle" fill="currentColor" font-family="Orbitron">1</text></svg>`;
+                } else if (i < baseVal) {
+                    box.innerText = '1';
+                } else if (i < totalPoints) {
+                    box.innerText = '1';
+                    if (gameState.isSetupMode && !isInspecting) {
+                        box.classList.add('clickable');
+                        box.onclick = () => {
+                            const res = gestisciAssegnazioneBudget(comp, -1);
+                            if (res.operazioneRiuscita) {
+                                renderBoard();
+                                aggiornaInterfacciaBudgetMod(res.budgetResiduo);
+                            }
+                        };
+                    }
+                } else {
+                    box.innerText = '';
+                    if (gameState.isSetupMode && !isInspecting) {
+                        if (gameState.budget > 0) {
+                            box.classList.add('box-setup-highlight', 'clickable');
+                            box.onclick = () => {
+                                const res = gestisciAssegnazioneBudget(comp, 1);
+                                if (res.operazioneRiuscita) {
+                                    renderBoard();
+                                    aggiornaInterfacciaBudgetMod(res.budgetResiduo);
+                                } else {
+                                    alert(res.messaggioDescrittivo);
+                                }
+                            };
+                        } else {
+                            box.classList.add('box-setup-disabled');
+                        }
+                    }
+                }
+            } else {
+                // Sezioni di destra (Body, Engine, Suspension)
+                const fromRight = totalBoxes - 1 - i;
+                
+                if (comp === 'body' && isWingActive && i === wingBoxIndex) {
+                    box.innerText = 'X';
+                    box.classList.add('wing-x', 'x-black');
+                    box.dataset.base = "true";
+                } else if (fromRight < baseVal) {
+                    box.innerText = '1';
+                } else if (fromRight < totalPoints) {
+                    box.innerText = '1';
+                    if (gameState.isSetupMode && !isInspecting) {
+                        box.classList.add('clickable');
+                        box.onclick = () => {
+                            const res = gestisciAssegnazioneBudget(comp, -1);
+                            if (res.operazioneRiuscita) {
+                                if (comp === 'body') gestisciAggiornamentoAlettoneDopoModifica(comp);
+                                renderBoard();
+                                aggiornaInterfacciaBudgetMod(res.budgetResiduo);
+                            }
+                        };
+                    }
+                } else {
+                    box.innerText = '';
+                    if (gameState.isSetupMode && !isInspecting) {
+                        // Verifica blocco alettone sul telaio
+                        let bloccatoDaAlettone = false;
+                        if (comp === 'body' && isWingActive) {
+                            const indiceDisabilitato = totalBoxes - totalPoints;
+                            if (i <= indiceDisabilitato) bloccatoDaAlettone = true;
+                        }
+
+                        if (!bloccatoDaAlettone) {
+                            if (gameState.budget > 0) {
+                                box.classList.add('box-setup-highlight', 'clickable');
+                                box.onclick = () => {
+                                    const res = gestisciAssegnazioneBudget(comp, 1);
+                                    if (res.operazioneRiuscita) {
+                                        if (comp === 'body') gestisciAggiornamentoAlettoneDopoModifica(comp);
+                                        renderBoard();
+                                        aggiornaInterfacciaBudgetMod(res.budgetResiduo);
+                                    } else {
+                                        alert(res.messaggioDescrittivo);
+                                    }
+                                };
+                            } else {
+                                box.classList.add('box-setup-disabled');
+                            }
+                        } else {
+                            box.classList.add('wing-disabled');
+                        }
+                    }
+                }
+            }
+
+            // 3. Gestione della modalità Gara / Edit / Pit Stop
+            if (gameState.isRaceMode) {
+                if (gameState.markedUsages[comp] && gameState.markedUsages[comp].includes(i)) {
+                    box.innerText = 'X';
+                    box.classList.add('x-red');
+                }
+
+                let isClickableBox = (gameState.isEditingAllowed || gameState.isPitStopActive) && !isInspecting;
+                if (isClickableBox) {
+                    box.classList.add('clickable');
+                    box.onclick = () => {
+                        const res = gestisciModificaUsuraInGara(comp, i);
+                        if (res && res.operazioneRiuscita) {
+                            renderBoard();
+                        }
+                    };
+                }
+            }
+
+            container.appendChild(box);
+        }
+    });
+
+    // Aggiornamento contatore budget nella UI di setup
+    const budgetCountEl = document.getElementById('budget-count');
+    if (budgetCountEl) budgetCountEl.innerText = gameState.budget;
+}
+
+/**
+ * Funzione di servizio interna per aggiornare graficamente il budget e il pulsante di blocco
+ */
+function aggiornaInterfacciaBudgetMod(budgetResiduo) {
+    const budgetCount = document.getElementById('budget-count');
+    if (budgetCount) budgetCount.innerText = budgetResiduo;
+
+    const btnLock = document.getElementById('btn-lock-setup');
+    if (btnLock) {
+        btnLock.disabled = (budgetResiduo > 0);
+    }
+
+    const setupScreen = document.getElementById('screen-setup');
+    if (setupScreen) {
+        if (budgetResiduo === 0) {
+            setupScreen.classList.add('budget-zero');
+        } else {
+            setupScreen.classList.remove('budget-zero');
+        }
+    }
+}
+
+
+// ==========================================
+// GESTIONE ALETTONE (Wing) & TELAIO
+// ==========================================
+
+export function toggleWing() {
+    const boxWing = document.getElementById('box-wing');
+    if (!boxWing) return;
+
+    let isWingActive = boxWing.classList.contains('wing-active');
+    
+    if (!isWingActive) {
+        const wingSvg = `
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;color:inherit;">
+                <path d="M 2 6 L 22 6 L 20 10 L 4 10 Z" fill="currentColor" fill-opacity="0.2"/>
+                <path d="M 2 4 L 4 14 L 2 14 Z"/>
+                <path d="M 22 4 L 20 14 L 22 14 Z"/>
+                <line x1="9" y1="10" x2="9" y2="17"/>
+                <line x1="15" y1="10" x2="15" y2="17"/>
+            </svg>
+        `;
+        boxWing.classList.add('wing-active', 'circle-green');
+        boxWing.innerHTML = wingSvg;
+        isWingActive = true;
+    } else {
+        boxWing.classList.remove('wing-active', 'circle-green');
+        boxWing.innerHTML = '';
+        isWingActive = false;
+    }
+       
+    updateGameState({ alettoneAttivo: isWingActive });
+    renderBoard();
+}
+
+export function gestisciAggiornamentoAlettoneDopoModifica(tipoComponente) {
+    if (tipoComponente !== 'body') return;
+    const boxWing = document.getElementById('box-wing');
+    const isWingActive = boxWing && boxWing.classList.contains('wing-active');
+    updateGameState({ alettoneAttivo: isWingActive });
+    renderBoard();
+}
+
