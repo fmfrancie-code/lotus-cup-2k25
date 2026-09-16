@@ -253,7 +253,7 @@ export function renderBoard() {
             container.appendChild(box);
         }
     });
-}
+
 
     // Aggiornamento contatore budget nella UI di setup
     const budgetCountEl = document.getElementById('budget-count');
