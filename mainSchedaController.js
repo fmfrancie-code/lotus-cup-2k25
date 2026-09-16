@@ -233,12 +233,17 @@ export function renderBoard() {
 
             // 3. Gestione della modalità Gara / Edit / Pit Stop
             if (gameState.isRaceMode) {
+                const isWingXBox = (comp === 'body' && isWingActive && i === wingBoxIndex);
+                
                 if (gameState.markedUsages[comp] && gameState.markedUsages[comp].includes(i)) {
                     box.innerText = 'X';
-                    box.classList.add('x-red');
+                    box.className = 'box x-red'; // Forza lo stile pulito della X rossa neon
+                } else if (isWingXBox) {
+                    box.innerText = 'X';
+                    box.className = 'box wing-x'; // Mantiene blindata la X dell'alettone
                 }
 
-                let isClickableBox = (gameState.isEditingAllowed || gameState.isPitStopActive) && !isInspecting;
+                let isClickableBox = (gameState.isEditingAllowed || gameState.isPitStopActive) && !isInspecting && !isWingXBox;
                 if (isClickableBox) {
                     box.classList.add('clickable');
                     box.onclick = () => {
@@ -253,7 +258,11 @@ export function renderBoard() {
             container.appendChild(box);
         }
     });
-
+    
+    // Aggiornamento visivo dello stato KERS globale nella plancia
+    if (typeof updateKersDisplay === 'function') {
+        updateKersDisplay();
+    }
 
     // Aggiornamento contatore budget nella UI di setup
     const budgetCountEl = document.getElementById('budget-count');
