@@ -3,22 +3,30 @@
 // Collega l'HTML monolitico ai moduli JavaScript moderni
 // ==========================================
 
-import { applyTheme, inizializzaLayout, aggiornaInterfacciaBudget, inizializzaInterazionePlancia, aggiornaStatoAlettoneTelaio } from './layout.js';
+import { applyTheme, inizializzaLayout } from './layout.js';
 import { gameState, updateGameState } from './state.js';
 import { inizializzaMeteoGara, ottieniEtichettaMeteo, ottieniIconaMeteo } from './weather.js';
-import { aggiornaTelemetria } from './telemetryGrid.js';
-import { inizializzaSchedaPilota, gestisciAssegnazioneBudget, ufficializzaSchedaPerGara, renderTyreDeck, selectTyreFromUI, handleTyreClick, gestisciModificaUsuraInGara, toggleRaceEdit } from './mainSchedaController.js';
+import { 
+    inizializzaSchedaPilota, 
+    ufficializzaSchedaPerGara, 
+    renderTyreDeck, 
+    selectTyreFromUI, 
+    handleTyreClick, 
+    toggleRaceEdit,
+    renderBoard,
+    toggleWing 
+} from './mainSchedaController.js';
 
-// ---- ESPOSIZIONE GLOBALE DELLE FUNZIONI MESCOLE E GESTORI INLINE NEL DOM
+// ---- ESPOSIZIONE GLOBALE PER I PULSANTI HTML (onclick) ----
 window.selectTyre = selectTyreFromUI;
 window.toggleTyreLap = handleTyreClick;
 window.toggleRaceEdit = toggleRaceEdit;
-
-// --- ESPORTAZIONE GLOBALE PER I PULSANTI HTML (onclick) ---
+window.toggleWing = toggleWing;
 
 window.changeTheme = function(themeName) {
     applyTheme(themeName);
     updateGameState({ theme: themeName });
+    renderBoard();
 };
 
 window.showScreen = function(screenId) {
@@ -35,7 +43,6 @@ window.createGame = function() {
     const circuit = document.getElementById('input-circuit').value;
     const host = document.getElementById('input-host').value;
     const weather = document.getElementById('input-weather').value;
-    console.log("Valore meteo letto dalla UI:", weather);
     
     if (!circuit || !host || !weather) {
         alert("Compila tutti i campi per creare la partita!");
@@ -54,6 +61,7 @@ window.createGame = function() {
         code: Math.floor(1000 + Math.random() * 9000).toString(),
         playerName: host,
         playerId: 'player_' + Date.now(),
+        weather: weather,
         theme: gameState.theme
     });
 
@@ -70,25 +78,22 @@ window.createGame = function() {
     document.getElementById('display-meta').innerText = `Data: ${todayFormatted} | Pilota: ${host}`;
     document.getElementById('display-code').innerText = gameState.code;
     
-    // Aggiorna correttamente il testo del meteo tramite l'ID corretto
     const weatherTextEl = document.getElementById('weather-text'); 
     if (weatherTextEl) {
         weatherTextEl.innerText = ottieniEtichettaMeteo(weather);
     }
-    // Aggiorna correttamente l'icona del meteo tramite l'ID corretto
+    
     const weatherIconEl = document.getElementById('weather-icon');
     if (weatherIconEl) {
-    weatherIconEl.innerHTML = ottieniIconaMeteo(weather);
-}
+        weatherIconEl.innerHTML = ottieniIconaMeteo(weather);
+    }
     
-    // Rendi reattivo il deck delle gomme in base al meteo scelto
     renderTyreDeck();
+    renderBoard();
 };
 
 window.startConfiguration = function() {
-    updateGameState({
-        isSetupMode: true,
-    });
+    updateGameState({ isSetupMode: true });
 
     const setupScreen = document.getElementById('screen-setup');
     if (setupScreen) {
@@ -108,10 +113,8 @@ window.startConfiguration = function() {
     if (budgetBar) budgetBar.style.display = 'block';
     if (budgetCount) budgetCount.innerText = gameState.budget;
     
-    // Aggiorna subito il deck delle gomme per mostrare la pre-selezione attiva
     renderTyreDeck();
-
-    console.log("Fase di configurazione avviata con mescola predefinita:", gameState.selectedTyre);
+    renderBoard(); // Disegna la plancia con i click di setup abilitati
 };
 
 window.officializeSetup = function() {
@@ -122,7 +125,6 @@ window.officializeSetup = function() {
         return;
     }
 
-    // Rimuove la classe di setup per disattivare l'interattività CSS di plancia e alettone
     const setupScreen = document.getElementById('screen-setup');
     if (setupScreen) {
         setupScreen.classList.remove('setup-active');
@@ -136,6 +138,7 @@ window.officializeSetup = function() {
     if (budgetBar) budgetBar.style.display = 'none';
     if (raceControls) raceControls.style.display = 'flex';
 
+    renderBoard(); // Ridisegna la plancia chiudendo la fase di setup e sbloccando la gara
     alert(risultato.messaggioDescrittivo);
 };
 
@@ -153,115 +156,11 @@ window.closeModal = function(modalId) {
     if (modal) modal.style.display = 'none';
 };
 
-// --- INIZIALIZZAZIONE INTERFACCIA ---
+// --- INIZIALIZZAZIONE INTERFACCIA AL CARICAMENTO ---
 document.addEventListener("DOMContentLoaded", () => {
     inizializzaLayout();
-    inizializzaInterazionePlancia();
-    inizializzaListenerEditGara();
     renderTyreDeck();
+    renderBoard();
 });
 
-
-
-window.toggleWing = function() {
-    const boxWing = document.getElementById('box-wing');
-    if (!boxWing) return;
-
-    let isWingActive = boxWing.classList.contains('wing-active');
-    
-    if (!isWingActive) {
-        const wingSvg = `
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;color:inherit;">
-            <path d="M 2 6 L 22 6 L 20 10 L 4 10 Z" fill="currentColor" fill-opacity="0.2"/>
-            <path d="M 2 4 L 4 14 L 2 14 Z"/>
-            <path d="M 22 4 L 20 14 L 22 14 Z"/>
-            <line x1="9" y1="10" x2="9" y2="17"/>
-            <line x1="15" y1="10" x2="15" y2="17"/>
-        </svg>
-    `;
-        boxWing.classList.add('wing-active', 'circle-green');
-        boxWing.innerHTML = wingSvg;
-        isWingActive = true;
-    } else {
-        boxWing.classList.remove('wing-active', 'circle-green');
-        boxWing.innerHTML = '';
-        isWingActive = false;
-    }
-       
-    aggiornaStatoAlettoneTelaio(isWingActive);
-};
-
-
-/**
- * Inizializza il listener in script.js per la modalità Edit in gara su tutta la plancia
- */
-function inizializzaListenerEditGara() {
-    const righeComponenti = {
-        'row-tyres': 'tyres',
-        'row-brakes': 'brakes',
-        'row-fuel': 'fuel',
-        'row-engine': 'engine',
-        'row-body': 'body',
-        'row-suspension': 'suspension'
-    };
-
-    Object.keys(righeComponenti).forEach(rowId => {
-        const container = document.getElementById(rowId);
-        if (container && !container.dataset.editListenerAttached) {
-            container.dataset.editListenerAttached = "true";
-
-            container.addEventListener('click', (e) => {
-                // Verifica che la modalità edit sia attiva sul body
-                if (!document.body.classList.contains('edit-mode-active')) return;
-                
-                e.stopImmediatePropagation();
-                const box = e.target.closest('.box');
-                if (!box) return;
-
-                // Esclude elementi non validi
-                if (box.classList.contains('wing-disabled') || box.classList.contains('wing-x')) return;
-
-                const tipoComponente = righeComponenti[rowId];
-                const boxesNellaRiga = Array.from(container.querySelectorAll('.box'));
-                const indiceBox = boxesNellaRiga.indexOf(box);
-
-                // RISPETTO DELLA REGOLE D'ORO: Passaggio obbligato per il coordinatore centrale
-                const risultato = gestisciModificaUsuraInGara(tipoComponente, indiceBox);
-                
-                if (risultato && risultato.operazioneRiuscita) {
-                    // Estrae l'array aggiornato indipendentemente dal componente restituito dal controller
-                    const arrayAggiornato = risultato.tyresAggiornati || 
-                                           risultato.freniAggiornati || 
-                                           risultato.benzinaAggiornata || 
-                                           risultato.usureMotoreAggiornate || 
-                                           risultato.usureTelaioAggiornate || 
-                                           risultato.usureSospensioniAggiornate || [];
-
-                    // Sincronizza visivamente la riga esatta
-                    sincronizzaVisualizzazioneRiga(container, arrayAggiornato);
-                }
-            });
-        }
-    });
-}
-
-/**
- * Aggiorna la grafica della riga applicando o rimuovendo la classe .x-red sulle caselle
- */
-function sincronizzaVisualizzazioneRiga(container, arrayIndiciUsurati) {
-    if (!arrayIndiciUsurati) return;
-    const boxes = container.querySelectorAll('.box');
-    boxes.forEach((box, index) => {
-        if (box.dataset.base === "true" || box.classList.contains('wing-disabled')) return;
-
-        if (arrayIndiciUsurati.includes(index)) {
-            box.classList.add('x-red');
-            box.innerText = 'X';
-        } else {
-            box.classList.remove('x-red');
-            box.innerText = '1';
-        }
-    });
-}
-
-console.log("Lotus Cup 2k25: Script Main orchestrato correttamente.");
+console.log("Lotus Cup 2k25: Script Main orchestrato e ripulito correttamente.");
