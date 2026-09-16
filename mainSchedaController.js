@@ -11,7 +11,7 @@ import { gestisciModificaUsuraFreniETrafilamentoKers } from './brakesKers.js';
 import { gestisciUsuraTelaio } from './chassis.js';
 import { gestisciUsuraSospensioni } from './suspension.js';
 import { renderTyreDeck, selectTyreFromUI, handleTyreClick, gestisciModificaUsuraPneumaticiInGara } from './compoundsTyres.js';
-export { toggleRaceEdit } from './editOutsideBoxes.js';
+import { toggleRaceEdit as toggleEditFromModule } from './editOutsideBoxes.js';
 
 export { renderTyreDeck, selectTyreFromUI, handleTyreClick };
 
@@ -109,47 +109,6 @@ export function gestisciModificaUsuraInGara(tipoComponente, indiceCasella) {
     }
 }
 
-// ==========================================
-// GESTIONE ALETTONE (Wing) & TELAIO
-// ==========================================
-
-export function toggleWing() {
-    const boxWing = document.getElementById('box-wing');
-    if (!boxWing) return;
-
-    let isWingActive = boxWing.classList.contains('wing-active');
-    
-    if (!isWingActive) {
-        const wingSvg = `
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;color:inherit;">
-                <path d="M 2 6 L 22 6 L 20 10 L 4 10 Z" fill="currentColor" fill-opacity="0.2"/>
-                <path d="M 2 4 L 4 14 L 2 14 Z"/>
-                <path d="M 22 4 L 20 14 L 22 14 Z"/>
-                <line x1="9" y1="10" x2="9" y2="17"/>
-                <line x1="15" y1="10" x2="15" y2="17"/>
-            </svg>
-        `;
-        boxWing.classList.add('wing-active', 'circle-green');
-        boxWing.innerHTML = wingSvg;
-        isWingActive = true;
-    } else {
-        boxWing.classList.remove('wing-active', 'circle-green');
-        boxWing.innerHTML = '';
-        isWingActive = false;
-    }
-       
-    updateGameState({ alettoneAttivo: isWingActive });
-    renderBoard();
-}
-
-export function gestisciAggiornamentoAlettoneDopoModifica(tipoComponente) {
-    if (tipoComponente !== 'body') return;
-    const boxWing = document.getElementById('box-wing');
-    const isWingActive = boxWing && boxWing.classList.contains('wing-active');
-    updateGameState({ alettoneAttivo: isWingActive });
-    renderBoard();
-}
-
 
 // ==========================================
 // FUNZIONE DI RENDERING UNIFICATA DELLA PLANCIA (Stile Monolite)
@@ -183,6 +142,7 @@ export function renderBoard() {
                     box.innerHTML = `<svg viewBox="0 0 100 100" style="width:22px;height:22px;color:currentColor;"><path d="M 50 15 A 35 35 0 1 1 20 60" fill="none" stroke="currentColor" stroke-width="8" stroke-dasharray="6,4"/><polygon points="12,50 25,65 30,45" fill="currentColor"/><text x="50" y="62" font-size="34" font-weight="bold" text-anchor="middle" fill="currentColor" font-family="Orbitron">1</text></svg>`;
                 } else if (i < baseVal) {
                     box.innerText = '1';
+                    box.classList.add('user-allocated');
                 } else if (i < totalPoints) {
                     box.innerText = '1';
                     if (gameState.isSetupMode && !isInspecting) {
@@ -226,6 +186,7 @@ export function renderBoard() {
                     box.innerText = '1';
                 } else if (fromRight < totalPoints) {
                     box.innerText = '1';
+                    box.classList.add('user-allocated');
                     if (gameState.isSetupMode && !isInspecting) {
                         box.classList.add('clickable');
                         box.onclick = () => {
@@ -318,4 +279,54 @@ function aggiornaInterfacciaBudgetMod(budgetResiduo) {
             setupScreen.classList.remove('budget-zero');
         }
     }
+}
+
+
+// ==========================================
+// GESTIONE ALETTONE (Wing) & TELAIO
+// ==========================================
+
+export function toggleWing() {
+    const boxWing = document.getElementById('box-wing');
+    if (!boxWing) return;
+
+    let isWingActive = boxWing.classList.contains('wing-active');
+    
+    if (!isWingActive) {
+        const wingSvg = `
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;color:inherit;">
+                <path d="M 2 6 L 22 6 L 20 10 L 4 10 Z" fill="currentColor" fill-opacity="0.2"/>
+                <path d="M 2 4 L 4 14 L 2 14 Z"/>
+                <path d="M 22 4 L 20 14 L 22 14 Z"/>
+                <line x1="9" y1="10" x2="9" y2="17"/>
+                <line x1="15" y1="10" x2="15" y2="17"/>
+            </svg>
+        `;
+        boxWing.classList.add('wing-active', 'circle-green');
+        boxWing.innerHTML = wingSvg;
+        isWingActive = true;
+    } else {
+        boxWing.classList.remove('wing-active', 'circle-green');
+        boxWing.innerHTML = '';
+        isWingActive = false;
+    }
+       
+    updateGameState({ alettoneAttivo: isWingActive });
+    renderBoard();
+}
+
+export function gestisciAggiornamentoAlettoneDopoModifica(tipoComponente) {
+    if (tipoComponente !== 'body') return;
+    const boxWing = document.getElementById('box-wing');
+    const isWingActive = boxWing && boxWing.classList.contains('wing-active');
+    updateGameState({ alettoneAttivo: isWingActive });
+    renderBoard();
+}
+
+export function toggleRaceEdit() {
+    // 1. Esegue la logica e l'aggiornamento UI del modulo figlio
+    toggleEditFromModule();
+    
+    // 2. Il main controller (padre) coordina la vista e aggiorna la plancia
+    renderBoard();
 }
