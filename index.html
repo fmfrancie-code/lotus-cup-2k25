@@ -600,28 +600,27 @@
 
     /* 2. FASE DI EDIT GARA (Fuori dai Box): 
        Apre l'interattività a qualsiasi casella non vuota (:not(:empty)) su tutta la plancia, 
-       indipendentemente dalla classe user-allocated, per il toggle manuale della X rossa. 
-       (Il cambio gomme e l'alettone restano bloccati da logica di script). */
+       indipendentemente dalla classe user-allocated, per il toggle manuale della X rossa. */
     body.edit-mode-active .box:not(:empty) {
       pointer-events: auto !important;
       cursor: pointer !important;
     }
 
     /* 3. FASE DI EDIT NEI BOX (Pit Stop): 
-       Apre anch'essa l'interattività a qualsiasi casella non vuota (:not(:empty)) su tutta la plancia, 
-       indipendentemente dalla classe user-allocated, per il toggle manuale della X rossa. 
-       (In questa fase lo script sblocca anche la selezione dei nuovi pneumatici). */
+       Apre anch'essa l'interattività a qualsiasi casella non vuota (:not(:empty)) su tutta la plancia. */
     body.pitstop-mode-active .box:not(:empty) {
       pointer-events: auto !important;
       cursor: pointer !important;
     }
 
-    /* Fallback di protezione globale quando non siamo in alcuna modalità attiva */
-    #screen-setup:not(.setup-active):not(.edit-mode-active) .box.user-allocated {
+    /* BLINDATURA ASSOLUTA: La casella dell'alettone (wing-x) non deve MAI essere cliccabile */
+    .box.wing-x {
       pointer-events: none !important;
       cursor: default !important;
+      color: #94a3b8 !important;
+      font-weight: 900;
     }
-    
+  
 
     /* Le caselle vuote lampeggiano all'unisono azzerando il delay dell'animazione */
     #screen-setup.setup-active:not(.budget-zero) .box:empty:not(#box-wing):not(#box-kers) {
@@ -643,10 +642,6 @@
       opacity: 0.35 !important;
       text-decoration: line-through;
       pointer-events: none !important;
-    }
-    .box.wing-x {
-    color: #94a3b8 !important;
-    font-weight: 900;
     }
 
     .budget-bar {
@@ -797,7 +792,7 @@
       
       <div id="race-controls" style="display: none; gap: 8px; flex-direction: column;">
         <div style="display: flex; gap: 8px;">
-          <button id="btn-toggle-edit" class="btn btn-read-mode" onclick="toggleRaceEdit()" style="flex:1; margin:0; text-transform:none !important;">Modalità  edit attiva (clicca per sbloccare)</button>
+          <button id="btn-toggle-edit" class="btn btn-read-mode" onclick="toggleRaceEdit()" style="flex:1; margin:0; text-transform:none !important;">Modalità edit attiva (clicca per sbloccare)</button>
           <button id="btn-pitstop-action" class="btn btn-pitstop-mode" onclick="handlePitStopButtonClick()" style="display: none; flex:1; margin:0; text-transform:none !important;">Entrata ai Box (Pit Stop)</button>
         </div>
         <button id="btn-weather-test" class="btn btn-weather-test" onclick="openWeatherModal()" style="display: none; margin: 4px 0 0 0;">Test Motore / Controllo Meteo</button>
