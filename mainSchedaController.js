@@ -11,7 +11,7 @@ import { gestisciModificaUsuraFreniETrafilamentoKers } from './brakesKers.js';
 import { gestisciUsuraTelaio } from './chassis.js';
 import { gestisciUsuraSospensioni } from './suspension.js';
 import { renderTyreDeck, selectTyreFromUI, handleTyreClick, gestisciModificaUsuraPneumaticiInGara } from './compoundsTyres.js';
-import { toggleRaceEdit as toggleEditFromModule } from './editOutsideBoxes.js';
+export { toggleRaceEdit } from './editOutsideBoxes.js';
 
 export { renderTyreDeck, selectTyreFromUI, handleTyreClick };
 
@@ -107,6 +107,47 @@ export function gestisciModificaUsuraInGara(tipoComponente, indiceCasella) {
         default:
             return { operazioneRiuscita: false, messaggioDescrittivo: "Componente non gestito." };
     }
+}
+
+// ==========================================
+// GESTIONE ALETTONE (Wing) & TELAIO
+// ==========================================
+
+export function toggleWing() {
+    const boxWing = document.getElementById('box-wing');
+    if (!boxWing) return;
+
+    let isWingActive = boxWing.classList.contains('wing-active');
+    
+    if (!isWingActive) {
+        const wingSvg = `
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;color:inherit;">
+                <path d="M 2 6 L 22 6 L 20 10 L 4 10 Z" fill="currentColor" fill-opacity="0.2"/>
+                <path d="M 2 4 L 4 14 L 2 14 Z"/>
+                <path d="M 22 4 L 20 14 L 22 14 Z"/>
+                <line x1="9" y1="10" x2="9" y2="17"/>
+                <line x1="15" y1="10" x2="15" y2="17"/>
+            </svg>
+        `;
+        boxWing.classList.add('wing-active', 'circle-green');
+        boxWing.innerHTML = wingSvg;
+        isWingActive = true;
+    } else {
+        boxWing.classList.remove('wing-active', 'circle-green');
+        boxWing.innerHTML = '';
+        isWingActive = false;
+    }
+       
+    updateGameState({ alettoneAttivo: isWingActive });
+    renderBoard();
+}
+
+export function gestisciAggiornamentoAlettoneDopoModifica(tipoComponente) {
+    if (tipoComponente !== 'body') return;
+    const boxWing = document.getElementById('box-wing');
+    const isWingActive = boxWing && boxWing.classList.contains('wing-active');
+    updateGameState({ alettoneAttivo: isWingActive });
+    renderBoard();
 }
 
 
@@ -277,54 +318,4 @@ function aggiornaInterfacciaBudgetMod(budgetResiduo) {
             setupScreen.classList.remove('budget-zero');
         }
     }
-}
-
-
-// ==========================================
-// GESTIONE ALETTONE (Wing) & TELAIO
-// ==========================================
-
-export function toggleWing() {
-    const boxWing = document.getElementById('box-wing');
-    if (!boxWing) return;
-
-    let isWingActive = boxWing.classList.contains('wing-active');
-    
-    if (!isWingActive) {
-        const wingSvg = `
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;color:inherit;">
-                <path d="M 2 6 L 22 6 L 20 10 L 4 10 Z" fill="currentColor" fill-opacity="0.2"/>
-                <path d="M 2 4 L 4 14 L 2 14 Z"/>
-                <path d="M 22 4 L 20 14 L 22 14 Z"/>
-                <line x1="9" y1="10" x2="9" y2="17"/>
-                <line x1="15" y1="10" x2="15" y2="17"/>
-            </svg>
-        `;
-        boxWing.classList.add('wing-active', 'circle-green');
-        boxWing.innerHTML = wingSvg;
-        isWingActive = true;
-    } else {
-        boxWing.classList.remove('wing-active', 'circle-green');
-        boxWing.innerHTML = '';
-        isWingActive = false;
-    }
-       
-    updateGameState({ alettoneAttivo: isWingActive });
-    renderBoard();
-}
-
-export function gestisciAggiornamentoAlettoneDopoModifica(tipoComponente) {
-    if (tipoComponente !== 'body') return;
-    const boxWing = document.getElementById('box-wing');
-    const isWingActive = boxWing && boxWing.classList.contains('wing-active');
-    updateGameState({ alettoneAttivo: isWingActive });
-    renderBoard();
-}
-
-export function toggleRaceEdit() {
-    // 1. Esegue la logica e l'aggiornamento UI del modulo figlio
-    toggleEditFromModule();
-    
-    // 2. Il main controller (padre) coordina la vista e aggiorna la plancia
-    renderBoard();
 }
