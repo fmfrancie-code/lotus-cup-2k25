@@ -142,9 +142,9 @@ export function renderBoard() {
                     box.innerHTML = `<svg viewBox="0 0 100 100" style="width:22px;height:22px;color:currentColor;"><path d="M 50 15 A 35 35 0 1 1 20 60" fill="none" stroke="currentColor" stroke-width="8" stroke-dasharray="6,4"/><polygon points="12,50 25,65 30,45" fill="currentColor"/><text x="50" y="62" font-size="34" font-weight="bold" text-anchor="middle" fill="currentColor" font-family="Orbitron">1</text></svg>`;
                 } else if (i < baseVal) {
                     box.innerText = '1';
-                    box.classList.add('user-allocated');
                 } else if (i < totalPoints) {
                     box.innerText = '1';
+                    box.classList.add('user-allocated');
                     if (gameState.isSetupMode && !isInspecting) {
                         box.classList.add('clickable');
                         box.onclick = () => {
