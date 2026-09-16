@@ -11,7 +11,7 @@ import { gestisciModificaUsuraFreniETrafilamentoKers } from './brakesKers.js';
 import { gestisciUsuraTelaio } from './chassis.js';
 import { gestisciUsuraSospensioni } from './suspension.js';
 import { renderTyreDeck, selectTyreFromUI, handleTyreClick, gestisciModificaUsuraPneumaticiInGara } from './compoundsTyres.js';
-export { toggleRaceEdit } from './editOutsideBoxes.js';
+import { toggleRaceEdit as toggleEditFromModule } from './editOutsideBoxes.js';
 
 export { renderTyreDeck, selectTyreFromUI, handleTyreClick };
 
@@ -321,3 +321,10 @@ export function gestisciAggiornamentoAlettoneDopoModifica(tipoComponente) {
     renderBoard();
 }
 
+export function toggleRaceEdit() {
+    // 1. Esegue la logica e l'aggiornamento UI del modulo figlio
+    toggleEditFromModule();
+    
+    // 2. Il main controller (padre) coordina la vista e aggiorna la plancia
+    renderBoard();
+}
