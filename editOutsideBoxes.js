@@ -23,6 +23,7 @@ export function impostaStatoModalitaEditFuoriBox(statoAbilitazioneEdit) {
     };
 }
 
+
 /**
  * Verifica se un componente appartiene alla sezione di sinistra (pneumatici, freni, benzina)
  * o di destra (telaio, motore, sospensioni) per determinare la direzione geometrica delle X.
