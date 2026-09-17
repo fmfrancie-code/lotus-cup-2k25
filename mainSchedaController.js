@@ -350,28 +350,32 @@ function updateKersDisplay() {
     const statoKers = gameState.kersState;
     let htmlContenuto = '';
 
-    // Pulizia classi di stato sul box
-    boxKers.classList.remove('charged', 'damaged', 'empty');
+    boxKers.classList.remove('charged', 'damaged', 'empty', 'circle-kers');
 
     if (statoKers === 'damaged') {
         htmlContenuto = `<div class="kers-icon-container x-red"><span class="flicker-text">X</span></div>`;
-        boxKers.classList.add('damaged');
         boxKers.style.setProperty('pointer-events', 'none', 'important');
         boxKers.style.cursor = 'default';
     } else if (statoKers === 'charged') {
+        // Aggiunge la classe circle-kers per l'animazione luminosa del monolite
+        boxKers.classList.add('circle-kers', 'charged');
         const iconaTematica = getKersIconHtml(gameState.theme);
         htmlContenuto = `<div class="kers-icon-container charged">${iconaTematica}</div>`;
-        boxKers.classList.add('charged');
-        // Forza lo sblocco scavalcando il pointer-events: none !important della classe .box
+        
         boxKers.style.setProperty('pointer-events', 'auto', 'important');
-        boxKers.style.setProperty('cursor', 'pointer', 'important');
+        boxKers.style.cursor = 'pointer';
+        
+        // Assicura l'apertura della modale KERS al click
+        boxKers.onclick = () => {
+            const modalKers = document.getElementById('modal-kers');
+            if (modalKers) modalKers.style.display = 'flex';
+        };
     } else {
         htmlContenuto = `<div class="kers-icon-container empty"></div>`;
-        boxKers.classList.add('empty');
         boxKers.style.setProperty('pointer-events', 'none', 'important');
         boxKers.style.cursor = 'default';
+        boxKers.onclick = null;
     }
 
     boxKers.innerHTML = htmlContenuto;
 }
-
