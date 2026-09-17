@@ -14,21 +14,32 @@ export function gestisciUsuraSospensioni(indiceCasellaSelezionata) {
     const arrayUsureSospensioniCorrente = [...gameState.markedUsages.suspension];
     const laCasellaContieneGiaUnaX = arrayUsureSospensioniCorrente.includes(indiceCasellaSelezionata);
     
-    let messaggioAllertaCritica = "";
-
     if (laCasellaContieneGiaUnaX) {
+        // Se la casella cliccata ha già una X, rimuovila
         arrayUsureSospensioniCorrente.splice(arrayUsureSospensioniCorrente.indexOf(indiceCasellaSelezionata), 1);
     } else {
-        arrayUsureSospensioniCorrente.push(indiceCasellaSelezionata);
-    }
+        // INSERIMENTO SPECULARE (DA SINISTRA VERSO DESTRA per le sezioni di destra):
+        const totalBoxes = 6;
+        const valoreBase = gameState.baseValues.suspension;
+        const puntiAssegnatiSetup = gameState.allocations.suspension;
+        const totaleCaselle = valoreBase + puntiAssegnatiSetup;
+        
+        // Per le sezioni di destra, le caselle valide vanno da (totalBoxes - totaleCaselle) fino a (totalBoxes - 1)
+        const startIdx = totalBoxes - totaleCaselle;
+        const endIdx = totalBoxes - 1;
 
-    const valoreBaseSospensioni = gameState.baseValues.suspension;
-    const puntiAssegnatiSetupSospensioni = gameState.allocations.suspension;
-    const totaleCaselleDisponibiliSospensioni = valoreBaseSospensioni + puntiAssegnatiSetupSospensioni;
-    const tutteLeCaselleSospensioniSonoOccupate = (arrayUsureSospensioniCorrente.length === totaleCaselleDisponibiliSospensioni);
+        let indiceSinistraDisponibile = -1;
+        // Scansiona partendo da sinistra verso destra
+        for (let i = startIdx; i <= endIdx; i++) {
+            if (!arrayUsureSospensioniCorrente.includes(i)) {
+                indiceSinistraDisponibile = i;
+                break;
+            }
+        }
 
-    if (tutteLeCaselleSospensioniSonoOccupate) {
-        messaggioAllertaCritica = "Attenzione: Hai finito i punti sospensioni!";
+        if (indiceSinistraDisponibile !== -1) {
+            arrayUsureSospensioniCorrente.push(indiceSinistraDisponibile);
+        }
     }
 
     updateGameState({
@@ -41,7 +52,6 @@ export function gestisciUsuraSospensioni(indiceCasellaSelezionata) {
     return {
         operazioneRiuscita: true,
         usureSospensioniAggiornate: arrayUsureSospensioniCorrente,
-        sospensioniEsauriteCompletamente: tutteLeCaselleSospensioniSonoOccupate,
-        messaggioDescrittivo: messaggioAllertaCritica || "Sospensioni aggiornate con successo."
+        messaggioDescrittivo: "Sospensioni aggiornate con successo."
     };
 }
