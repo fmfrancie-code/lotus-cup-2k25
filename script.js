@@ -14,7 +14,8 @@ import {
     handleTyreClick, 
     toggleRaceEdit,
     renderBoard,
-    toggleWing 
+    toggleWing,
+    gestisciTestKers
 } from './mainSchedaController.js';
 
 // ---- ESPOSIZIONE GLOBALE PER I PULSANTI HTML (onclick) ----
@@ -163,4 +164,24 @@ document.addEventListener("DOMContentLoaded", () => {
     renderBoard();
 });
 
+
+// Funzione globale collegata ai bottoni della modale KERS
+window.resolveKers = function(isDamaged) {
+    const esitoStr = isDamaged ? 'damaged' : 'ok';
+    const risultato = gestisciTestKers(esitoStr); // Passa attraverso il main controller
+
+    if (risultato.operazioneRiuscita) {
+        if (!isDamaged) {
+            // Effetto visivo di scossione della casella KERS quando svuotata con successo
+            const kersBox = document.getElementById('box-kers');
+            if (kersBox) {
+                kersBox.classList.add('kers-shake');
+                setTimeout(() => kersBox.classList.remove('kers-shake'), 400);
+            }
+        }
+        closeModal('modal-kers');
+    } else {
+        alert(risultato.messaggioDescrittivo);
+    }
+};
 console.log("Lotus Cup 2k25: Script Main orchestrato e ripulito correttamente.");
