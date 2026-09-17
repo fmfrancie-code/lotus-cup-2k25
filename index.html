@@ -572,6 +572,23 @@
       cursor: default ;
     }
 
+    .kers-icon-container {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .kers-icon-container svg.kers-svg {
+      width: 22px;
+      height: 22px;
+    }
+    #box-kers.charged {
+      pointer-events: auto !important;
+      cursor: pointer !important;
+    }
+    
+    
     /* Le box piene (esclude la X rossa e la X dell'alettone) mantengono lo stile coerente e numeri bianchi */
     .box:not(:empty):not(.x-red):not(.wing-x),
     .box.user-allocated {
