@@ -12,15 +12,21 @@ import { gestisciAssegnazioneBudget } from './mainSchedaController.js';
 const ICONS = {
     ironman: `
         <svg class="kers-svg arcReactorSvgIcon" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-            <circle cx="50" cy="50" r="40" fill="none" stroke="#f5d061" stroke-width="6"/>
-            <circle cx="50" cy="50" r="25" fill="none" stroke="#00f0ff" stroke-width="4" stroke-dasharray="10, 5"/>
-            <circle cx="50" cy="50" r="10" fill="#00f0ff"/>
+            <!-- Anello esterno dentato/segmentato -->
+            <circle cx="50" cy="50" r="42" fill="none" stroke="currentColor" stroke-width="3"/>
+            <circle cx="50" cy="50" r="36" fill="none" stroke="currentColor" stroke-width="6" stroke-dasharray="10, 4, 2, 4"/>
+            <!-- Anello geometrico interno -->
+            <circle cx="50" cy="50" r="26" fill="none" stroke="currentColor" stroke-width="2"/>
+            <path d="M50 18 L50 30 M50 70 L50 82 M18 50 L30 50 M70 50 L82 50 M27 27 L36 36 M64 64 L73 73 M27 73 L36 64 M64 36 L73 27" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+            <!-- Nucleo centrale del reattore -->
+            <circle cx="50" cy="50" r="14" fill="none" stroke="currentColor" stroke-width="3"/>
+            <circle cx="50" cy="50" r="6" fill="currentColor"/>
         </svg>
     `,
     cyberpunk: `
         <svg class="kers-svg powerSvgIcon" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-            <path d="M50 15 v35" fill="none" stroke="#00f0ff" stroke-width="10" stroke-linecap="round"/>
-            <path d="M32 28 a30 30 0 1 0 36 0" fill="none" stroke="#00f0ff" stroke-width="10" stroke-linecap="round"/>
+            <path d="M50 15 v35" fill="none" stroke="currentColor" stroke-width="10" stroke-linecap="round"/>
+            <path d="M32 28 a30 30 0 1 0 36 0" fill="none" stroke="currentColor" stroke-width="10" stroke-linecap="round"/>
         </svg>
     `
 };
