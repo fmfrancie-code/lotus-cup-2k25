@@ -7,7 +7,7 @@ import { gameState, updateGameState } from './state.js';
 import { assegnaPuntoBudgetSetup } from './setupPhase.js';
 import { gestisciConsumoBenzinaEModifica } from './fuel.js';
 import { gestisciUsuraMotore } from './engine.js';
-import { gestisciModificaUsuraFreniETrafilamentoKers, generaHtmlCasellaKersPerTema } from './brakesKers.js';
+import { gestisciModificaUsuraFreniETrafilamentoKers } from './brakesKers.js';
 import { gestisciUsuraTelaio } from './chassis.js';
 import { gestisciUsuraSospensioni } from './suspension.js';
 import { renderTyreDeck, selectTyreFromUI, handleTyreClick, gestisciModificaUsuraPneumaticiInGara } from './compoundsTyres.js';
