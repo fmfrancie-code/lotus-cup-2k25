@@ -77,18 +77,44 @@ export function eseguiTestAttivazioneKers(esitoTestKersSelezionato) {
 
     let nuovoStatoKers = statoKersAttuale;
     let messaggioRisultato = "";
+    const usureMotoreAggiornate = [...gameState.markedUsages.engine];
 
     if (esitoTestKersSelezionato === 'ok') {
-        // Test OK -> Svuota la casella del KERS (torna vuoto ma utilizzabile in futuro se i freni si ricaricano)
+        // Test OK -> Svuota la casella del KERS (torna vuoto ma utilizzabile in futuro)
         nuovoStatoKers = 'empty';
         messaggioRisultato = "Test KERS superato con successo [OK]! La casella del KERS è stata svuotata.";
     } else if (esitoTestKersSelezionato === 'damaged') {
-        // Test Danneggiato -> Imposta X rossa permanente fino a fine gara (non riparabile)
+        // Test Danneggiato -> Imposta X rossa permanente sul KERS
         nuovoStatoKers = 'damaged';
-        messaggioRisultato = "Test KERS fallito: sistema DANNEGGIATO. E' stata applicata la X rossa permanente; il KERS non potrà  più essere utilizzato.";
+        
+        // Trova la prima casella di sinistra disponibile con valore 1 nella sezione del motore
+        const valoreBaseMotore = gameState.baseValues.engine;
+        const puntiAssegnatiSetupMotore = gameState.allocations.engine;
+        const totaleCaselleMotore = valoreBaseMotore + puntiAssegnatiSetupMotore;
+        
+        // Nel motore le caselle vanno da 0 a totaleCaselleMotore (partendo da sinistra)
+        let indiceCasellaMotoreDaMarcare = -1;
+        for (let i = 0; i < totaleCaselleMotore; i++) {
+            if (!usureMotoreAggiornate.includes(i)) {
+                indiceCasellaMotoreDaMarcare = i;
+                break;
+            }
+        }
+
+        if (indiceCasellaMotoreDaMarcare !== -1) {
+            usureMotoreAggiornate.push(indiceCasellaMotoreDaMarcare);
+        }
+
+        messaggioRisultato = "Test KERS fallito: KERS DANNEGGIATO permanentemente e X rossa applicata sul motore.";
     }
 
-    updateGameState({ kersState: nuovoStatoKers });
+    updateGameState({ 
+        kersState: nuovoStatoKers,
+        markedUsages: {
+            ...gameState.markedUsages,
+            engine: usureMotoreAggiornate
+        }
+    });
 
     return {
         operazioneRiuscita: true,
