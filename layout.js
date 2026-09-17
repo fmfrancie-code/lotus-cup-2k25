@@ -11,22 +11,25 @@ import { gestisciAssegnazioneBudget } from './mainSchedaController.js';
  */
 const ICONS = {
     ironman: `
-        <svg class="kers-svg arcReactorSvgIcon" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-            <!-- Anello esterno dentato/segmentato -->
-            <circle cx="50" cy="50" r="42" fill="none" stroke="currentColor" stroke-width="3"/>
-            <circle cx="50" cy="50" r="36" fill="none" stroke="currentColor" stroke-width="6" stroke-dasharray="10, 4, 2, 4"/>
-            <!-- Anello geometrico interno -->
-            <circle cx="50" cy="50" r="26" fill="none" stroke="currentColor" stroke-width="2"/>
-            <path d="M50 18 L50 30 M50 70 L50 82 M18 50 L30 50 M70 50 L82 50 M27 27 L36 36 M64 64 L73 73 M27 73 L36 64 M64 36 L73 27" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
-            <!-- Nucleo centrale del reattore -->
-            <circle cx="50" cy="50" r="14" fill="none" stroke="currentColor" stroke-width="3"/>
-            <circle cx="50" cy="50" r="6" fill="currentColor"/>
+        <svg class="kers-svg arcReactorSvgIcon" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" style="width:22px;height:22px;">
+            <circle cx="50" cy="50" r="44" stroke-width="6"/>
+            <circle cx="50" cy="50" r="32" stroke-width="4"/>
+            <line x1="50" y1="6" x2="50" y2="18" stroke-width="7"/>
+            <line x1="50" y1="82" x2="50" y2="94" stroke-width="7"/>
+            <line x1="6" y1="50" x2="18" y2="50" stroke-width="7"/>
+            <line x1="82" y1="50" x2="94" y2="50" stroke-width="7"/>
+            <line x1="19" y1="19" x2="28" y2="28" stroke-width="7"/>
+            <line x1="72" y1="72" x2="81" y2="81" stroke-width="7"/>
+            <line x1="19" y1="81" x2="28" y2="72" stroke-width="7"/>
+            <line x1="72" y1="28" x2="81" y2="19" stroke-width="7"/>
+            <circle cx="50" cy="50" r="20" stroke-width="4"/>
+            <circle cx="50" cy="50" r="10" fill="currentColor"/>
         </svg>
     `,
     cyberpunk: `
-        <svg class="kers-svg powerSvgIcon" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-            <path d="M50 15 v35" fill="none" stroke="currentColor" stroke-width="10" stroke-linecap="round"/>
-            <path d="M32 28 a30 30 0 1 0 36 0" fill="none" stroke="currentColor" stroke-width="10" stroke-linecap="round"/>
+        <svg class="kers-svg powerSvgIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="width:20px;height:20px;">
+            <path d="M18.36 6.64a9 9 0 1 1-12.73 0" />
+            <line x1="12" y1="2" x2="12" y2="12" />
         </svg>
     `
 };
