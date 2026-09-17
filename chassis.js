@@ -18,9 +18,38 @@ export function gestisciUsuraTelaio(indiceCasellaSelezionata) {
     let alettoneAttivoAggiornato = gameState.wingActive;
 
     if (laCasellaContieneGiaUnaX) {
-        arrayUsureTelaioCorrente.splice(arrayUsureTelaioCorrente.indexOf(indiceCasellaSelezionata), 1);
+        // Se la casella cliccata ha già una X, rimuovila
+        const indiceDaRimuovere = arrayUsureTelaioCorrente.indexOf(indiceCasellaSelezionata);
+        if (indiceDaRimuovere !== -1) {
+            arrayUsureTelaioCorrente.splice(indiceDaRimuovere, 1);
+        }
     } else {
-        arrayUsureTelaioCorrente.push(indiceCasellaSelezionata);
+        // INSERIMENTO SPECULARE (DA SINISTRA VERSO DESTRA per le sezioni di destra):
+        const totalBoxes = 6;
+        const valoreBaseTelaio = gameState.baseValues.body;
+        const puntiAssegnatiSetupTelaio = gameState.allocations.body;
+        const totaleCaselleDisponibiliTelaio = valoreBaseTelaio + puntiAssegnatiSetupTelaio;
+        
+        const startIdx = totalBoxes - totaleCaselleDisponibiliTelaio;
+        const endIdx = totalBoxes - 1;
+        const wingBoxIndex = startIdx; // La prima casella a sinistra ospita l'alettone se attivo
+
+        let indiceSinistraDisponibile = -1;
+        // Scansiona partendo da sinistra verso destra
+        for (let i = startIdx; i <= endIdx; i++) {
+            // Se l'alettone è attivo, la prima casella a sinistra è protetta e non riceve usura diretta
+            if (gameState.wingActive && i === wingBoxIndex) {
+                continue;
+            }
+            if (!arrayUsureTelaioCorrente.includes(i)) {
+                indiceSinistraDisponibile = i;
+                break;
+            }
+        }
+
+        if (indiceSinistraDisponibile !== -1) {
+            arrayUsureTelaioCorrente.push(indiceSinistraDisponibile);
+        }
     }
 
     const valoreBaseTelaio = gameState.baseValues.body;
@@ -30,9 +59,17 @@ export function gestisciUsuraTelaio(indiceCasellaSelezionata) {
 
     if (tutteLeCaselleTelaioSonoOccupate) {
         if (gameState.wingActive) {
-            alettoneAttivoAggiornato = false;
+            alettoneAttivoAggiornato = false; // L'alettone diventa fuori uso (X rossa)
         }
         messaggioAllertaCritica = "Attenzione: Hai finito i punti telaio! L'alettone è stato compromesso.";
+    } else {
+        // Se si ripara almeno un punto telaio e l'alettone era stato disattivato per usura, lo ripristiniamo
+        // (Nota: controlliamo se l'utente aveva l'alettone impostato o se vogliamo riabilitarlo)
+        if (!gameState.wingActive && arrayUsureTelaioCorrente.length < totaleCaselleDisponibiliTelaio) {
+            // Se l'utente aveva originariamente scelto di montare l'alettone in setup, ritorna disponibile
+            // (Verifichiamo se l'alettone non era stato spento volontariamente ma per esaurimento punti)
+            alettoneAttivoAggiornato = true; 
+        }
     }
 
     updateGameState({
