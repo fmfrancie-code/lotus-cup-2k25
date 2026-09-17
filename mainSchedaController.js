@@ -350,23 +350,25 @@ function updateKersDisplay() {
     const statoKers = gameState.kersState;
     let htmlContenuto = '';
 
+    // Pulizia classi di stato sul box
+    boxKers.classList.remove('charged', 'damaged', 'empty');
+
     if (statoKers === 'damaged') {
-        // KERS danneggiato: mostra la X rossa e blocca i click
         htmlContenuto = `<div class="kers-icon-container x-red"><span class="flicker-text">X</span></div>`;
-        boxKers.style.pointerEvents = 'none';
+        boxKers.classList.add('damaged');
+        boxKers.style.setProperty('pointer-events', 'none', 'important');
         boxKers.style.cursor = 'default';
     } else if (statoKers === 'charged') {
-        // KERS carico: il coordinatore chiede l'icona tematica a layout.js[cite: 10]
         const iconaTematica = getKersIconHtml(gameState.theme);
         htmlContenuto = `<div class="kers-icon-container charged">${iconaTematica}</div>`;
-        
-        // Sblocca i click per permettere l'interazione/test del KERS
-        boxKers.style.pointerEvents = 'auto';
-        boxKers.style.cursor = 'pointer';
+        boxKers.classList.add('charged');
+        // Forza lo sblocco scavalcando il pointer-events: none !important della classe .box
+        boxKers.style.setProperty('pointer-events', 'auto', 'important');
+        boxKers.style.setProperty('cursor', 'pointer', 'important');
     } else {
-        // KERS vuoto
         htmlContenuto = `<div class="kers-icon-container empty"></div>`;
-        boxKers.style.pointerEvents = 'none';
+        boxKers.classList.add('empty');
+        boxKers.style.setProperty('pointer-events', 'none', 'important');
         boxKers.style.cursor = 'default';
     }
 
