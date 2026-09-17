@@ -17,6 +17,17 @@ export function gestisciUsuraTelaio(indiceCasellaSelezionata) {
     let messaggioAllertaCritica = "";
     let alettoneAttivoAggiornato = gameState.alettoneAttivo;
 
+    const totalBoxes = 6;
+    const valoreBaseTelaio = gameState.baseValues.body;
+    const puntiAssegnatiSetupTelaio = gameState.allocations.body;
+    const totaleCaselleDisponibiliTelaio = valoreBaseTelaio + puntiAssegnatiSetupTelaio;
+    
+    const startIdx = totalBoxes - totaleCaselleDisponibiliTelaio;
+    const endIdx = totalBoxes - 1;
+    
+    // L'alettone occupa la prima casella a sinistra SOLO SE l'alettone è stato effettivamente scelto in setup
+    const wingBoxIndex = gameState.alettoneAttivo ? startIdx : -1;
+
     if (laCasellaContieneGiaUnaX) {
         // Se la casella cliccata ha già una X, rimuovila
         const indiceDaRimuovere = arrayUsureTelaioCorrente.indexOf(indiceCasellaSelezionata);
@@ -24,23 +35,11 @@ export function gestisciUsuraTelaio(indiceCasellaSelezionata) {
             arrayUsureTelaioCorrente.splice(indiceDaRimuovere, 1);
         }
     } else {
-        // INSERIMENTO SPECULARE (DA SINISTRA A DESTRA per le sezioni di destra)
-        const totalBoxes = 6;
-        const valoreBaseTelaio = gameState.baseValues.body;
-        const puntiAssegnatiSetupTelaio = gameState.allocations.body;
-        const totaleCaselleDisponibiliTelaio = valoreBaseTelaio + puntiAssegnatiSetupTelaio;
-        
-        // Per il telaio a destra, le caselle valide partono da startIdx
-        const startIdx = totalBoxes - totaleCaselleDisponibiliTelaio;
-        const endIdx = totalBoxes - 1;
-        
-        // L'alettone occupa rigorosamente il primissimo slot a sinistra dell'area attiva del telaio
-        const wingBoxIndex = startIdx; 
-
+        // INSERIMENTO DA SINISTRA A DESTRA
         let indiceSinistraDisponibile = -1;
-        // Scansiona partendo da sinistra verso destra
+        
         for (let i = startIdx; i <= endIdx; i++) {
-            // Se l'alettone è attivo, la primissima casella a sinistra (wingBoxIndex) è protetta
+            // Se l'alettone è attivo, saltiamo la prima casella riservata
             if (gameState.alettoneAttivo && i === wingBoxIndex) {
                 continue;
             }
@@ -55,19 +54,17 @@ export function gestisciUsuraTelaio(indiceCasellaSelezionata) {
         }
     }
 
-    const valoreBaseTelaio = gameState.baseValues.body;
-    const puntiAssegnatiSetupTelaio = gameState.allocations.body;
-    const totaleCaselleDisponibiliTelaio = valoreBaseTelaio + puntiAssegnatiSetupTelaio;
-    const tutteLeCaselleTelaioSonoOccupate = (arrayUsureTelaioCorrente.length === totaleCaselleDisponibiliTelaio);
+    // Controllo rottura alettone: avviene SOLO SE l'alettone era attivo ed è esaurito il resto del telaio
+    if (gameState.alettoneAttivo) {
+        const slotUsuraTotali = totaleCaselleDisponibiliTelaio - 1;
+        const usureEffettive = arrayUsureTelaioCorrente.filter(i => i !== wingBoxIndex).length;
 
-    if (tutteLeCaselleTelaioSonoOccupate) {
-        if (gameState.alettoneAttivo) {
-            alettoneAttivoAggiornato = false;
-        }
-        messaggioAllertaCritica = "Attenzione: Hai finito i punti telaio! L'alettone è stato compromesso.";
-    } else {
-        if (!gameState.alettoneAttivo && arrayUsureTelaioCorrente.length < totaleCaselleDisponibiliTelaio) {
-            alettoneAttivoAggiornato = true; 
+        if (usureEffettive >= slotUsuraTotali) {
+            alettoneAttivoAggiornato = false; // L'alettone si rompe
+            if (!arrayUsureTelaioCorrente.includes(wingBoxIndex)) {
+                arrayUsureTelaioCorrente.push(wingBoxIndex); // Mette la X rossa sullo slot alettone
+            }
+            messaggioAllertaCritica = "Attenzione: Hai finito i punti telaio! L'alettone è stato compromesso.";
         }
     }
 
@@ -82,7 +79,6 @@ export function gestisciUsuraTelaio(indiceCasellaSelezionata) {
     return {
         operazioneRiuscita: true,
         usureTelaioAggiornate: arrayUsureTelaioCorrente,
-        telaioEsauritoCompletamente: tutteLeCaselleTelaioSonoOccupate,
         messaggioDescrittivo: messaggioAllertaCritica || "Telaio aggiornato con successo."
     };
 }
