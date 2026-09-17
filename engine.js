@@ -18,9 +18,31 @@ export function gestisciUsuraMotore(indiceCasellaSelezionata) {
     let statoKersAggiornato = gameState.kersState;
 
     if (laCasellaContieneGiaUnaX) {
+        // Se la casella cliccata ha già una X, rimuovila
         arrayUsureMotoreCorrente.splice(arrayUsureMotoreCorrente.indexOf(indiceCasellaSelezionata), 1);
     } else {
-        arrayUsureMotoreCorrente.push(indiceCasellaSelezionata);
+        // INSERIMENTO SPECULARE (DA SINISTRA VERSO DESTRA per le sezioni di destra):
+        const totalBoxes = 6;
+        const valoreBaseMotore = gameState.baseValues.engine;
+        const puntiAssegnatiSetupMotore = gameState.allocations.engine;
+        const totaleCaselleMotore = valoreBaseMotore + puntiAssegnatiSetupMotore;
+        
+        // Per le sezioni di destra, le caselle valide vanno da (totalBoxes - totaleCaselleMotore) fino a (totalBoxes - 1)
+        const startIdx = totalBoxes - totaleCaselleMotore;
+        const endIdx = totalBoxes - 1;
+
+        let indiceSinistraDisponibile = -1;
+        // Scansiona partendo da sinistra verso destra
+        for (let i = startIdx; i <= endIdx; i++) {
+            if (!arrayUsureMotoreCorrente.includes(i)) {
+                indiceSinistraDisponibile = i;
+                break;
+            }
+        }
+
+        if (indiceSinistraDisponibile !== -1) {
+            arrayUsureMotoreCorrente.push(indiceSinistraDisponibile);
+        }
     }
 
     const valoreBaseMotore = gameState.baseValues.engine;
