@@ -345,6 +345,17 @@ export function toggleRaceEdit() {
 function updateKersDisplay() {
     const boxKers = document.getElementById('box-kers');
     if (boxKers) {
+        // Aggiorna l'aspetto grafico in base al tema e allo stato corrente
         boxKers.innerHTML = generaHtmlCasellaKersPerTema(gameState.theme);
+        
+        // REGOLA KERS: Cliccabile solo se è carico ('charged'). 
+        // Torna non cliccabile se è vuoto ('empty') o danneggiato ('damaged').
+        if (gameState.kersState === 'charged') {
+            boxKers.style.pointerEvents = 'auto';
+            boxKers.style.cursor = 'pointer';
+        } else {
+            boxKers.style.pointerEvents = 'none';
+            boxKers.style.cursor = 'default';
+        }
     }
 }
