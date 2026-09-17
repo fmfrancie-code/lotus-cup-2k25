@@ -4,7 +4,7 @@
 // ==========================================
 
 import { gameState, updateGameState } from './state.js';
-import { getKersIconHtml } from './layout.js';
+
 
 /**
  * Gestisce l'inserimento o la rimozione di una X di usura sulla barra dei Freni,
@@ -85,7 +85,7 @@ export function eseguiTestAttivazioneKers(esitoTestKersSelezionato) {
     } else if (esitoTestKersSelezionato === 'damaged') {
         // Test Danneggiato -> Imposta X rossa permanente fino a fine gara (non riparabile)
         nuovoStatoKers = 'damaged';
-        messaggioRisultato = "Test KERS fallito: sistema DANNEGGIATO. È stata applicata la X rossa permanente; il KERS non potrà più essere utilizzato.";
+        messaggioRisultato = "Test KERS fallito: sistema DANNEGGIATO. E' stata applicata la X rossa permanente; il KERS non potrà  più essere utilizzato.";
     }
 
     updateGameState({ kersState: nuovoStatoKers });
@@ -97,24 +97,3 @@ export function eseguiTestAttivazioneKers(esitoTestKersSelezionato) {
     };
 }
 
-/**
- * Restituisce il markup HTML visivo per la casella del KERS in base al tema e allo stato corrente.
- * 
- * @param {string} temaGraficoAttivo - Nome del tema ('ironman' o 'cyberpunk')
- * @returns {string} - Codice HTML dell'icona (Reattore Ark, Power o X rossa di danno)
- */
-export function generaHtmlCasellaKersPerTema(temaGraficoAttivo) {
-    const statoKersCorrente = gameState.kersState;
-
-    if (statoKersCorrente === 'damaged') {
-        // Stato di Danno o Blocco Critico: mostra la X rossa con effetto sfarfallio
-        return `<div class="kers-icon-container x-red"><span class="flicker-text">X</span></div>`;
-    } else if (statoKersCorrente === 'charged') {
-        // Stato carico: restituisce l'icona vettoriale specifica del tema scelto
-        const iconaVettorialeTematica = getKersIconHtml(temaGraficoAttivo);
-        return `<div class="kers-icon-container charged">${iconaVettorialeTematica}</div>`;
-    } else {
-        // Stato vuoto o inattivo
-        return `<div class="kers-icon-container empty"></div>`;
-    }
-}
