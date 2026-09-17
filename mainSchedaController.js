@@ -12,6 +12,7 @@ import { gestisciUsuraTelaio } from './chassis.js';
 import { gestisciUsuraSospensioni } from './suspension.js';
 import { renderTyreDeck, selectTyreFromUI, handleTyreClick, gestisciModificaUsuraPneumaticiInGara } from './compoundsTyres.js';
 import { toggleRaceEdit as toggleEditFromModule } from './editOutsideBoxes.js';
+import { getKersIconHtml } from './layout.js';
 
 export { renderTyreDeck, selectTyreFromUI, handleTyreClick };
 
@@ -344,18 +345,31 @@ export function toggleRaceEdit() {
 
 function updateKersDisplay() {
     const boxKers = document.getElementById('box-kers');
-    if (boxKers) {
-        // Aggiorna l'aspetto grafico in base al tema e allo stato corrente
-        boxKers.innerHTML = generaHtmlCasellaKersPerTema(gameState.theme);
+    if (!boxKers) return;
+
+    const statoKers = gameState.kersState;
+    let htmlContenuto = '';
+
+    if (statoKers === 'damaged') {
+        // KERS danneggiato: mostra la X rossa e blocca i click
+        htmlContenuto = `<div class="kers-icon-container x-red"><span class="flicker-text">X</span></div>`;
+        boxKers.style.pointerEvents = 'none';
+        boxKers.style.cursor = 'default';
+    } else if (statoKers === 'charged') {
+        // KERS carico: il coordinatore chiede l'icona tematica a layout.js[cite: 10]
+        const iconaTematica = getKersIconHtml(gameState.theme);
+        htmlContenuto = `<div class="kers-icon-container charged">${iconaTematica}</div>`;
         
-        // REGOLA KERS: Cliccabile solo se è carico ('charged'). 
-        // Torna non cliccabile se è vuoto ('empty') o danneggiato ('damaged').
-        if (gameState.kersState === 'charged') {
-            boxKers.style.pointerEvents = 'auto';
-            boxKers.style.cursor = 'pointer';
-        } else {
-            boxKers.style.pointerEvents = 'none';
-            boxKers.style.cursor = 'default';
-        }
+        // Sblocca i click per permettere l'interazione/test del KERS
+        boxKers.style.pointerEvents = 'auto';
+        boxKers.style.cursor = 'pointer';
+    } else {
+        // KERS vuoto
+        htmlContenuto = `<div class="kers-icon-container empty"></div>`;
+        boxKers.style.pointerEvents = 'none';
+        boxKers.style.cursor = 'default';
     }
+
+    boxKers.innerHTML = htmlContenuto;
 }
+
