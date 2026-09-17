@@ -166,10 +166,25 @@
       animation: flicker 2s infinite alternate;
     }
 
+
+    /* 1. Definizione dell'animazione al neon potenziata */
+    @keyframes glow-only-cyber {
+      0% { 
+        filter: drop-shadow(0 0 2px #00f0ff) drop-shadow(0 0 4px #00f0ff); 
+        opacity: 0.4; 
+        transform: scale(0.96);
+      }
+      100% { 
+        filter: drop-shadow(0 0 10px #00f0ff) drop-shadow(0 0 20px #00f0ff); 
+        opacity: 1; 
+        transform: scale(1.04);
+      }
+    }
+
     body.theme-cyberpunk .box.circle-kers { box-shadow: none !important; }
     body.theme-cyberpunk .box.circle-kers svg {
       color: #00f0ff !important;
-      animation: glow-only-cyber 1.4s infinite ease-in-out alternate;
+      animation: glow-only-cyber 1.2s infinite ease-in-out alternate;
     }
 
     /* FINE CYBER-PUNK THEME */
@@ -279,6 +294,22 @@
       color: #00ffcc !important;
       filter: drop-shadow(0 0 5px #00ffcc);
     }
+    
+    
+    /* Effetto pulsante potenziato per Iron Man (Ark Reactor Gold & Cyan) */
+    @keyframes glow-only-iron {
+      0% { 
+        filter: drop-shadow(0 0 2px #00f0ff) drop-shadow(0 0 5px #f5d061); 
+        opacity: 0.5; 
+        transform: scale(0.96);
+      }
+      100% { 
+        filter: drop-shadow(0 0 12px #00f0ff) drop-shadow(0 0 22px #f5d061); 
+        opacity: 1; 
+        transform: scale(1.04);
+      }
+    }
+    
     
     body.theme-ironman .box.circle-kers { box-shadow: none !important; }
     body.theme-ironman .box.circle-kers svg {
