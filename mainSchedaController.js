@@ -7,7 +7,7 @@ import { gameState, updateGameState } from './state.js';
 import { assegnaPuntoBudgetSetup } from './setupPhase.js';
 import { gestisciConsumoBenzinaEModifica } from './fuel.js';
 import { gestisciUsuraMotore } from './engine.js';
-import { gestisciModificaUsuraFreniETrafilamentoKers } from './brakesKers.js';
+import { gestisciModificaUsuraFreniETrafilamentoKers, generaHtmlCasellaKersPerTema } from './brakesKers.js';
 import { gestisciUsuraTelaio } from './chassis.js';
 import { gestisciUsuraSospensioni } from './suspension.js';
 import { renderTyreDeck, selectTyreFromUI, handleTyreClick, gestisciModificaUsuraPneumaticiInGara } from './compoundsTyres.js';
@@ -339,4 +339,12 @@ export function toggleRaceEdit() {
     
     // 2. Il main controller (padre) coordina la vista e aggiorna la plancia
     renderBoard();
+}
+
+
+function updateKersDisplay() {
+    const boxKers = document.getElementById('box-kers');
+    if (boxKers) {
+        boxKers.innerHTML = generaHtmlCasellaKersPerTema(gameState.theme);
+    }
 }
