@@ -7,7 +7,7 @@ import { gameState, updateGameState } from './state.js';
 import { assegnaPuntoBudgetSetup } from './setupPhase.js';
 import { gestisciConsumoBenzinaEModifica } from './fuel.js';
 import { gestisciUsuraMotore } from './engine.js';
-import { gestisciModificaUsuraFreniETrafilamentoKers } from './brakesKers.js';
+import { gestisciModificaUsuraFreniETrafilamentoKers, eseguiTestAttivazioneKers } from './brakesKers.js';
 import { gestisciUsuraTelaio } from './chassis.js';
 import { gestisciUsuraSospensioni } from './suspension.js';
 import { renderTyreDeck, selectTyreFromUI, handleTyreClick, gestisciModificaUsuraPneumaticiInGara } from './compoundsTyres.js';
@@ -353,7 +353,8 @@ function updateKersDisplay() {
     boxKers.classList.remove('charged', 'damaged', 'empty', 'circle-kers');
 
     if (statoKers === 'damaged') {
-        htmlContenuto = `<div class="kers-icon-container x-red"><span class="flicker-text">X</span></div>`;
+        boxKers.classList.add('x-red'); // <-- Aggiunge lo stile grafico rosso/flicker
+        htmlContenuto = `<span class="flicker-text">X</span>`;
         boxKers.style.setProperty('pointer-events', 'none', 'important');
         boxKers.style.cursor = 'default';
     } else if (statoKers === 'charged') {
@@ -378,4 +379,16 @@ function updateKersDisplay() {
     }
 
     boxKers.innerHTML = htmlContenuto;
+}
+
+
+/**
+ * Gestisce l'esito del test KERS coordinando il modulo brakesKers e il rendering della plancia
+ */
+export function gestisciTestKers(esitoTest) {
+    const risultato = eseguiTestAttivazioneKers(esitoTest);
+    if (risultato.operazioneRiuscita) {
+        renderBoard();
+    }
+    return risultato;
 }
