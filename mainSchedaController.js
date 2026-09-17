@@ -11,7 +11,7 @@ import { gestisciModificaUsuraFreniETrafilamentoKers, generaHtmlCasellaKersPerTe
 import { gestisciUsuraTelaio } from './chassis.js';
 import { gestisciUsuraSospensioni } from './suspension.js';
 import { renderTyreDeck, selectTyreFromUI, handleTyreClick, gestisciModificaUsuraPneumaticiInGara } from './compoundsTyres.js';
-import { toggleRaceEdit as toggleEditFromModule } from './editOutsideBoxes.js';
+import { toggleRaceEdit as toggleEditFromModule, ottieniDirezioneGeometricaComponente } from './editOutsideBoxes.js';
 import { getKersIconHtml } from './layout.js';
 
 export { renderTyreDeck, selectTyreFromUI, handleTyreClick };
