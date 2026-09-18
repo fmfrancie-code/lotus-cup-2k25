@@ -125,19 +125,15 @@ export function gestisciModificaUsuraInGara(tipoComponente, indiceCasella) {
  * Aggiorna dinamicamente l'etichetta visiva del MOV della benzina a schermo
  */
 function aggiornaLabelMovBenzina(stringaMov) {
-    const containerBenzina = document.getElementById('row-fuel');
-    if (!containerBenzina) return;
-    
-    const rigaMadre = containerBenzina.closest('.component-row') || containerBenzina.parentElement;
-    if (rigaMadre) {
-        const labelMov = rigaMadre.querySelector('.fuel-mov-indicator, [id*="mov"], span');
-        if (labelMov) {
-            labelMov.innerText = stringaMov;
-            if (stringaMov === "+1 MOV") {
-                labelMov.classList.add('mov-active');
-            } else {
-                labelMov.classList.remove('mov-active');
-            }
+    const labelMov = document.getElementById('fuel-mov-label');
+    if (labelMov) {
+        labelMov.innerText = stringaMov;
+        
+        // Aggiunge o rimuove la classe per evidenziare visivamente quando è attivo il +1 MOV
+        if (stringaMov === "+1 MOV") {
+            labelMov.classList.add('mov-active');
+        } else {
+            labelMov.classList.remove('mov-active');
         }
     }
 }
