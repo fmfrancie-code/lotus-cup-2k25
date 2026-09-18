@@ -1,18 +1,18 @@
 // ==========================================
 // MODULO: BENZINA & CARBURANTE (fuel.js)
-// Gestione del consumo carburante, stringa MOV e logica box con parametri parlanti
+// Gestione del consumo carburante, stringa MOV e logica box
 // ==========================================
 
 import { gameState, updateGameState } from './state.js';
 
-/**
+//**
  * Gestisce l'inserimento o la rimozione di una X di consumo sulla barra della Benzina,
  * applicando le regole di direzione e verificando le soglie di movimento (MOV) e di esaurimento.
  * 
  * @param {number} indiceCasellaBenzinaSelezionata - Indice della casella cliccata dall'utente
  * @returns {Object} - Stato aggiornato della benzina, stringa MOV attiva e messaggi di avviso
  */
- export function gestisciConsumoBenzinaEModifica(indiceCasellaBenzinaSelezionata) {
+export function gestisciConsumoBenzinaEModifica(indiceCasellaBenzinaSelezionata) {
     const arrayCaselleBenzinaCorrente = [...gameState.markedUsages.fuel];
     const totaleCaselleDisponibiliBenzina = gameState.baseValues.fuel + gameState.allocations.fuel;
     
@@ -66,10 +66,6 @@ import { gameState, updateGameState } from './state.js';
     };
 }
 
-
-
-
-
 /**
  * Gestisce le opzioni di ripristino della benzina durante la sosta ai Box (Pit Stop).
  * Permette di scegliere tra "Pieno" (azzera tutte le X) o "Leggerezza" (lascia fino a 3 caselle libere).
@@ -86,7 +82,7 @@ export function gestisciRipristinoBenzinaAiBox(modalitaSceltaBox, numeroCaselleD
 
     if (modalitaSceltaBox === 'pieno') {
         arrayCaselleBenzinaAggiornato = [];
-        descrizioneOperazioneBox = "Rifornimento completato: Pieno di benzina effettuato (tutte le usure rimosse).";
+        descrizioneOperazioneBox = "Rifornimento completato: Pieno di benzina effettuato (tutte le usure rimosse)."[cite: 22];
         stringaMovimentoBox = "+0 MOV";
     } else if (modalitaSceltaBox === 'leggerezza') {
         arrayCaselleBenzinaAggiornato = [];
@@ -99,7 +95,7 @@ export function gestisciRipristinoBenzinaAiBox(modalitaSceltaBox, numeroCaselleD
             stringaMovimentoBox = "+1 MOV";
         }
 
-        descrizioneOperazioneBox = `Strategia di leggerezza applicata: mantenute ${caselleSenzaXRimaste} caselle libere di carburante.;
+        descrizioneOperazioneBox = `Strategia di leggerezza applicata: mantenute ${caselleSenzaXRimaste} caselle libere di carburante.`[cite: 22];
     }
 
     updateGameState({
