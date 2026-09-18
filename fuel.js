@@ -81,7 +81,7 @@ export function gestisciRipristinoBenzinaAiBox(modalitaSceltaBox, numeroCaselleD
 
     if (modalitaSceltaBox === 'pieno') {
         arrayCaselleBenzinaAggiornato = [];
-        descrizioneOperazioneBox = "Rifornimento completato: Pieno di benzina effettuato (tutte le usure rimosse)."[cite: 22];
+        descrizioneOperazioneBox = "Rifornimento completato: Pieno di benzina effettuato (tutte le usure rimosse).";
         stringaMovimentoBox = "+0 MOV";
     } else if (modalitaSceltaBox === 'leggerezza') {
         arrayCaselleBenzinaAggiornato = [];
@@ -94,7 +94,7 @@ export function gestisciRipristinoBenzinaAiBox(modalitaSceltaBox, numeroCaselleD
             stringaMovimentoBox = "+1 MOV";
         }
 
-        descrizioneOperazioneBox = `Strategia di leggerezza applicata: mantenute ${caselleSenzaXRimaste} caselle libere di carburante.`[cite: 22];
+        descrizioneOperazioneBox = `Strategia di leggerezza applicata: mantenute ${caselleSenzaXRimaste} caselle libere di carburante.`;
     }
 
     updateGameState({
