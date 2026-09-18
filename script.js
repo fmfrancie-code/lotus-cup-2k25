@@ -15,7 +15,9 @@ import {
     toggleRaceEdit,
     renderBoard,
     toggleWing,
-    gestisciTestKers
+    gestisciTestKers,
+    gestisciAvvioPitStop,
+    gestisciUscitaBox
 } from './mainSchedaController.js';
 
 // ---- ESPOSIZIONE GLOBALE PER I PULSANTI HTML (onclick) ----
@@ -183,5 +185,57 @@ window.resolveKers = function(isDamaged) {
     } else {
         alert(risultato.messaggioDescrittivo);
     }
+};
+
+
+// --- GESTIONE INTERATTIVITÀ BOX (PIT STOP) ---
+
+window.handlePitStopButtonClick = function() {
+    const modal = document.getElementById('modal-pitstop-confirm');
+    if (modal) {
+        modal.style.display = 'flex';
+    }
+};
+
+window.confirmEnterPitStop = function() {
+    // Esempio: giro corrente impostato a 1 o recuperato dallo stato
+    const giroCorrente = 1; 
+    const risultato = gestisciAvvioPitStop(giroCorrente);
+
+    if (risultato.operazioneRiuscita) {
+        document.body.classList.add('pitstop-mode-active');
+
+        const btnPitStop = document.getElementById('btn-pitstop-action');
+        if (btnPitStop) {
+            btnPitStop.innerText = "Conferma Uscita Box";
+            btnPitStop.onclick = window.tentativoUscitaBox;
+        }
+
+        closeModal('modal-pitstop-confirm');
+        renderBoard();
+    } else {
+        alert(risultato.messaggioDescrittivo);
+    }
+};
+
+window.tentativoUscitaBox = function() {
+    const risultato = gestisciUscitaBox();
+
+    if (!risultato.operazioneRiuscita) {
+        // Se non è possibile uscire (es. manca lo stint 2 o 3), mostra l'avviso
+        alert(risultato.messaggioDescrittivo);
+        return;
+    }
+
+    document.body.classList.remove('pitstop-mode-active');
+
+    const btnPitStop = document.getElementById('btn-pitstop-action');
+    if (btnPitStop) {
+        btnPitStop.innerText = "Entrata ai Box (Pit Stop)";
+        btnPitStop.onclick = window.handlePitStopButtonClick;
+    }
+
+    renderBoard();
+    alert(risultato.messaggioDescrittivo);
 };
 console.log("Lotus Cup 2k25: Script Main orchestrato e ripulito correttamente.");
