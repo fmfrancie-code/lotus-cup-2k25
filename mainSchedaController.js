@@ -12,6 +12,7 @@ import { gestisciUsuraTelaio } from './chassis.js';
 import { gestisciUsuraSospensioni } from './suspension.js';
 import { renderTyreDeck, selectTyreFromUI, handleTyreClick, gestisciModificaUsuraPneumaticiInGara } from './compoundsTyres.js';
 import { toggleRaceEdit as toggleEditFromModule, ottieniDirezioneGeometricaComponente } from './editOutsideBoxes.js';
+import { avviaSessionePitStop, finalizzaRipartenzaDaiBox } from './pitStopBoxes.js';
 import { getKersIconHtml } from './layout.js';
 
 export { renderTyreDeck, selectTyreFromUI, handleTyreClick };
@@ -431,6 +432,30 @@ function updateKersDisplay() {
  */
 export function gestisciTestKers(esitoTest) {
     const risultato = eseguiTestAttivazioneKers(esitoTest);
+    if (risultato.operazioneRiuscita) {
+        renderBoard();
+    }
+    return risultato;
+}
+
+
+// FUNZIONI DEL PITSTOP  AI BOX
+/**
+ * Coordina l'avvio della sessione di Pit Stop passando per il controller principale
+ */
+export function gestisciAvvioPitStop(numeroGiro) {
+    const risultato = avviaSessionePitStop(numeroGiro);[cite: 11]
+    if (risultato.operazioneRiuscita) {
+        renderBoard();
+    }
+    return risultato;
+}
+
+/**
+ * Coordina la verifica e l'uscita dai box passando per il controller principale
+ */
+export function gestisciUscitaBox() {
+    const risultato = finalizzaRipartenzaDaiBox();[cite: 11]
     if (risultato.operazioneRiuscita) {
         renderBoard();
     }
