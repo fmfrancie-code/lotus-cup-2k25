@@ -15,24 +15,21 @@ export function gestisciUsuraMotore(indiceCasellaSelezionata) {
     const laCasellaContieneGiaUnaX = arrayUsureMotoreCorrente.includes(indiceCasellaSelezionata);
     
     let messaggioAllertaCritica = "";
-    let statoKersAggiornato = gameState.kersState;
 
     if (laCasellaContieneGiaUnaX) {
         // Se la casella cliccata ha già una X, rimuovila
         arrayUsureMotoreCorrente.splice(arrayUsureMotoreCorrente.indexOf(indiceCasellaSelezionata), 1);
     } else {
-        // INSERIMENTO SPECULARE (DA SINISTRA VERSO DESTRA per le sezioni di destra):
+        // Inserimento sequenziale da sinistra a destra per le sezioni di destra
         const totalBoxes = 6;
         const valoreBaseMotore = gameState.baseValues.engine;
         const puntiAssegnatiSetupMotore = gameState.allocations.engine;
         const totaleCaselleMotore = valoreBaseMotore + puntiAssegnatiSetupMotore;
         
-        // Per le sezioni di destra, le caselle valide vanno da (totalBoxes - totaleCaselleMotore) fino a (totalBoxes - 1)
         const startIdx = totalBoxes - totaleCaselleMotore;
         const endIdx = totalBoxes - 1;
 
         let indiceSinistraDisponibile = -1;
-        // Scansiona partendo da sinistra verso destra
         for (let i = startIdx; i <= endIdx; i++) {
             if (!arrayUsureMotoreCorrente.includes(i)) {
                 indiceSinistraDisponibile = i;
@@ -51,16 +48,16 @@ export function gestisciUsuraMotore(indiceCasellaSelezionata) {
     const tutteLeCaselleMotoreSonoOccupate = (arrayUsureMotoreCorrente.length === totaleCaselleDisponibiliMotore);
 
     if (tutteLeCaselleMotoreSonoOccupate) {
-        statoKersAggiornato = 'damaged';
-        messaggioAllertaCritica = "Attenzione: Hai finito i punti motore! Motore in fault e KERS danneggiato.";
+        // RIMOSSO: La forzatura automatica di kersState = 'damaged'
+        messaggioAllertaCritica = "Attenzione: Hai esaurito tutti i punti del motore!";
     }
 
     updateGameState({
         markedUsages: {
             ...gameState.markedUsages,
             engine: arrayUsureMotoreCorrente
-        },
-        kersState: statoKersAggiornato
+        }
+        // Il kersState non viene più toccato qui dentro
     });
 
     return {
