@@ -83,7 +83,7 @@ export function eseguiTestAttivazioneKers(esitoTestKersSelezionato) {
         // Test OK -> Svuota la casella del KERS (torna vuoto ma utilizzabile in futuro)
         nuovoStatoKers = 'empty';
         messaggioRisultato = "Test KERS superato con successo [OK]! La casella del KERS è stata svuotata.";
-    } } else if (esitoTestKersSelezionato === 'damaged') {
+    } else if (esitoTestKersSelezionato === 'damaged') {
         // Test KERS fallito -> KERS danneggiato
         nuovoStatoKers = 'damaged';
         
