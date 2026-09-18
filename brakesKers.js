@@ -5,32 +5,46 @@
 
 import { gameState, updateGameState } from './state.js';
 
-
 /**
  * Gestisce l'inserimento o la rimozione di una X di usura sulla barra dei Freni,
- * verificando contestualmente se il KERS deve essere caricato.
+ * applicando la regola geometrica delle sezioni di sinistra (da destra verso sinistra)
+ * e verificando contestualmente se il KERS deve essere caricato.
  * 
  * @param {number} indiceCasellaFrenoSelezionata - Indice della casella su cui l'utente ha cliccato
  * @returns {Object} - Stato aggiornato dei freni e del KERS
  */
 export function gestisciModificaUsuraFreniETrafilamentoKers(indiceCasellaFrenoSelezionata) {
     const arrayCaselleFreniCorrente = [...gameState.markedUsages.brakes];
+    const valoreBaseFreni = gameState.baseValues.brakes;
+    const puntiAssegnatiSetupFreni = gameState.allocations.brakes;
+    const totaleCaselleDisponibiliFreni = valoreBaseFreni + puntiAssegnatiSetupFreni;
     
     const laCasellaContieneGiaUnaX = arrayCaselleFreniCorrente.includes(indiceCasellaFrenoSelezionata);
     let nuovoStatoKers = gameState.kersState;
 
     if (laCasellaContieneGiaUnaX) {
-        // Rimozione della X (da sinistra verso destra secondo le regole di edit)
+        // Se la casella ha già una X, rimuovila liberamente
         const indiceDaRimuovere = arrayCaselleFreniCorrente.indexOf(indiceCasellaFrenoSelezionata);
         if (indiceDaRimuovere !== -1) {
             arrayCaselleFreniCorrente.splice(indiceDaRimuovere, 1);
         }
     } else {
-        // Inserimento della X (da destra verso sinistra secondo le regole di edit)
-        arrayCaselleFreniCorrente.push(indiceCasellaFrenoSelezionata);
+        // REGOLA GEOMETRICA PER LE SEZIONI DI SINISTRA (DA DESTRA VERSO SINISTRA):
+        // Scansiona dall'estremo destro dell'area attiva verso sinistra per trovare la prima casella libera
+        let indiceDestraDisponibile = -1;
+        for (let i = totaleCaselleDisponibiliFreni - 1; i >= 0; i--) {
+            if (!arrayCaselleFreniCorrente.includes(i)) {
+                indiceDestraDisponibile = i;
+                break;
+            }
+        }
+
+        if (indiceDestraDisponibile !== -1) {
+            arrayCaselleFreniCorrente.push(indiceDestraDisponibile);
+        }
     }
 
-    // REGOLA DI BUSINESS: Quando almeno un punto freno è consumato (almeno una X presente), il KERS si carica.
+    // REGOLA DI BUSINESS: Quando almeno un punto freno è consumato, il KERS si carica.
     // Il KERS si carica solo se non è in stato permanentemente danneggiato.
     const esisteAlmenoUnFrenoConsumato = arrayCaselleFreniCorrente.length > 0;
     
@@ -78,7 +92,7 @@ export function eseguiTestAttivazioneKers(esitoTestKersSelezionato) {
     let nuovoStatoKers = statoKersAttuale;
     let messaggioRisultato = "";
     
-    // Dichiariamo l'array del motore una sola volta in modo pulito
+    // Array del motore preso una sola volta in modo pulito
     const usureMotoreAggiornate = [...gameState.markedUsages.engine];
 
     if (esitoTestKersSelezionato === 'ok') {
@@ -130,4 +144,3 @@ export function eseguiTestAttivazioneKers(esitoTestKersSelezionato) {
         messaggioDescrittivo: messaggioRisultato
     };
 }
-
