@@ -7,7 +7,8 @@ import { gameState, updateGameState } from './state.js';
 
 /**
  * Gestisce l'inserimento o la rimozione di una X di consumo sulla barra della Benzina,
- * applicando le regole di direzione e verificando le soglie di movimento (MOV) e di esaurimento.
+ * applicando le regole di direzione (da destra verso sinistra) e verificando le soglie di movimento (MOV).
+ * 
  * @param {number} indiceCasellaBenzinaSelezionata - Indice della casella cliccata dall'utente
  * @returns {Object} - Stato aggiornato della benzina, stringa MOV attiva e messaggi di avviso
  */
