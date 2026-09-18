@@ -91,23 +91,35 @@ export function gestisciAssegnazioneBudget(tipoArea, delta) {
 /**
  * Coordina la modifica dell'usura di un componente durante la gara in modalità edit
  */
-export function gestisciModificaUsuraInGara(tipoComponente, indiceCasella) {
+eexport function gestisciModificaUsuraInGara(tipoComponente, indiceCasella) {
+    let res = null;
     switch (tipoComponente) {
         case 'tyres':
-            return gestisciModificaUsuraPneumaticiInGara(indiceCasella);
+            res = gestisciModificaUsuraPneumaticiInGara(indiceCasella);
+            break;
         case 'brakes':
-            return gestisciModificaUsuraFreniETrafilamentoKers(indiceCasella);
+            res = gestisciModificaUsuraFreniETrafilamentoKers(indiceCasella);
+            break;
         case 'fuel':
-            return gestisciConsumoBenzinaEModifica(indiceCasella);
+            res = gestisciConsumoBenzinaEModifica(indiceCasella);
+            // AGGIORNAMENTO DINAMICO MOV BENZINA
+            if (res && res.operazioneRiuscita) {
+                aggiornaLabelMovBenzina(res.stringaMov);
+            }
+            break;
         case 'engine':
-            return gestisciUsuraMotore(indiceCasella);
+            res = gestisciUsuraMotore(indiceCasella);
+            break;
         case 'body':
-            return gestisciUsuraTelaio(indiceCasella);
+            res = gestisciUsuraTelaio(indiceCasella);
+            break;
         case 'suspension':
-            return gestisciUsuraSospensioni(indiceCasella);
+            res = gestisciUsuraSospensioni(indiceCasella);
+            break;
         default:
             return { operazioneRiuscita: false, messaggioDescrittivo: "Componente non gestito." };
     }
+    return res;
 }
 
 
