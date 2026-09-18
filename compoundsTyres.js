@@ -6,16 +6,19 @@
 import { gameState, updateGameState } from './state.js';
 import { verificaSeAsfaltoBagnato } from './weather.js';
 
-
-
 /**
- * Gestisce l'inserimento o la rimozione manuale di una X di usura sulla barra dei Pneumatici in gara.
+ * Gestisce l'inserimento o la rimozione manuale di una X di usura sulla barra dei Pneumatici in gara,
+ * applicando la regola geometrica di sinistra (da destra verso sinistra) sulle caselle attive.
  * 
  * @param {number} indiceCasellaSelezionata - Indice della casella su cui l'utente ha cliccato
  * @returns {Object} - Stato aggiornato dei pneumatici
  */
 export function gestisciModificaUsuraPneumaticiInGara(indiceCasellaSelezionata) {
     const arrayCasellePneumaticiCorrente = [...gameState.markedUsages.tyres];
+    const valoreBasePneumatici = gameState.baseValues.tyres;
+    const puntiAssegnatiSetupPneumatici = gameState.allocations.tyres;
+    const totaleCaselleDisponibiliPneumatici = valoreBasePneumatici + puntiAssegnatiSetupPneumatici;
+
     const laCasellaContieneGiaUnaX = arrayCasellePneumaticiCorrente.includes(indiceCasellaSelezionata);
 
     if (laCasellaContieneGiaUnaX) {
@@ -25,8 +28,18 @@ export function gestisciModificaUsuraPneumaticiInGara(indiceCasellaSelezionata) 
             arrayCasellePneumaticiCorrente.splice(indiceDaRimuovere, 1);
         }
     } else {
-        // Inserimento della X sulla casella esatta cliccata
-        arrayCasellePneumaticiCorrente.push(indiceCasellaSelezionata);
+        // Regola geometrica per le sezioni di sinistra (Tyres): inserimento da destra verso sinistra
+        let indiceDestraDisponibile = -1;
+        for (let i = totaleCaselleDisponibiliPneumatici - 1; i >= 0; i--) {
+            if (!arrayCasellePneumaticiCorrente.includes(i)) {
+                indiceDestraDisponibile = i;
+                break;
+            }
+        }
+
+        if (indiceDestraDisponibile !== -1) {
+            arrayCasellePneumaticiCorrente.push(indiceDestraDisponibile);
+        }
     }
 
     // Aggiornamento dello stato globale
@@ -43,10 +56,6 @@ export function gestisciModificaUsuraPneumaticiInGara(indiceCasellaSelezionata) 
         messaggioDescrittivo: "Usura pneumatici aggiornata con successo."
     };
 }
-
-
-
-
 
 /**
  * Registra o aggiorna lo stint e la selezione della mescola attiva del pilota.
@@ -65,7 +74,7 @@ export function gestisciSelezioneMescolaEGiri(nomeMescolaSelezionata, numeroGiro
     // Copia dello stato attuale dei giri per le mescole
     const mappaGiriStintAggiornata = { ...gameState.tyreLaps };
 
-    // Regola di esclusività : rimuove il giro selezionato da tutte le altre mescole per evitare sovrapposizioni
+    // Regola di esclusività: rimuove il giro selezionato da tutte le altre mescole per evitare sovrapposizioni
     for (const mescolaCorrente of elencoMescoleValide) {
         if (mescolaCorrente !== nomeMescolaSelezionata) {
             mappaGiriStintAggiornata[mescolaCorrente] = mappaGiriStintAggiornata[mescolaCorrente].filter(
@@ -162,7 +171,7 @@ export function renderTyreDeck() {
                 isClickable ? 'clickable' : 'disabled'
             ].filter(Boolean).join(' ');
 
-            lapsHtml += `<div class="${classList}" ${isClickable ? `onclick="handleTyreClick('${t}', ${lap})"` : ''}>${lap}</div>`;
+            lapsHtml += `<div class="${classList}" ${isClickable ? `onclick="handleTyreClick('${t}',${lap})"` : ''}>${lap}</div>`;
         });
 
         card.innerHTML = `
@@ -187,7 +196,6 @@ export function selectTyreFromUI(type) {
     }
     
     if (gameState.isSetupMode || gameState.isPitStopActive) {
-        // Sceglie il primo giro disponibile o default 1 per la nuova mescola
         const targetGiro = gameState.isSetupMode ? 1 : (gameState.tyreLaps[type][0] || 2);
         const risultato = gestisciSelezioneMescolaEGiri(type, targetGiro);
         if (risultato.operazioneRiuscita) {
@@ -213,7 +221,6 @@ export function handleTyreClick(type, lap) {
     const pos = list.indexOf(lap);
     
     if (pos > -1) {
-        // Se già presente, lo rimuoviamo (o gestiamo la deselezione)
         list.splice(pos, 1);
         updateGameState({ tyreLaps: { ...gameState.tyreLaps } });
     } else {
