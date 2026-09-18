@@ -444,7 +444,7 @@ export function gestisciTestKers(esitoTest) {
  * Coordina l'avvio della sessione di Pit Stop passando per il controller principale
  */
 export function gestisciAvvioPitStop(numeroGiro) {
-    const risultato = avviaSessionePitStop(numeroGiro);[cite: 11]
+    const risultato = avviaSessionePitStop(numeroGiro);
     if (risultato.operazioneRiuscita) {
         renderBoard();
     }
@@ -455,7 +455,7 @@ export function gestisciAvvioPitStop(numeroGiro) {
  * Coordina la verifica e l'uscita dai box passando per il controller principale
  */
 export function gestisciUscitaBox() {
-    const risultato = finalizzaRipartenzaDaiBox();[cite: 11]
+    const risultato = finalizzaRipartenzaDaiBox();
     if (risultato.operazioneRiuscita) {
         renderBoard();
     }
