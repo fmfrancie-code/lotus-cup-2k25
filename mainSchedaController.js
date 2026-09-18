@@ -91,7 +91,7 @@ export function gestisciAssegnazioneBudget(tipoArea, delta) {
 /**
  * Coordina la modifica dell'usura di un componente durante la gara in modalità edit
  */
-eexport function gestisciModificaUsuraInGara(tipoComponente, indiceCasella) {
+export function gestisciModificaUsuraInGara(tipoComponente, indiceCasella) {
     let res = null;
     switch (tipoComponente) {
         case 'tyres':
