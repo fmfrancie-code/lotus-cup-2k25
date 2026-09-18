@@ -202,31 +202,22 @@ export function renderBoard() {
                 } else {
                     box.innerText = '';
                     if (gameState.isSetupMode && !isInspecting) {
-                        // Verifica blocco alettone sul telaio
-                        let bloccatoDaAlettone = false;
-                        if (comp === 'body' && isWingActive) {
-                            const indiceDisabilitato = totalBoxes - totalPoints;
-                            if (i <= indiceDisabilitato) bloccatoDaAlettone = true;
-                        }
-
-                        if (!bloccatoDaAlettone) {
-                            if (gameState.budget > 0) {
-                                box.classList.add('box-setup-highlight', 'clickable');
-                                box.onclick = () => {
-                                    const res = gestisciAssegnazioneBudget(comp, 1);
-                                    if (res.operazioneRiuscita) {
-                                        if (comp === 'body') gestisciAggiornamentoAlettoneDopoModifica(comp);
-                                        renderBoard();
-                                        aggiornaInterfacciaBudgetMod(res.budgetResiduo);
-                                    } else {
-                                        alert(res.messaggioDescrittivo);
-                                    }
-                                };
-                            } else {
-                                box.classList.add('box-setup-disabled');
-                            }
+                        // Rimosso il blocco restrittivo di bloccatoDaAlettone: 
+                        // le caselle vuote (inclusi gli spazi liberi a sinistra) tornano interamente cliccabili per il setup.
+                        if (gameState.budget > 0) {
+                            box.classList.add('box-setup-highlight', 'clickable');
+                            box.onclick = () => {
+                                const res = gestisciAssegnazioneBudget(comp, 1);
+                                if (res.operazioneRiuscita) {
+                                    if (comp === 'body') gestisciAggiornamentoAlettoneDopoModifica(comp);
+                                    renderBoard();
+                                    aggiornaInterfacciaBudgetMod(res.budgetResiduo);
+                                } else {
+                                    alert(res.messaggioDescrittivo);
+                                }
+                            };
                         } else {
-                            box.classList.add('wing-disabled');
+                            box.classList.add('box-setup-disabled');
                         }
                     }
                 }
@@ -237,12 +228,11 @@ export function renderBoard() {
                 const isWingXBox = (comp === 'body' && isWingActive && i === wingBoxIndex);
                 
                 if (isWingXBox) {
-                    // La casella sul telaio rimane l'indicatore fisso dell'alettone attivo e non diventa mai una X rossa di usura
                     box.innerText = 'X';
                     box.className = 'box wing-x';
                 } else if (gameState.markedUsages[comp] && gameState.markedUsages[comp].includes(i)) {
                     box.innerText = 'X';
-                    box.className = 'box x-red'; // Stile pulito della X rossa neon per le usure reali
+                    box.className = 'box x-red'; 
                 }
 
                 let isClickableBox = (gameState.isEditingAllowed || gameState.isPitStopActive) && !isInspecting && !isWingXBox;
