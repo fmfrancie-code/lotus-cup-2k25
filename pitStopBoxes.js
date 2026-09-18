@@ -22,7 +22,7 @@ export function avviaSessionePitStop(numeroGiroCorrente) {
 
 /**
  * Esegue la procedura di uscita e ripartenza dai box, verificando il vincolo dello stint 2 o 3,
- * calcolando il riepilogo di bonus/malus e azzerando i contatori temporanei[cite: 3].
+ * calcolando il riepilogo di bonus/malus e azzerando i contatori temporanei.
  * 
  * @returns {Object} - Riepilogo completo di uscita dai box
  */
@@ -32,28 +32,28 @@ export function finalizzaRipartenzaDaiBox() {
                          gameState.tyreLaps.Intermedie.some(g => g > 1) || 
                          gameState.tyreLaps.Pioggia.some(g => g > 1);
 
-    // REGOLA: Se si prova ad uscire dai box senza la selezione dello stint 2 o 3, un messaggio inviterà alla selezione[cite: 3]
+    // REGOLA: Se si prova ad uscire dai box senza la selezione dello stint 2 o 3, un messaggio inviterÃ  alla selezione
     if (!stint2Attivo && gameState.workshopUsages.length === 0) {
         return {
             operazioneRiuscita: false,
-            messaggioDescrittivo: "Impossibile uscire dai box: Devi selezionare lo stint 2 o 3 per i pneumatici prima di ripartire!"[cite: 3]
+            messaggioDescrittivo: "Impossibile uscire dai box: Devi selezionare lo stint 2 o 3 per i pneumatici prima di ripartire!"
         };
     }
 
     // Calcolo del malus MOV accumulato dai punti officina
     const quantitaPuntiOfficinaUsati = gameState.workshopUsages.length;
     let malusMovFinaleOfficina = 0;
-    if (quantitaPuntiOfficinaUsati === 1) malusMovFinaleOfficina = -2;[cite: 3]
-    else if (quantitaPuntiOfficinaUsati === 2) malusMovFinaleOfficina = -4;[cite: 3]
-    else if (quantitaPuntiOfficinaUsati === 3) malusMovFinaleOfficina = -6;[cite: 3]
+    if (quantitaPuntiOfficinaUsati === 1) malusMovFinaleOfficina = -2;
+    else if (quantitaPuntiOfficinaUsati === 2) malusMovFinaleOfficina = -4;
+    else if (quantitaPuntiOfficinaUsati === 3) malusMovFinaleOfficina = -6;
 
-    // Chiusura della sessione box e azzeramento del contatore malus officina per i turni successivi[cite: 3]
+    // Chiusura della sessione box e azzeramento del contatore malus officina per i turni successivi
     updateGameState({
         isPitStopActive: false,
-        workshopUsages: [] // Azzeramento contatore malus per ripartire a -0 MOV[cite: 3]
+        workshopUsages: [] // Azzeramento contatore malus per ripartire a -0 MOV
     });
 
-    const messaggioRiepilogoUscita = `Uscita dai box completata! Malus officina applicato al tiro di dado: ${malusMovFinaleOfficina} MOV. Il contatore malus è stato azzerato a -0 MOV.`;[cite: 3]
+    const messaggioRiepilogoUscita = `Uscita dai box completata! Malus officina applicato al tiro di dado: ${malusMovFinaleOfficina} MOV. Il contatore malus Ã¨ stato azzerato a -0 MOV.`;
 
     return {
         operazioneRiuscita: true,
