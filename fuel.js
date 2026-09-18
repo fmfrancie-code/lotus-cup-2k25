@@ -14,16 +14,29 @@ import { gameState, updateGameState } from './state.js';
  */
  export function gestisciConsumoBenzinaEModifica(indiceCasellaBenzinaSelezionata) {
     const arrayCaselleBenzinaCorrente = [...gameState.markedUsages.fuel];
-    const totaleCaselleDisponibiliBenzina = 2 + gameState.allocations.fuel;
+    const totaleCaselleDisponibiliBenzina = gameState.baseValues.fuel + gameState.allocations.fuel;
     
     const laCasellaContieneGiaUnaX = arrayCaselleBenzinaCorrente.includes(indiceCasellaBenzinaSelezionata);
     let messaggioAvvisoUtente = "";
     let stringaMovimentoAttiva = "+0 MOV";
 
     if (laCasellaContieneGiaUnaX) {
-        arrayCaselleBenzinaCorrente.splice(arrayCaselleBenzinaCorrente.indexOf(indiceCasellaBenzinaSelezionata), 1);
+        const indiceDaRimuovere = arrayCaselleBenzinaCorrente.indexOf(indiceCasellaBenzinaSelezionata);
+        if (indiceDaRimuovere !== -1) {
+            arrayCaselleBenzinaCorrente.splice(indiceDaRimuovere, 1);
+        }
     } else {
-        arrayCaselleBenzinaCorrente.push(indiceCasellaBenzinaSelezionata);
+        // Regola geometrica per le sezioni di sinistra: inserimento da destra verso sinistra
+        let indiceDestraDisponibile = -1;
+        for (let i = totaleCaselleDisponibiliBenzina - 1; i >= 0; i--) {
+            if (!arrayCaselleBenzinaCorrente.includes(i)) {
+                indiceDestraDisponibile = i;
+                break;
+            }
+        }
+        if (indiceDestraDisponibile !== -1) {
+            arrayCaselleBenzinaCorrente.push(indiceDestraDisponibile);
+        }
     }
 
     const numeroCaselleBenzinaSenzaX = totaleCaselleDisponibiliBenzina - arrayCaselleBenzinaCorrente.length;
@@ -53,6 +66,10 @@ import { gameState, updateGameState } from './state.js';
     };
 }
 
+
+
+
+
 /**
  * Gestisce le opzioni di ripristino della benzina durante la sosta ai Box (Pit Stop).
  * Permette di scegliere tra "Pieno" (azzera tutte le X) o "Leggerezza" (lascia fino a 3 caselle libere).
@@ -65,18 +82,13 @@ export function gestisciRipristinoBenzinaAiBox(modalitaSceltaBox, numeroCaselleD
     let arrayCaselleBenzinaAggiornato = [...gameState.markedUsages.fuel];
     let descrizioneOperazioneBox = "";
     let stringaMovimentoBox = "+0 MOV";
+    const totaleCaselleDisponibiliBenzina = gameState.baseValues.fuel + gameState.allocations.fuel;
 
     if (modalitaSceltaBox === 'pieno') {
-        // Pieno di benzina: rimuove in automatico tutte le X dalle caselle della benzina
         arrayCaselleBenzinaAggiornato = [];
-        descrizioneOperazioneBox = "Rifornimento completato: Pieno di benzina effettuato (tutte le usure rimosse).";
+        descrizioneOperazioneBox = "Rifornimento completato: Pieno di benzina effettuato (tutte le usure rimosse)."[cite: 22];
         stringaMovimentoBox = "+0 MOV";
-        
     } else if (modalitaSceltaBox === 'leggerezza') {
-        // Leggerezza: il pilota decide la strategia lasciando scoperte le ultime caselle disponibili
-        const totaleCaselleDisponibiliBenzina = 2 + gameState.allocations.fuel;
-        
-        // Ricostruisce lo scenario lasciando libere le ultime caselle richieste (es. le 3 piÃ¹ a sinistra)
         arrayCaselleBenzinaAggiornato = [];
         for (let indiceCasella = numeroCaselleDaMantenereLibere; indiceCasella < totaleCaselleDisponibiliBenzina; indiceCasella++) {
             arrayCaselleBenzinaAggiornato.push(indiceCasella);
@@ -87,7 +99,7 @@ export function gestisciRipristinoBenzinaAiBox(modalitaSceltaBox, numeroCaselleD
             stringaMovimentoBox = "+1 MOV";
         }
 
-        descrizioneOperazioneBox = `Strategia di leggerezza applicata: mantenute ${caselleSenzaXRimaste} caselle libere di carburante.`;
+        descrizioneOperazioneBox = `Strategia di leggerezza applicata: mantenute ${caselleSenzaXRimaste} caselle libere di carburante.`[cite: 22];
     }
 
     updateGameState({
