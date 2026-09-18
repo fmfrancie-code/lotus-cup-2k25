@@ -236,12 +236,13 @@ export function renderBoard() {
             if (gameState.isRaceMode) {
                 const isWingXBox = (comp === 'body' && isWingActive && i === wingBoxIndex);
                 
-                if (gameState.markedUsages[comp] && gameState.markedUsages[comp].includes(i)) {
+                if (isWingXBox) {
+                    // La casella sul telaio rimane l'indicatore fisso dell'alettone attivo e non diventa mai una X rossa di usura
                     box.innerText = 'X';
-                    box.className = 'box x-red'; // Forza lo stile pulito della X rossa neon
-                } else if (isWingXBox) {
+                    box.className = 'box wing-x';
+                } else if (gameState.markedUsages[comp] && gameState.markedUsages[comp].includes(i)) {
                     box.innerText = 'X';
-                    box.className = 'box wing-x'; // Mantiene blindata la X dell'alettone
+                    box.className = 'box x-red'; // Stile pulito della X rossa neon per le usure reali
                 }
 
                 let isClickableBox = (gameState.isEditingAllowed || gameState.isPitStopActive) && !isInspecting && !isWingXBox;
@@ -263,6 +264,31 @@ export function renderBoard() {
     // Aggiornamento visivo dello stato KERS globale nella plancia
     if (typeof updateKersDisplay === 'function') {
         updateKersDisplay();
+    }
+
+    // Aggiornamento visivo dello stato Alettone esterno in basso
+    const boxWing = document.getElementById('box-wing');
+    if (boxWing) {
+        boxWing.classList.remove('wing-active', 'circle-green', 'x-red');
+        if (gameState.alettoneDanneggiato) {
+            boxWing.innerHTML = `<span class="flicker-text">X</span>`;
+            boxWing.classList.add('x-red');
+        } else if (gameState.alettoneAttivo) {
+            boxWing.classList.add('wing-active', 'circle-green');
+            if (!boxWing.querySelector('svg')) {
+                boxWing.innerHTML = `
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;color:inherit;">
+                        <path d="M 2 6 L 22 6 L 20 10 L 4 10 Z" fill="currentColor" fill-opacity="0.2"/>
+                        <path d="M 2 4 L 4 14 L 2 14 Z"/>
+                        <path d="M 22 4 L 20 14 L 22 14 Z"/>
+                        <line x1="9" y1="10" x2="9" y2="17"/>
+                        <line x1="15" y1="10" x2="15" y2="17"/>
+                    </svg>
+                `;
+            }
+        } else {
+            boxWing.innerHTML = '';
+        }
     }
 
     // Aggiornamento contatore budget nella UI di setup
