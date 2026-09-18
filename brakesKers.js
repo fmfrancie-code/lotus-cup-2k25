@@ -83,29 +83,44 @@ export function eseguiTestAttivazioneKers(esitoTestKersSelezionato) {
         // Test OK -> Svuota la casella del KERS (torna vuoto ma utilizzabile in futuro)
         nuovoStatoKers = 'empty';
         messaggioRisultato = "Test KERS superato con successo [OK]! La casella del KERS è stata svuotata.";
-    } else if (esitoTestKersSelezionato === 'damaged') {
-        // Test Danneggiato -> Imposta X rossa permanente sul KERS
+    } } else if (esitoTestKersSelezionato === 'damaged') {
+        // Test KERS fallito -> KERS danneggiato
         nuovoStatoKers = 'damaged';
         
-        // Trova la prima casella di sinistra disponibile con valore 1 nella sezione del motore
-        const valoreBaseMotore = gameState.baseValues.engine;
-        const puntiAssegnatiSetupMotore = gameState.allocations.engine;
-        const totaleCaselleMotore = valoreBaseMotore + puntiAssegnatiSetupMotore;
+        const totalBoxes = 6;
+        const baseMotore = gameState.baseValues.engine;
+        const allocMotore = gameState.allocations.engine;
+        const totaleCaselleMotore = baseMotore + allocMotore;
         
-        // Nel motore le caselle vanno da 0 a totaleCaselleMotore (partendo da sinistra)
-        let indiceCasellaMotoreDaMarcare = -1;
-        for (let i = 0; i < totaleCaselleMotore; i++) {
+        // Per il motore (componente right-aligned), le caselle valide con valore 1 
+        // vanno da startIdx (più a sinistra) fino a endIdx (più a destra).
+        const startIdx = totalBoxes - totaleCaselleMotore;
+        const endIdx = totalBoxes - 1;
+
+        const usureMotoreAggiornate = [...gameState.markedUsages.engine];
+        let indiceDaMarcare = -1;
+
+        // Scansiona l'area attiva del motore da sinistra verso destra per trovare la prima casella libera
+        for (let i = startIdx; i <= endIdx; i++) {
             if (!usureMotoreAggiornate.includes(i)) {
-                indiceCasellaMotoreDaMarcare = i;
-                break;
+                indiceDaMarcare = i;
+                break; 
             }
         }
 
-        if (indiceCasellaMotoreDaMarcare !== -1) {
-            usureMotoreAggiornate.push(indiceCasellaMotoreDaMarcare);
+        if (indiceDaMarcare !== -1) {
+            usureMotoreAggiornate.push(indiceDaMarcare);
         }
 
-        messaggioRisultato = "Test KERS fallito: KERS DANNEGGIATO permanentemente e X rossa applicata sul motore.";
+        updateGameState({
+            kersState: nuovoStatoKers,
+            markedUsages: {
+                ...gameState.markedUsages,
+                engine: usureMotoreAggiornate
+            }
+        });
+
+        messaggioRisultato = "Test KERS fallito: KERS danneggiato e X rossa applicata sul primo punto utile del motore.";
     }
 
     updateGameState({ 
