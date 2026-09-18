@@ -102,7 +102,6 @@ export function gestisciModificaUsuraInGara(tipoComponente, indiceCasella) {
             break;
         case 'fuel':
             res = gestisciConsumoBenzinaEModifica(indiceCasella);
-            // AGGIORNAMENTO DINAMICO MOV BENZINA
             if (res && res.operazioneRiuscita) {
                 aggiornaLabelMovBenzina(res.stringaMov);
             }
@@ -120,6 +119,27 @@ export function gestisciModificaUsuraInGara(tipoComponente, indiceCasella) {
             return { operazioneRiuscita: false, messaggioDescrittivo: "Componente non gestito." };
     }
     return res;
+}
+
+/**
+ * Aggiorna dinamicamente l'etichetta visiva del MOV della benzina a schermo
+ */
+function aggiornaLabelMovBenzina(stringaMov) {
+    const containerBenzina = document.getElementById('row-fuel');
+    if (!containerBenzina) return;
+    
+    const rigaMadre = containerBenzina.closest('.component-row') || containerBenzina.parentElement;
+    if (rigaMadre) {
+        const labelMov = rigaMadre.querySelector('.fuel-mov-indicator, [id*="mov"], span');
+        if (labelMov) {
+            labelMov.innerText = stringaMov;
+            if (stringaMov === "+1 MOV") {
+                labelMov.classList.add('mov-active');
+            } else {
+                labelMov.classList.remove('mov-active');
+            }
+        }
+    }
 }
 
 
@@ -214,8 +234,6 @@ export function renderBoard() {
                 } else {
                     box.innerText = '';
                     if (gameState.isSetupMode && !isInspecting) {
-                        // Rimosso il blocco restrittivo di bloccatoDaAlettone: 
-                        // le caselle vuote (inclusi gli spazi liberi a sinistra) tornano interamente cliccabili per il setup.
                         if (gameState.budget > 0) {
                             box.classList.add('box-setup-highlight', 'clickable');
                             box.onclick = () => {
@@ -293,6 +311,14 @@ export function renderBoard() {
         }
     }
 
+    // Sincronizzazione automatica MOV Benzina durante il rendering della board
+    const baseBenzina = gameState.baseValues.fuel;
+    const allocBenzina = gameState.allocations.fuel;
+    const usurateBenzina = gameState.markedUsages.fuel ? gameState.markedUsages.fuel.length : 0;
+    const libereBenzina = (baseBenzina + allocBenzina) - usurateBenzina;
+    const stringaMovCorrente = (libereBenzina <= 3 && libereBenzina > 0) ? "+1 MOV" : "+0 MOV";
+    aggiornaLabelMovBenzina(stringaMovCorrente);
+
     // Aggiornamento contatore budget nella UI di setup
     const budgetCountEl = document.getElementById('budget-count');
     if (budgetCountEl) budgetCountEl.innerText = gameState.budget;
@@ -363,10 +389,7 @@ export function gestisciAggiornamentoAlettoneDopoModifica(tipoComponente) {
 }
 
 export function toggleRaceEdit() {
-    // 1. Esegue la logica e l'aggiornamento UI del modulo figlio
     toggleEditFromModule();
-    
-    // 2. Il main controller (padre) coordina la vista e aggiorna la plancia
     renderBoard();
 }
 
@@ -381,12 +404,11 @@ function updateKersDisplay() {
     boxKers.classList.remove('charged', 'damaged', 'empty', 'circle-kers');
 
     if (statoKers === 'damaged') {
-        boxKers.classList.add('x-red'); // <-- Aggiunge lo stile grafico rosso/flicker
+        boxKers.classList.add('x-red'); 
         htmlContenuto = `<span class="flicker-text">X</span>`;
         boxKers.style.setProperty('pointer-events', 'none', 'important');
         boxKers.style.cursor = 'default';
     } else if (statoKers === 'charged') {
-        // Aggiunge la classe circle-kers per l'animazione luminosa del monolite
         boxKers.classList.add('circle-kers', 'charged');
         const iconaTematica = getKersIconHtml(gameState.theme);
         htmlContenuto = `<div class="kers-icon-container charged">${iconaTematica}</div>`;
@@ -394,7 +416,6 @@ function updateKersDisplay() {
         boxKers.style.setProperty('pointer-events', 'auto', 'important');
         boxKers.style.cursor = 'pointer';
         
-        // Assicura l'apertura della modale KERS al click
         boxKers.onclick = () => {
             const modalKers = document.getElementById('modal-kers');
             if (modalKers) modalKers.style.display = 'flex';
@@ -408,7 +429,6 @@ function updateKersDisplay() {
 
     boxKers.innerHTML = htmlContenuto;
 }
-
 
 /**
  * Gestisce l'esito del test KERS coordinando il modulo brakesKers e il rendering della plancia
