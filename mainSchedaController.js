@@ -415,6 +415,7 @@ export function gestisciAggiornamentoAlettoneDopoModifica(tipoComponente) {
 }
 
 export function toggleRaceEdit() {
+    if (gameState.isPitStopActive) return; // Blocco di sicurezza: impedisce l'edit ai box
     toggleEditFromModule();
     renderBoard();
 }
@@ -467,7 +468,14 @@ export function gestisciTestKers(esitoTest) {
 export function gestisciAvvioPitStop(numeroGiro) {
     const risultato = avviaSessionePitStop(numeroGiro);
     if (risultato.operazioneRiuscita) {
-        renderTyreDeck(); // Aggiorna il deck delle mescole sbloccando i tick 2 e 3
+        // Disabilita il pulsante di edit globale durante il pit stop
+        const btnEdit = document.getElementById('btn-toggle-edit');
+        if (btnEdit) {
+            btnEdit.disabled = true;
+            btnEdit.style.opacity = '0.4';
+            btnEdit.style.pointerEvents = 'none';
+        }
+        renderTyreDeck();
         renderBoard();
     }
     return risultato;
@@ -476,8 +484,15 @@ export function gestisciAvvioPitStop(numeroGiro) {
 export function gestisciUscitaBox() {
     const risultato = finalizzaRipartenzaDaiBox();
     if (risultato.operazioneRiuscita) {
-        renderTyreDeck();      // Aggiorna il deck mescole al rientro
-        renderWorkshopUI();    // Sincronizza lo 0 MOV dell'officina
+        // Riabilita il pulsante di edit all'uscita dai box
+        const btnEdit = document.getElementById('btn-toggle-edit');
+        if (btnEdit) {
+            btnEdit.disabled = false;
+            btnEdit.style.opacity = '1';
+            btnEdit.style.pointerEvents = 'auto';
+        }
+        renderTyreDeck();      
+        renderWorkshopUI();    
         renderBoard();
     }
     return risultato;
