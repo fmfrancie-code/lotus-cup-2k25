@@ -227,13 +227,33 @@ export function handleTyreClick(type, lap) {
     const list = gameState.tyreLaps[type];
     const pos = list.indexOf(lap);
     
+    let markedTyres = [...(gameState.markedUsages.tyres || [])];
+
     if (pos > -1) {
+        // Deselezione del tick: rimuove il giro e ripristina le usure precedenti salvate all'ingresso box
         list.splice(pos, 1);
-        updateGameState({ tyreLaps: { ...gameState.tyreLaps } });
+        if (gameState.previousTyreUsages) {
+            markedTyres = [...gameState.previousTyreUsages];
+        }
     } else {
-        gestisciSelezioneMescolaEGiri(type, lap);
+        // Selezione del tick: aggiunge il giro e pulisce le X delle gomme (nuovo set montato ai box)
+        gestisciMescolaEGiriInterno(type, lap); // o la funzione di assegnazione stint esistente
+        markedTyres = []; // Azzera le X di usura sulla barra dei pneumatici
     }
 
+    updateGameState({ 
+        tyreLaps: { ...gameState.tyreLaps },
+        markedUsages: {
+            ...gameState.markedUsages,
+            tyres: markedTyres
+        }
+    });
+
     renderTyreDeck();
+    
+    if (typeof renderBoard === 'function') {
+        renderBoard();
+    }
+
     if (typeof saveGameState === 'function') saveGameState();
 }
