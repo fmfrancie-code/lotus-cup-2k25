@@ -47,17 +47,20 @@ export function ottieniDirezioneGeometricaComponente(nomeComponente) {
  * Gestisce l'interazione UI per attivare o disattivare la modalità edit in gara.
  */
 export function toggleRaceEdit() {
+    if (gameState.isPitStopActive) return;
     const nuovoStato = !gameState.isEditingAllowed;
     const risultato = impostaStatoModalitaEditFuoriBox(nuovoStato);
 
     const isEditActive = document.body.classList.toggle('edit-mode-active', risultato.editConsentito);
     const btnEdit = document.getElementById('btn-toggle-edit');
-    
+    const btnPitStop = document.getElementById('btn-pitstop-action'); // <-- Aggiunto
+
     if (btnEdit) {
         if (isEditActive) {
             btnEdit.innerText = "Modalità Edit Sbloccata (Clicca per bloccare)";
             btnEdit.classList.remove('btn-read-mode');
             btnEdit.classList.add('btn-edit-mode');
+            if (btnPitStop) btnPitStop.style.display = 'block'; // <-- Mostra il bottone box all'apertura dell'edit
         } else {
             btnEdit.innerText = "Modalità edit attiva (clicca per sbloccare)";
             btnEdit.classList.remove('btn-edit-mode');
