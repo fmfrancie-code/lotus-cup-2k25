@@ -56,6 +56,30 @@ export function inizializzaSchedaPilota(datiInizialiPilota) {
     });
 }
 
+export function gestisciAvvioPitStop(numeroGiro) {
+    const risultato = avviaSessionePitStop(numeroGiro);
+    if (risultato.operazioneRiuscita) {
+        renderTyreDeck(); // Sblocca i tick 2 e 3
+        renderBoard();
+    }
+    return risultato;
+}
+
+export function gestisciUscitaBox() {
+    const risultato = finalizzaRipartenzaDaiBox();
+    if (risultato.operazioneRiuscita) {
+        const btnEdit = document.getElementById('btn-toggle-edit');
+        if (btnEdit) {
+            btnEdit.disabled = false;
+            btnEdit.style.opacity = '1';
+            btnEdit.style.pointerEvents = 'auto';
+        }
+        renderTyreDeck();      
+        renderWorkshopUI();    
+        renderBoard();
+    }
+    return risultato;
+}
 /**
  * Transizione della scheda verso la fase di Ufficializzazione / Gara.
  */
