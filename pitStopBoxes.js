@@ -44,7 +44,7 @@ export function ottieniStringaMovOfficina() {
     if (count === 1) return "-2 MOV";
     if (count === 2) return "-4 MOV";
     if (count === 3) return "-6 MOV";
-    return "0 MOV";
+    return "+0 MOV";
 }
 
 export function finalizzaRipartenzaDaiBox() {
