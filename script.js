@@ -25,6 +25,7 @@ window.selectTyre = selectTyreFromUI;
 window.toggleTyreLap = handleTyreClick;
 window.toggleRaceEdit = toggleRaceEdit;
 window.toggleWing = toggleWing;
+window.handleTyreClick = handleTyreClick;
 
 window.changeTheme = function(themeName) {
     applyTheme(themeName);
