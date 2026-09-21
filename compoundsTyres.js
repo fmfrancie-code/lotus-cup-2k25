@@ -6,13 +6,6 @@
 import { gameState, updateGameState } from './state.js';
 import { verificaSeAsfaltoBagnato } from './weather.js';
 
-/**
- * Gestisce l'inserimento o la rimozione manuale di una X di usura sulla barra dei Pneumatici in gara,
- * applicando la regola geometrica di sinistra (da destra verso sinistra) sulle caselle attive.
- * 
- * @param {number} indiceCasellaSelezionata - Indice della casella su cui l'utente ha cliccato
- * @returns {Object} - Stato aggiornato dei pneumatici
- */
 export function gestisciModificaUsuraPneumaticiInGara(indiceCasellaSelezionata) {
     const arrayCasellePneumaticiCorrente = [...gameState.markedUsages.tyres];
     const valoreBasePneumatici = gameState.baseValues.tyres;
@@ -22,13 +15,11 @@ export function gestisciModificaUsuraPneumaticiInGara(indiceCasellaSelezionata) 
     const laCasellaContieneGiaUnaX = arrayCasellePneumaticiCorrente.includes(indiceCasellaSelezionata);
 
     if (laCasellaContieneGiaUnaX) {
-        // Rimozione della X se giÃ  presente
         const indiceDaRimuovere = arrayCasellePneumaticiCorrente.indexOf(indiceCasellaSelezionata);
         if (indiceDaRimuovere !== -1) {
             arrayCasellePneumaticiCorrente.splice(indiceDaRimuovere, 1);
         }
     } else {
-        // Regola geometrica per le sezioni di sinistra (Tyres): inserimento da destra verso sinistra
         let indiceDestraDisponibile = -1;
         for (let i = totaleCaselleDisponibiliPneumatici - 1; i >= 0; i--) {
             if (!arrayCasellePneumaticiCorrente.includes(i)) {
@@ -42,7 +33,6 @@ export function gestisciModificaUsuraPneumaticiInGara(indiceCasellaSelezionata) 
         }
     }
 
-    // Aggiornamento dello stato globale
     updateGameState({
         markedUsages: {
             ...gameState.markedUsages,
@@ -57,24 +47,15 @@ export function gestisciModificaUsuraPneumaticiInGara(indiceCasellaSelezionata) 
     };
 }
 
-/**
- * Registra o aggiorna lo stint e la selezione della mescola attiva del pilota.
- * 
- * @param {string} nomeMescolaSelezionata - Nome della mescola ('Prime', 'Option', 'Intermedie', 'Pioggia')
- * @param {number} numeroGiroStint - Numero del giro da spuntare (1, 2 o 3)
- * @returns {Object} - Esito dell'operazione e messaggio descrittivo
- */
 export function gestisciSelezioneMescolaEGiri(nomeMescolaSelezionata, numeroGiroStint) {
     const elencoMescoleValide = ['Prime', 'Option', 'Intermedie', 'Pioggia'];
     
     if (!elencoMescoleValide.includes(nomeMescolaSelezionata)) {
-        return { operazioneRiuscita: false, messaggioDescrittivo: "La mescola selezionata non Ã¨ valida." };
+        return { operazioneRiuscita: false, messaggioDescrittivo: "La mescola selezionata non è valida." };
     }
 
-    // Copia dello stato attuale dei giri per le mescole
     const mappaGiriStintAggiornata = { ...gameState.tyreLaps };
 
-    // Regola di esclusivitÃ : rimuove il giro selezionato da tutte le altre mescole per evitare sovrapposizioni
     for (const mescolaCorrente of elencoMescoleValide) {
         if (mescolaCorrente !== nomeMescolaSelezionata) {
             mappaGiriStintAggiornata[mescolaCorrente] = mappaGiriStintAggiornata[mescolaCorrente].filter(
@@ -83,7 +64,6 @@ export function gestisciSelezioneMescolaEGiri(nomeMescolaSelezionata, numeroGiro
         }
     }
 
-    // Aggiunge o attiva il giro sulla mescola scelta (evitando duplicati nello stesso stint)
     if (!mappaGiriStintAggiornata[nomeMescolaSelezionata].includes(numeroGiroStint)) {
         mappaGiriStintAggiornata[nomeMescolaSelezionata].push(numeroGiroStint);
     }
@@ -99,16 +79,10 @@ export function gestisciSelezioneMescolaEGiri(nomeMescolaSelezionata, numeroGiro
     };
 }
 
-/**
- * Verifica se un giro Ã¨ giÃ  stato spuntato in qualsiasi altra mescola.
- */
 function isLapMarkedAnywhere(lap) {
     return Object.keys(gameState.tyreLaps).some(t => gameState.tyreLaps[t].includes(lap));
 }
 
-/**
- * Renderizza visivamente il deck delle mescole e dei giri nella UI.
- */
 export function renderTyreDeck() {
     const container = document.getElementById('tyres-deck-container');
     if (!container) return;
@@ -182,9 +156,6 @@ export function renderTyreDeck() {
     });
 }
 
-/**
- * Gestore UI per la selezione della mescola dal deck.
- */
 export function selectTyreFromUI(type) {
     const isWet = verificaSeAsfaltoBagnato();
 
@@ -196,7 +167,6 @@ export function selectTyreFromUI(type) {
     }
     
     if (gameState.isSetupMode) {
-        // In fase di setup assegna di default il primo giro alla mescola scelta
         const targetGiro = 1;
         const risultato = gestisciSelezioneMescolaEGiri(type, targetGiro);
         if (risultato.operazioneRiuscita) {
@@ -204,17 +174,12 @@ export function selectTyreFromUI(type) {
             if (typeof saveGameState === 'function') saveGameState();
         }
     } else if (gameState.isPitStopActive) {
-        // AI BOX: Cambia solo la mescola attiva senza forzare tick automatici,
-        // permettendo al giocatore di scegliere liberamente tra il tick 2 o il tick 3.
         updateGameState({ selectedTyre: type });
         renderTyreDeck();
         if (typeof saveGameState === 'function') saveGameState();
     }
 }
 
-/**
- * Gestore UI per il click sui box dei giri.
- */
 export function handleTyreClick(type, lap) {
     if (gameState.isSetupMode) {
         if (type !== gameState.selectedTyre || lap !== 1) return;
@@ -230,15 +195,13 @@ export function handleTyreClick(type, lap) {
     let markedTyres = [...(gameState.markedUsages.tyres || [])];
 
     if (pos > -1) {
-        // Deselezione del tick: rimuove il giro e ripristina le usure precedenti salvate all'ingresso box
         list.splice(pos, 1);
         if (gameState.previousTyreUsages) {
             markedTyres = [...gameState.previousTyreUsages];
         }
     } else {
-        // Selezione del tick: aggiunge il giro e pulisce le X delle gomme (nuovo set montato ai box)
-        gestisciMescolaEGiriInterno(type, lap); // o la funzione di assegnazione stint esistente
-        markedTyres = []; // Azzera le X di usura sulla barra dei pneumatici
+        gestisciSelezioneMescolaEGiri(type, lap);
+        markedTyres = []; // Azzera le usure per il nuovo set montato
     }
 
     updateGameState({ 
@@ -250,10 +213,8 @@ export function handleTyreClick(type, lap) {
     });
 
     renderTyreDeck();
-    
     if (typeof renderBoard === 'function') {
         renderBoard();
     }
-
     if (typeof saveGameState === 'function') saveGameState();
 }
