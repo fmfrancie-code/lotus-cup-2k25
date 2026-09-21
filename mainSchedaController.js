@@ -155,8 +155,10 @@ export function renderWorkshopUI() {
     const workshopUsages = gameState.workshopUsages || [];
     const movText = ottieniStringaMovOfficina();
     
-    const movValEl = document.getElementById('workshop-mov-val');
-    if (movValEl) movValEl.innerText = movText;
+    const movLabelEl = document.getElementById('workshop-mov-label');
+    if (movLabelEl) {
+        movLabelEl.innerText = movText;
+    }
 
     const rowWorkshop = document.getElementById('row-workshop');
     if (rowWorkshop) {
@@ -465,20 +467,17 @@ export function gestisciTestKers(esitoTest) {
 }
 
 // FUNZIONI DEL PITSTOP AI BOX
-export function gestisciAvvioPitStop(numeroGiro) {
-    const risultato = avviaSessionePitStop(numeroGiro);
-    if (risultato.operazioneRiuscita) {
-        // Disabilita il pulsante di edit globale durante il pit stop
-        const btnEdit = document.getElementById('btn-toggle-edit');
-        if (btnEdit) {
-            btnEdit.disabled = true;
-            btnEdit.style.opacity = '0.4';
-            btnEdit.style.pointerEvents = 'none';
-        }
-        renderTyreDeck();
-        renderBoard();
-    }
-    return risultato;
+export function avviaSessionePitStop(numeroGiroCorrente) {
+    updateGameState({
+        isPitStopActive: true,
+        pitStopStartLap: numeroGiroCorrente,
+        previousTyreUsages: [...(gameState.markedUsages.tyres || [])] // <-- AGGIUNTO: Salvataggio snapshot gomme
+    });
+
+    return {
+        operazioneRiuscita: true,
+        messaggioDescrittivo: `Pit Stop avviato al giro ${numeroGiroCorrente}. Sessione box attiva.`
+    };
 }
 
 export function gestisciUscitaBox() {
