@@ -22,7 +22,7 @@ export function gestisciModificaUsuraPneumaticiInGara(indiceCasellaSelezionata) 
     const laCasellaContieneGiaUnaX = arrayCasellePneumaticiCorrente.includes(indiceCasellaSelezionata);
 
     if (laCasellaContieneGiaUnaX) {
-        // Rimozione della X se già presente
+        // Rimozione della X se giÃ  presente
         const indiceDaRimuovere = arrayCasellePneumaticiCorrente.indexOf(indiceCasellaSelezionata);
         if (indiceDaRimuovere !== -1) {
             arrayCasellePneumaticiCorrente.splice(indiceDaRimuovere, 1);
@@ -68,13 +68,13 @@ export function gestisciSelezioneMescolaEGiri(nomeMescolaSelezionata, numeroGiro
     const elencoMescoleValide = ['Prime', 'Option', 'Intermedie', 'Pioggia'];
     
     if (!elencoMescoleValide.includes(nomeMescolaSelezionata)) {
-        return { operazioneRiuscita: false, messaggioDescrittivo: "La mescola selezionata non è valida." };
+        return { operazioneRiuscita: false, messaggioDescrittivo: "La mescola selezionata non Ã¨ valida." };
     }
 
     // Copia dello stato attuale dei giri per le mescole
     const mappaGiriStintAggiornata = { ...gameState.tyreLaps };
 
-    // Regola di esclusività: rimuove il giro selezionato da tutte le altre mescole per evitare sovrapposizioni
+    // Regola di esclusivitÃ : rimuove il giro selezionato da tutte le altre mescole per evitare sovrapposizioni
     for (const mescolaCorrente of elencoMescoleValide) {
         if (mescolaCorrente !== nomeMescolaSelezionata) {
             mappaGiriStintAggiornata[mescolaCorrente] = mappaGiriStintAggiornata[mescolaCorrente].filter(
@@ -100,7 +100,7 @@ export function gestisciSelezioneMescolaEGiri(nomeMescolaSelezionata, numeroGiro
 }
 
 /**
- * Verifica se un giro è già stato spuntato in qualsiasi altra mescola.
+ * Verifica se un giro Ã¨ giÃ  stato spuntato in qualsiasi altra mescola.
  */
 function isLapMarkedAnywhere(lap) {
     return Object.keys(gameState.tyreLaps).some(t => gameState.tyreLaps[t].includes(lap));
@@ -195,13 +195,20 @@ export function selectTyreFromUI(type) {
         if (!isWet && type === 'Pioggia') return;
     }
     
-    if (gameState.isSetupMode || gameState.isPitStopActive) {
-        const targetGiro = gameState.isSetupMode ? 1 : (gameState.tyreLaps[type][0] || 2);
+    if (gameState.isSetupMode) {
+        // In fase di setup assegna di default il primo giro alla mescola scelta
+        const targetGiro = 1;
         const risultato = gestisciSelezioneMescolaEGiri(type, targetGiro);
         if (risultato.operazioneRiuscita) {
             renderTyreDeck();
             if (typeof saveGameState === 'function') saveGameState();
         }
+    } else if (gameState.isPitStopActive) {
+        // AI BOX: Cambia solo la mescola attiva senza forzare tick automatici,
+        // permettendo al giocatore di scegliere liberamente tra il tick 2 o il tick 3.
+        updateGameState({ selectedTyre: type });
+        renderTyreDeck();
+        if (typeof saveGameState === 'function') saveGameState();
     }
 }
 
