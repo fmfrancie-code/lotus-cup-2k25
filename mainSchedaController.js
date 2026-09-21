@@ -464,33 +464,3 @@ export function gestisciTestKers(esitoTest) {
     return risultato;
 }
 
-// FUNZIONI DEL PITSTOP AI BOX
-export function avviaSessionePitStop(numeroGiroCorrente) {
-    updateGameState({
-        isPitStopActive: true,
-        pitStopStartLap: numeroGiroCorrente,
-        previousTyreUsages: [...(gameState.markedUsages.tyres || [])] // <-- AGGIUNTO: Salvataggio snapshot gomme
-    });
-
-    return {
-        operazioneRiuscita: true,
-        messaggioDescrittivo: `Pit Stop avviato al giro ${numeroGiroCorrente}. Sessione box attiva.`
-    };
-}
-
-export function gestisciUscitaBox() {
-    const risultato = finalizzaRipartenzaDaiBox();
-    if (risultato.operazioneRiuscita) {
-        // Riabilita il pulsante di edit all'uscita dai box
-        const btnEdit = document.getElementById('btn-toggle-edit');
-        if (btnEdit) {
-            btnEdit.disabled = false;
-            btnEdit.style.opacity = '1';
-            btnEdit.style.pointerEvents = 'auto';
-        }
-        renderTyreDeck();      
-        renderWorkshopUI();    
-        renderBoard();
-    }
-    return risultato;
-}
