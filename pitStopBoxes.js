@@ -9,7 +9,9 @@ export function avviaSessionePitStop(numeroGiroCorrente) {
     updateGameState({
         isPitStopActive: true,
         pitStopStartLap: numeroGiroCorrente,
-        previousTyreUsages: [...(gameState.markedUsages.tyres || [])] // Snapshot usure gomme
+        previousTyreUsages: [...(gameState.markedUsages.tyres || [])],
+        workshopUsages: [],
+        workshopRepairs: {} // Traccia quale componente/casella ha generato ciascun punto officina
     });
 
     return {
@@ -18,10 +20,12 @@ export function avviaSessionePitStop(numeroGiroCorrente) {
     };
 }
 
-export function registraPuntoRiparazioneOfficina() {
+export function registraPuntoRiparazioneOfficina(componente, indiceCasella) {
     if (!gameState.isPitStopActive) return null;
 
     let workshop = [...(gameState.workshopUsages || [])];
+    let repairs = { ...(gameState.workshopRepairs || {}) };
+
     if (workshop.length < 3) {
         let indiceLibero = -1;
         for (let i = 0; i < 3; i++) {
@@ -33,10 +37,49 @@ export function registraPuntoRiparazioneOfficina() {
         if (indiceLibero !== -1) {
             workshop.push(indiceLibero);
             workshop.sort((a, b) => a - b);
-            updateGameState({ workshopUsages: workshop });
+            repairs[indiceLibero] = { component: componente, index: indiceCasella };
+            
+            updateGameState({ 
+                workshopUsages: workshop,
+                workshopRepairs: repairs
+            });
         }
     }
     return workshop;
+}
+
+export function rimuoviPuntoRiparazioneOfficina(indiceOfficina) {
+    if (!gameState.isPitStopActive) return;
+
+    let workshop = [...(gameState.workshopUsages || [])];
+    let repairs = { ...(gameState.workshopRepairs || {}) };
+
+    if (workshop.includes(indiceOfficina)) {
+        // Rimuove lo slot dall'officina
+        workshop = workshop.filter(idx => idx !== indiceOfficina);
+
+        // Ripristina la X sul componente originale da cui era stata rimossa
+        const repairInfo = repairs[indiceOfficina];
+        if (repairInfo) {
+            const { component, index } = repairInfo;
+            let usureComponente = [...(gameState.markedUsages[component] || [])];
+            if (!usureComponente.includes(index)) {
+                usureComponente.push(index);
+                updateGameState({
+                    markedUsages: {
+                        ...gameState.markedUsages,
+                        [component]: usureComponente
+                    }
+                });
+            }
+            delete repairs[indiceOfficina];
+        }
+
+        updateGameState({
+            workshopUsages: workshop,
+            workshopRepairs: repairs
+        });
+    }
 }
 
 export function ottieniStringaMovOfficina() {
@@ -66,10 +109,11 @@ export function finalizzaRipartenzaDaiBox() {
     updateGameState({
         isPitStopActive: false,
         workshopUsages: [],
+        workshopRepairs: {},
         previousTyreUsages: null
     });
 
-    const messaggioRiepilogoUscita = `Uscita dai box completata! Malus officina applicato al tiro di dado: ${malusMovFinaleOfficina} MOV. Il contatore malus è stato azzerato a -0 MOV.`;
+    const messaggioRiepilogoUscita = `Uscita dai box completata! Malus officina applicato al tiro di dado: ${malusMovFinaleOfficina} MOV. Il contatore malus è stato azzerato a +0 MOV.`;
 
     return {
         operazioneRiuscita: true,
