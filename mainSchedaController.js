@@ -155,10 +155,8 @@ export function renderWorkshopUI() {
     const workshopUsages = gameState.workshopUsages || [];
     const movText = ottieniStringaMovOfficina();
     
-    const movLabelEl = document.getElementById('workshop-mov-label');
-    if (movLabelEl) {
-        movLabelEl.innerText = movText;
-    }
+    const movValEl = document.getElementById('workshop-mov-val');
+    if (movValEl) movValEl.innerText = movText;
 
     const rowWorkshop = document.getElementById('row-workshop');
     if (rowWorkshop) {
