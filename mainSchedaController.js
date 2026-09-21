@@ -118,7 +118,7 @@ export function gestisciAssegnazioneBudget(tipoArea, delta) {
  */
 export function gestisciModificaUsuraInGara(tipoComponente, indiceCasella) {
     const usureCorrenti = gameState.markedUsages[tipoComponente] || [];
-    const staRimuovendoX = usureCorrenti.includes(indiceCasella);
+    const laCasellaHaGiaLaX = usureCorrenti.includes(indiceCasella);
 
     let res = null;
     switch (tipoComponente) {
@@ -147,9 +147,33 @@ export function gestisciModificaUsuraInGara(tipoComponente, indiceCasella) {
             return { operazioneRiuscita: false, messaggioDescrittivo: "Componente non gestito." };
     }
 
-    // Se siamo nel regime Pit Stop e l'utente ha rimosso una X di usura, registra il punto officina da sinistra a destra
-    if (res && res.operazioneRiuscita && gameState.isPitStopActive && staRimuovendoX) {
-        registraPuntoRiparazioneOfficina();
+    // GESTIONE PIT STOP: Aggiunta o Rimozione punti officina
+    if (res && res.operazioneRiuscita && gameState.isPitStopActive) {
+        let workshop = [...(gameState.workshopUsages || [])];
+
+        if (laCasellaHaGiaLaX) {
+            // L'utente aveva una X, ora l'ha rimossa dal componente -> Ha scelto di ripararla (Aggiunge punto officina)
+            if (workshop.length < 3) {
+                let indiceLibero = -1;
+                for (let i = 0; i < 3; i++) {
+                    if (!workshop.includes(i)) {
+                        indiceLibero = i;
+                        break;
+                    }
+                }
+                if (indiceLibero !== -1) {
+                    workshop.push(indiceLibero);
+                    workshop.sort((a, b) => a - b);
+                }
+            }
+        } else {
+            // L'utente ha ricliccato su una casella pulita per rimettere la X -> Ci ripensa, rimuove l'ultimo punto officina aggiunto
+            if (workshop.length > 0) {
+                workshop.pop(); // Rimuove l'ultimo slot officina occupato
+            }
+        }
+
+        updateGameState({ workshopUsages: workshop });
         renderWorkshopUI();
     }
 
@@ -179,8 +203,9 @@ export function renderWorkshopUI() {
     const workshopUsages = gameState.workshopUsages || [];
     const movText = ottieniStringaMovOfficina();
     
-    const movValEl = document.getElementById('workshop-mov-val');
-    if (movValEl) movValEl.innerText = movText;
+    // Aggiorna l'etichetta MOV dell'officina
+    const movLabelEl = document.getElementById('workshop-mov-label');
+    if (movLabelEl) movLabelEl.innerText = movText;
 
     const rowWorkshop = document.getElementById('row-workshop');
     if (rowWorkshop) {
