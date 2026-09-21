@@ -5,12 +5,6 @@
 
 import { gameState, updateGameState } from './state.js';
 
-/**
- * Sblocca o blocca la modalità di edit fuori dai box durante la gara.
- * 
- * @param {boolean} statoAbilitazioneEdit - True per sbloccare, False per bloccare
- * @returns {Object} - Stato della modale edit
- */
 export function impostaStatoModalitaEditFuoriBox(statoAbilitazioneEdit) {
     updateGameState({
         isEditingAllowed: statoAbilitazioneEdit
@@ -23,29 +17,15 @@ export function impostaStatoModalitaEditFuoriBox(statoAbilitazioneEdit) {
     };
 }
 
-
-/**
- * Verifica se un componente appartiene alla sezione di sinistra (pneumatici, freni, benzina)
- * o di destra (telaio, motore, sospensioni) per determinare la direzione geometrica delle X.
- * 
- * @param {string} nomeComponente - Nome del componente
- * @returns {string} - 'sinistra' oppure 'destra'
- */
 export function ottieniDirezioneGeometricaComponente(nomeComponente) {
     const componentiSezioneSinistra = ['tyres', 'brakes', 'fuel'];
     const componentiSezioneDestra = ['body', 'engine', 'suspension'];
 
-    if (componentiSezioneSinistra.includes(nomeComponente)) {
-        return 'sinistra';
-    } else if (componentiSezioneDestra.includes(nomeComponente)) {
-        return 'destra';
-    }
+    if (componentiSezioneSinistra.includes(nomeComponente)) return 'sinistra';
+    if (componentiSezioneDestra.includes(nomeComponente)) return 'destra';
     return 'sinistra';
 }
 
-/**
- * Gestisce l'interazione UI per attivare o disattivare la modalità edit in gara.
- */
 export function toggleRaceEdit() {
     if (gameState.isPitStopActive) return;
     const nuovoStato = !gameState.isEditingAllowed;
@@ -53,14 +33,14 @@ export function toggleRaceEdit() {
 
     const isEditActive = document.body.classList.toggle('edit-mode-active', risultato.editConsentito);
     const btnEdit = document.getElementById('btn-toggle-edit');
-    const btnPitStop = document.getElementById('btn-pitstop-action'); // <-- Aggiunto
+    const btnPitStop = document.getElementById('btn-pitstop-action');
 
     if (btnEdit) {
         if (isEditActive) {
             btnEdit.innerText = "Modalità Edit Sbloccata (Clicca per bloccare)";
             btnEdit.classList.remove('btn-read-mode');
             btnEdit.classList.add('btn-edit-mode');
-            if (btnPitStop) btnPitStop.style.display = 'block'; // <-- Mostra il bottone box all'apertura dell'edit
+            if (btnPitStop) btnPitStop.style.display = 'block'; // Mostra il bottone dei box solo dopo l'edit
         } else {
             btnEdit.innerText = "Modalità edit attiva (clicca per sbloccare)";
             btnEdit.classList.remove('btn-edit-mode');
