@@ -195,13 +195,15 @@ export function handleTyreClick(type, lap) {
     let markedTyres = [...(gameState.markedUsages.tyres || [])];
 
     if (pos > -1) {
+        // Deselezione del tick: ripristina le usure precedenti salvate all'inizio del pit stop
         list.splice(pos, 1);
         if (gameState.previousTyreUsages) {
             markedTyres = [...gameState.previousTyreUsages];
         }
     } else {
+        // Selezione di un nuovo tick (es. 2 o 3): monta un set nuovo, quindi azzera COMPLETAMENTE le X delle gomme a schermo
         gestisciSelezioneMescolaEGiri(type, lap);
-        markedTyres = []; // Azzera le usure per il nuovo set montato
+        markedTyres = []; 
     }
 
     updateGameState({ 
