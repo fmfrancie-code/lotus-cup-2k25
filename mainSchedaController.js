@@ -12,7 +12,7 @@ import { gestisciUsuraTelaio } from './chassis.js';
 import { gestisciUsuraSospensioni } from './suspension.js';
 import { renderTyreDeck, selectTyreFromUI, handleTyreClick, gestisciModificaUsuraPneumaticiInGara } from './compoundsTyres.js';
 import { toggleRaceEdit as toggleEditFromModule, ottieniDirezioneGeometricaComponente } from './editOutsideBoxes.js';
-import { avviaSessionePitStop, finalizzaRipartenzaDaiBox } from './pitStopBoxes.js';
+import { avviaSessionePitStop, finalizzaRipartenzaDaiBox, registraPuntoRiparazioneOfficina, ottieniStringaMovOfficina } from './pitStopBoxes.js';
 import { getKersIconHtml } from './layout.js';
 
 export { renderTyreDeck, selectTyreFromUI, handleTyreClick };
@@ -90,9 +90,12 @@ export function gestisciAssegnazioneBudget(tipoArea, delta) {
 }
 
 /**
- * Coordina la modifica dell'usura di un componente durante la gara in modalità edit
+ * Coordina la modifica dell'usura di un componente durante la gara in modalità edit o pit stop
  */
 export function gestisciModificaUsuraInGara(tipoComponente, indiceCasella) {
+    const usureCorrenti = gameState.markedUsages[tipoComponente] || [];
+    const staRimuovendoX = usureCorrenti.includes(indiceCasella);
+
     let res = null;
     switch (tipoComponente) {
         case 'tyres':
@@ -119,6 +122,13 @@ export function gestisciModificaUsuraInGara(tipoComponente, indiceCasella) {
         default:
             return { operazioneRiuscita: false, messaggioDescrittivo: "Componente non gestito." };
     }
+
+    // Se siamo nel regime Pit Stop e l'utente ha rimosso una X di usura, registra il punto officina da sinistra a destra
+    if (res && res.operazioneRiuscita && gameState.isPitStopActive && staRimuovendoX) {
+        registraPuntoRiparazioneOfficina();
+        renderWorkshopUI();
+    }
+
     return res;
 }
 
@@ -130,12 +140,36 @@ function aggiornaLabelMovBenzina(stringaMov) {
     if (labelMov) {
         labelMov.innerText = stringaMov;
         
-        // Aggiunge o rimuove la classe per evidenziare visivamente quando è attivo il +1 MOV
         if (stringaMov === "+1 MOV") {
             labelMov.classList.add('mov-active');
         } else {
             labelMov.classList.remove('mov-active');
         }
+    }
+}
+
+/**
+ * Aggiorna la UI della sezione officina (valore MOV e caselle con X rosse da sinistra a destra)
+ */
+export function renderWorkshopUI() {
+    const workshopUsages = gameState.workshopUsages || [];
+    const movText = ottieniStringaMovOfficina();
+    
+    const movValEl = document.getElementById('workshop-mov-val');
+    if (movValEl) movValEl.innerText = movText;
+
+    const rowWorkshop = document.getElementById('row-workshop');
+    if (rowWorkshop) {
+        const boxes = rowWorkshop.querySelectorAll('.box');
+        boxes.forEach((box, idx) => {
+            if (workshopUsages.includes(idx)) {
+                box.innerText = 'X';
+                box.className = 'box x-red';
+            } else {
+                box.innerText = '1';
+                box.className = 'box';
+            }
+        });
     }
 }
 
@@ -167,7 +201,6 @@ export function renderBoard() {
             box.className = 'box';
 
             if (!isRight) {
-                // Sezioni di sinistra (Tyres, Brakes, Fuel)
                 if (comp === 'tyres' && i === 0) {
                     box.innerHTML = `<svg viewBox="0 0 100 100" style="width:22px;height:22px;color:currentColor;"><path d="M 50 15 A 35 35 0 1 1 20 60" fill="none" stroke="currentColor" stroke-width="8" stroke-dasharray="6,4"/><polygon points="12,50 25,65 30,45" fill="currentColor"/><text x="50" y="62" font-size="34" font-weight="bold" text-anchor="middle" fill="currentColor" font-family="Orbitron">1</text></svg>`;
                 } else if (i < baseVal) {
@@ -205,7 +238,6 @@ export function renderBoard() {
                     }
                 }
             } else {
-                // Sezioni di destra (Body, Engine, Suspension)
                 const fromRight = totalBoxes - 1 - i;
                 
                 if (comp === 'body' && isWingActive && i === wingBoxIndex) {
@@ -250,7 +282,6 @@ export function renderBoard() {
                 }
             }
 
-            // 3. Gestione della modalità Gara / Edit / Pit Stop
             if (gameState.isRaceMode) {
                 const isWingXBox = (comp === 'body' && isWingActive && i === wingBoxIndex);
                 
@@ -278,12 +309,10 @@ export function renderBoard() {
         }
     });
     
-    // Aggiornamento visivo dello stato KERS globale nella plancia
     if (typeof updateKersDisplay === 'function') {
         updateKersDisplay();
     }
 
-    // Aggiornamento visivo dello stato Alettone esterno in basso
     const boxWing = document.getElementById('box-wing');
     if (boxWing) {
         boxWing.classList.remove('wing-active', 'circle-green', 'x-red');
@@ -308,7 +337,9 @@ export function renderBoard() {
         }
     }
 
-    // Sincronizzazione automatica MOV Benzina durante il rendering della board
+    // Sincronizzazione UI officina e MOV benzina
+    renderWorkshopUI();
+
     const baseBenzina = gameState.baseValues.fuel;
     const allocBenzina = gameState.allocations.fuel;
     const usurateBenzina = gameState.markedUsages.fuel ? gameState.markedUsages.fuel.length : 0;
@@ -316,7 +347,6 @@ export function renderBoard() {
     const stringaMovCorrente = (libereBenzina <= 3 && libereBenzina > 0) ? "+1 MOV" : "+0 MOV";
     aggiornaLabelMovBenzina(stringaMovCorrente);
 
-    // Aggiornamento contatore budget nella UI di setup
     const budgetCountEl = document.getElementById('budget-count');
     if (budgetCountEl) budgetCountEl.innerText = gameState.budget;
 }
@@ -342,7 +372,6 @@ function aggiornaInterfacciaBudgetMod(budgetResiduo) {
         }
     }
 }
-
 
 // ==========================================
 // GESTIONE ALETTONE (Wing) & TELAIO
@@ -390,7 +419,6 @@ export function toggleRaceEdit() {
     renderBoard();
 }
 
-
 function updateKersDisplay() {
     const boxKers = document.getElementById('box-kers');
     if (!boxKers) return;
@@ -427,9 +455,6 @@ function updateKersDisplay() {
     boxKers.innerHTML = htmlContenuto;
 }
 
-/**
- * Gestisce l'esito del test KERS coordinando il modulo brakesKers e il rendering della plancia
- */
 export function gestisciTestKers(esitoTest) {
     const risultato = eseguiTestAttivazioneKers(esitoTest);
     if (risultato.operazioneRiuscita) {
@@ -438,25 +463,21 @@ export function gestisciTestKers(esitoTest) {
     return risultato;
 }
 
-
-// FUNZIONI DEL PITSTOP  AI BOX
-/**
- * Coordina l'avvio della sessione di Pit Stop passando per il controller principale
- */
+// FUNZIONI DEL PITSTOP AI BOX
 export function gestisciAvvioPitStop(numeroGiro) {
     const risultato = avviaSessionePitStop(numeroGiro);
     if (risultato.operazioneRiuscita) {
+        renderTyreDeck(); // Aggiorna il deck delle mescole sbloccando i tick 2 e 3
         renderBoard();
     }
     return risultato;
 }
 
-/**
- * Coordina la verifica e l'uscita dai box passando per il controller principale
- */
 export function gestisciUscitaBox() {
     const risultato = finalizzaRipartenzaDaiBox();
     if (risultato.operazioneRiuscita) {
+        renderTyreDeck();      // Aggiorna il deck mescole al rientro
+        renderWorkshopUI();    // Sincronizza lo 0 MOV dell'officina
         renderBoard();
     }
     return risultato;
