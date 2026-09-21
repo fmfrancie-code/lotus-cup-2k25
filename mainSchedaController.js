@@ -12,7 +12,7 @@ import { gestisciUsuraTelaio } from './chassis.js';
 import { gestisciUsuraSospensioni } from './suspension.js';
 import { renderTyreDeck, selectTyreFromUI, handleTyreClick, gestisciModificaUsuraPneumaticiInGara } from './compoundsTyres.js';
 import { toggleRaceEdit as toggleEditFromModule, ottieniDirezioneGeometricaComponente } from './editOutsideBoxes.js';
-import { avviaSessionePitStop, finalizzaRipartenzaDaiBox, registraPuntoRiparazioneOfficina, ottieniStringaMovOfficina } from './pitStopBoxes.js';
+import { avviaSessionePitStop, finalizzaRipartenzaDaiBox, registraPuntoRiparazioneOfficina, rimuoviPuntoRiparazioneOfficina, ottieniStringaMovOfficina } from './pitStopBoxes.js';
 import { getKersIconHtml } from './layout.js';
 
 export { renderTyreDeck, selectTyreFromUI, handleTyreClick };
@@ -80,6 +80,7 @@ export function gestisciUscitaBox() {
     }
     return risultato;
 }
+
 /**
  * Transizione della scheda verso la fase di Ufficializzazione / Gara.
  */
@@ -118,7 +119,7 @@ export function gestisciAssegnazioneBudget(tipoArea, delta) {
  */
 export function gestisciModificaUsuraInGara(tipoComponente, indiceCasella) {
     const usureCorrenti = gameState.markedUsages[tipoComponente] || [];
-    const laCasellaHaGiaLaX = usureCorrenti.includes(indiceCasella);
+    const staRimuovendoX = usureCorrenti.includes(indiceCasella);
 
     let res = null;
     switch (tipoComponente) {
@@ -147,33 +148,9 @@ export function gestisciModificaUsuraInGara(tipoComponente, indiceCasella) {
             return { operazioneRiuscita: false, messaggioDescrittivo: "Componente non gestito." };
     }
 
-    // GESTIONE PIT STOP: Aggiunta o Rimozione punti officina
-    if (res && res.operazioneRiuscita && gameState.isPitStopActive) {
-        let workshop = [...(gameState.workshopUsages || [])];
-
-        if (laCasellaHaGiaLaX) {
-            // L'utente aveva una X, ora l'ha rimossa dal componente -> Ha scelto di ripararla (Aggiunge punto officina)
-            if (workshop.length < 3) {
-                let indiceLibero = -1;
-                for (let i = 0; i < 3; i++) {
-                    if (!workshop.includes(i)) {
-                        indiceLibero = i;
-                        break;
-                    }
-                }
-                if (indiceLibero !== -1) {
-                    workshop.push(indiceLibero);
-                    workshop.sort((a, b) => a - b);
-                }
-            }
-        } else {
-            // L'utente ha ricliccato su una casella pulita per rimettere la X -> Ci ripensa, rimuove l'ultimo punto officina aggiunto
-            if (workshop.length > 0) {
-                workshop.pop(); // Rimuove l'ultimo slot officina occupato
-            }
-        }
-
-        updateGameState({ workshopUsages: workshop });
+    // GESTIONE PIT STOP: Se rimuoviamo una X da un componente, registriamo il punto officina tracciandone la provenienza
+    if (res && res.operazioneRiuscita && gameState.isPitStopActive && staRimuovendoX) {
+        registraPuntoRiparazioneOfficina(tipoComponente, indiceCasella);
         renderWorkshopUI();
     }
 
@@ -203,7 +180,6 @@ export function renderWorkshopUI() {
     const workshopUsages = gameState.workshopUsages || [];
     const movText = ottieniStringaMovOfficina();
     
-    // Aggiorna l'etichetta MOV dell'officina
     const movLabelEl = document.getElementById('workshop-mov-label');
     if (movLabelEl) movLabelEl.innerText = movText;
 
@@ -217,6 +193,21 @@ export function renderWorkshopUI() {
             } else {
                 box.innerText = '1';
                 box.className = 'box';
+            }
+
+            // Se siamo in Pit Stop e la casella ha una X rossa, permettiamo il click per rimuovere il punto e ripristinare la parte
+            if (gameState.isPitStopActive && workshopUsages.includes(idx)) {
+                box.classList.add('clickable');
+                box.style.pointerEvents = 'auto';
+                box.style.cursor = 'pointer';
+                box.onclick = () => {
+                    rimuoviPuntoRiparazioneOfficina(idx);
+                    renderBoard(); // Ridisegna la plancia e aggiorna l'officina/MOV
+                };
+            } else {
+                box.classList.remove('clickable');
+                box.style.pointerEvents = 'none';
+                box.onclick = null;
             }
         });
     }
@@ -512,4 +503,3 @@ export function gestisciTestKers(esitoTest) {
     }
     return risultato;
 }
-
