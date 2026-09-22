@@ -74,43 +74,51 @@ export function gestisciConsumoBenzinaEModifica(indiceCasellaBenzinaSelezionata)
  * @param {number} [numeroCaselleDaMantenereLibere=3] - Parametro opzionale per la leggerezza
  * @returns {Object} - Esito dell'operazione e modifiche applicate
  */
-export function gestisciRipristinoBenzinaAiBox(modalitaSceltaBox, numeroCaselleDaMantenereLibere = 3) {
-    let arrayCaselleBenzinaAggiornato = [...gameState.markedUsages.fuel];
-    let descrizioneOperazioneBox = "";
-    let stringaMovimentoBox = "+0 MOV";
+export function gestisciConsumoBenzinaAiBox(indiceCasellaBenzinaSelezionata) {
+    const arrayCaselleBenzinaCorrente = [...gameState.markedUsages.fuel];
     const totaleCaselleDisponibiliBenzina = gameState.baseValues.fuel + gameState.allocations.fuel;
+    
+    const laCasellaContieneGiaUnaX = arrayCaselleBenzinaCorrente.includes(indiceCasellaBenzinaSelezionata);
+    let stringaMovimentoBox = "+0 MOV";
 
-    if (modalitaSceltaBox === 'pieno') {
-        arrayCaselleBenzinaAggiornato = [];
-        descrizioneOperazioneBox = "Rifornimento completato: Pieno di benzina effettuato (tutte le usure rimosse).";
-        stringaMovimentoBox = "-2 MOV"; // Corretto: il pieno ai box costa -2 MOV per il tempo dei meccanici
-    } else if (modalitaSceltaBox === 'leggerezza') {
-        arrayCaselleBenzinaAggiornato = [];
-        for (let indiceCasella = numeroCaselleDaMantenereLibere; indiceCasella < totaleCaselleDisponibiliBenzina; indiceCasella++) {
-            arrayCaselleBenzinaAggiornato.push(indiceCasella);
+    if (laCasellaContieneGiaUnaX) {
+        const indiceDaRimuovere = arrayCaselleBenzinaCorrente.indexOf(indiceCasellaBenzinaSelezionata);
+        if (indiceDaRimuovere !== -1) {
+            arrayCaselleBenzinaCorrente.splice(indiceDaRimuovere, 1);
         }
-
-        const caselleSenzaXRimaste = totaleCaselleDisponibiliBenzina - arrayCaselleBenzinaAggiornato.length;
-        if (caselleSenzaXRimaste <= 3 && caselleSenzaXRimaste > 0) {
-            stringaMovimentoBox = "+1 MOV";
-        } else if (caselleSenzaXRimaste >= 4) {
-            stringaMovimentoBox = "-2 MOV";
+    } else {
+        let indiceDestraDisponibile = -1;
+        for (let i = totaleCaselleDisponibiliBenzina - 1; i >= 0; i--) {
+            if (!arrayCaselleBenzinaCorrente.includes(i)) {
+                indiceDestraDisponibile = i;
+                break;
+            }
         }
+        if (indiceDestraDisponibile !== -1) {
+            arrayCaselleBenzinaCorrente.push(indiceDestraDisponibile);
+        }
+    }
 
-        descrizioneOperazioneBox = `Strategia di leggerezza applicata: mantenute ${caselleSenzaXRimaste} caselle libere di carburante.`;
+    const caselleSenzaXRimaste = totaleCaselleDisponibiliBenzina - arrayCaselleBenzinaCorrente.length;
+
+    if (caselleSenzaXRimaste >= 4) {
+        stringaMovimentoBox = "-2 MOV";
+    } else if (caselleSenzaXRimaste <= 3 && caselleSenzaXRimaste > 0) {
+        stringaMovimentoBox = "+1 MOV";
     }
 
     updateGameState({
         markedUsages: {
             ...gameState.markedUsages,
-            fuel: arrayCaselleBenzinaAggiornato
+            fuel: arrayCaselleBenzinaCorrente
         }
     });
 
     return {
         operazioneRiuscita: true,
-        benzinaAggiornata: arrayCaselleBenzinaAggiornato,
+        benzinaAggiornata: arrayCaselleBenzinaCorrente,
+        caselleLibereRimaste: caselleSenzaXRimaste,
         stringaMov: stringaMovimentoBox,
-        messaggioDescrittivo: descrizioneOperazioneBox
+        messaggioDescrittivo: "Rifornimento ai box aggiornato."
     };
 }
