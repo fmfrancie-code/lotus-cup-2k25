@@ -56,12 +56,21 @@ export function gestisciSelezioneMescolaEGiri(nomeMescolaSelezionata, numeroGiro
 
     const mappaGiriStintAggiornata = { ...gameState.tyreLaps };
 
+    // Rimuove il giro dalle altre mescole
     for (const mescolaCorrente of elencoMescoleValide) {
         if (mescolaCorrente !== nomeMescolaSelezionata) {
             mappaGiriStintAggiornata[mescolaCorrente] = mappaGiriStintAggiornata[mescolaCorrente].filter(
                 girorif => girorif !== numeroGiroStint
             );
         }
+    }
+
+    // Regime Pit Stop: Mutua esclusione tra tick 2 e tick 3 sulla stessa mescola
+    if (gameState.isRaceMode && gameState.isPitStopActive && (numeroGiroStint === 2 || numeroGiroStint === 3)) {
+        const lapOpposto = (numeroGiroStint === 2) ? 3 : 2;
+        mappaGiriStintAggiornata[nomeMescolaSelezionata] = mappaGiriStintAggiornata[nomeMescolaSelezionata].filter(
+            girorif => girorif !== lapOpposto
+        );
     }
 
     if (!mappaGiriStintAggiornata[nomeMescolaSelezionata].includes(numeroGiroStint)) {
