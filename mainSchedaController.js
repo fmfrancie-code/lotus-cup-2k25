@@ -148,12 +148,12 @@ export function gestisciModificaUsuraInGara(tipoComponente, indiceCasella) {
             return { operazioneRiuscita: false, messaggioDescrittivo: "Componente non gestito." };
     }
 
-    // GESTIONE PIT STOP: Se rimuoviamo una X da un componente, registriamo il punto officina tracciandone la provenienza
-    if (res && res.operazioneRiuscita && gameState.isPitStopActive && staRimuovendoX) {
+    // GESTIONE PIT STOP: Se rimuoviamo una X da un componente(freni, telaio, motoree sospensioni, registriamo il punto officina tracciandone la provenienza
+    const componentiRiparabiliInOfficina = ['brakes', 'body', 'engine', 'suspension'];
+    if (res && res.operazioneRiuscita && gameState.isPitStopActive && staRimuovendoX && componentiRiparabiliInOfficina.includes(tipoComponente)) {
         registraPuntoRiparazioneOfficina(tipoComponente, indiceCasella);
         renderWorkshopUI();
     }
-
     return res;
 }
 
