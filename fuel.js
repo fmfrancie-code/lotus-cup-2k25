@@ -83,7 +83,7 @@ export function gestisciRipristinoBenzinaAiBox(modalitaSceltaBox, numeroCaselleD
     if (modalitaSceltaBox === 'pieno') {
         arrayCaselleBenzinaAggiornato = [];
         descrizioneOperazioneBox = "Rifornimento completato: Pieno di benzina effettuato (tutte le usure rimosse).";
-        stringaMovimentoBox = "+0 MOV";
+        stringaMovimentoBox = "-2 MOV"; // Corretto: il pieno ai box costa -2 MOV per il tempo dei meccanici
     } else if (modalitaSceltaBox === 'leggerezza') {
         arrayCaselleBenzinaAggiornato = [];
         for (let indiceCasella = numeroCaselleDaMantenereLibere; indiceCasella < totaleCaselleDisponibiliBenzina; indiceCasella++) {
@@ -91,8 +91,10 @@ export function gestisciRipristinoBenzinaAiBox(modalitaSceltaBox, numeroCaselleD
         }
 
         const caselleSenzaXRimaste = totaleCaselleDisponibiliBenzina - arrayCaselleBenzinaAggiornato.length;
-        if (caselleSenzaXRimaste <= 3) {
+        if (caselleSenzaXRimaste <= 3 && caselleSenzaXRimaste > 0) {
             stringaMovimentoBox = "+1 MOV";
+        } else if (caselleSenzaXRimaste >= 4) {
+            stringaMovimentoBox = "-2 MOV";
         }
 
         descrizioneOperazioneBox = `Strategia di leggerezza applicata: mantenute ${caselleSenzaXRimaste} caselle libere di carburante.`;
