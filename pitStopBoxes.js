@@ -108,6 +108,7 @@ export function finalizzaRipartenzaDaiBox() {
 
     updateGameState({
         isPitStopActive: false,
+        isEditingAllowed: false, // Blocca automaticamente le modifiche all'uscita dai box
         workshopUsages: [],
         workshopRepairs: {},
         previousTyreUsages: null
