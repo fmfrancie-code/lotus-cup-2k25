@@ -5,7 +5,7 @@
 
 import { gameState, updateGameState } from './state.js';
 import { assegnaPuntoBudgetSetup } from './setupPhase.js';
-import { gestisciConsumoBenzinaEModifica } from './fuel.js';
+import { gestisciConsumoBenzinaEModifica, gestisciConsumoBenzinaAiBox } from './fuel.js';
 import { gestisciUsuraMotore } from './engine.js';
 import { gestisciModificaUsuraFreniETrafilamentoKers, eseguiTestAttivazioneKers } from './brakesKers.js';
 import { gestisciUsuraTelaio } from './chassis.js';
@@ -351,7 +351,15 @@ export function renderBoard() {
                 if (isClickableBox) {
                     box.classList.add('clickable');
                     box.onclick = () => {
-                        const res = gestisciModificaUsuraInGara(comp, i);
+                        let res;
+                        // Se siamo sul carburante e siamo ai box, usiamo la funzione dedicata ai box
+                        if (comp === 'fuel' && gameState.isPitStopActive) {
+                            res = gestisciConsumoBenzinaAiBox(i);
+                        } else {
+                            // Altrimenti, usiamo il flusso standard di gara
+                            res = gestisciModificaUsuraInGara(comp, i);
+                        }
+
                         if (res && res.operazioneRiuscita) {
                             renderBoard();
                         }
