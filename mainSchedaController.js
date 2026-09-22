@@ -68,12 +68,22 @@ export function gestisciAvvioPitStop(numeroGiro) {
 export function gestisciUscitaBox() {
     const risultato = finalizzaRipartenzaDaiBox();
     if (risultato.operazioneRiuscita) {
+        // Aggiorna graficamente il pulsante di edit portandolo allo stato "bloccato"
         const btnEdit = document.getElementById('btn-toggle-edit');
         if (btnEdit) {
-            btnEdit.disabled = false;
+            btnEdit.innerText = "Modalità edit attiva (clicca per sbloccare)"; // Adatta il testo in base alle tue classi/label
             btnEdit.style.opacity = '1';
             btnEdit.style.pointerEvents = 'auto';
+            btnEdit.classList.remove('edit-unlocked'); // Rimuove eventuali classi di sblocco se presenti
         }
+
+        // Nasconde completamente il pulsante di accesso ai box
+        // (Verifica che l'ID corrisponda a quello presente nel tuo HTML, es. 'btn-pit-stop' o simile)
+        const btnPitStop = document.getElementById('btn-pit-stop'); 
+        if (btnPitStop) {
+            btnPitStop.style.display = 'none';
+        }
+
         renderTyreDeck();      
         renderWorkshopUI();    
         renderBoard();
