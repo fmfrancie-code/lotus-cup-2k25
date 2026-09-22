@@ -75,7 +75,7 @@ export function gestisciConsumoBenzinaEModifica(indiceCasellaBenzinaSelezionata)
  * @returns {Object} - Esito dell'operazione e modifiche applicate
  */
 export function gestisciConsumoBenzinaAiBox(indiceCasellaBenzinaSelezionata) {
-    const arrayCaselleBenzinaCorrente = [...gameState.markedUsages.fuel];
+    let arrayCaselleBenzinaCorrente = [...gameState.markedUsages.fuel];
     const totaleCaselleDisponibiliBenzina = gameState.baseValues.fuel + gameState.allocations.fuel;
     
     const laCasellaContieneGiaUnaX = arrayCaselleBenzinaCorrente.includes(indiceCasellaBenzinaSelezionata);
@@ -99,7 +99,14 @@ export function gestisciConsumoBenzinaAiBox(indiceCasellaBenzinaSelezionata) {
         }
     }
 
-    const caselleSenzaXRimaste = totaleCaselleDisponibiliBenzina - arrayCaselleBenzinaCorrente.length;
+    let caselleSenzaXRimaste = totaleCaselleDisponibiliBenzina - arrayCaselleBenzinaCorrente.length;
+
+    // REGOLA DEL MONOLITE: Se abbiamo 5+ caselle totali di benzina e l'azione porterebbe a 4 caselle libere, 
+    // il sistema esegue automaticamente il pieno azzerando tutte le usure.
+    if (totaleCaselleDisponibiliBenzina >= 5 && caselleSenzaXRimaste === 4) {
+        arrayCaselleBenzinaCorrente = [];
+        caselleSenzaXRimaste = totaleCaselleDisponibiliBenzina;
+    }
 
     if (caselleSenzaXRimaste >= 4) {
         stringaMovimentoBox = "-2 MOV";
@@ -119,6 +126,6 @@ export function gestisciConsumoBenzinaAiBox(indiceCasellaBenzinaSelezionata) {
         benzinaAggiornata: arrayCaselleBenzinaCorrente,
         caselleLibereRimaste: caselleSenzaXRimaste,
         stringaMov: stringaMovimentoBox,
-        messaggioDescrittivo: "Rifornimento ai box aggiornato."
+        messaggioDescrittivo: "Rifornimento ai box aggiornato con regola pieno automatico."
     };
 }
