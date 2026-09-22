@@ -216,21 +216,22 @@ export function handleTyreClick(type, lap) {
     const pos = list.indexOf(lap);
     
     let markedTyres = [...(gameState.markedUsages.tyres || [])];
+    let previousTyres = gameState.previousTyreUsages ? [...gameState.previousTyreUsages] : [];
 
     if (pos > -1) {
-        // Deselezione del tick: ripristina le usure precedenti salvate all'inizio del pit stop
+        // Deselezione del tick (2 o 3): ripristina le X dei pneumatici che erano state rimosse
         list.splice(pos, 1);
-        if (gameState.previousTyreUsages) {
-            markedTyres = [...gameState.previousTyreUsages];
-        }
+        markedTyres = previousTyres;
     } else {
-        // Selezione di un nuovo tick (es. 2 o 3): monta un set nuovo, quindi azzera COMPLETAMENTE le X delle gomme a schermo
+        // Selezione di un nuovo tick (2 o 3): salva le usure attuali prima di pulirle, poi azzera SUBITO le X delle gomme
+        previousTyres = [...markedTyres];
         gestisciSelezioneMescolaEGiri(type, lap);
         markedTyres = []; 
     }
 
     updateGameState({ 
         tyreLaps: { ...gameState.tyreLaps },
+        previousTyreUsages: previousTyres,
         markedUsages: {
             ...gameState.markedUsages,
             tyres: markedTyres
