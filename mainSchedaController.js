@@ -148,12 +148,13 @@ export function gestisciModificaUsuraInGara(tipoComponente, indiceCasella) {
             return { operazioneRiuscita: false, messaggioDescrittivo: "Componente non gestito." };
     }
 
-    // GESTIONE PIT STOP: Se rimuoviamo una X da un componente(freni, telaio, motoree sospensioni, registriamo il punto officina tracciandone la provenienza
+    // GESTIONE PIT STOP: I punti officina vengono generati SOLO rimuovendo una X da freni, telaio, motore o sospensioni
     const componentiRiparabiliInOfficina = ['brakes', 'body', 'engine', 'suspension'];
     if (res && res.operazioneRiuscita && gameState.isPitStopActive && staRimuovendoX && componentiRiparabiliInOfficina.includes(tipoComponente)) {
         registraPuntoRiparazioneOfficina(tipoComponente, indiceCasella);
         renderWorkshopUI();
     }
+
     return res;
 }
 
@@ -195,7 +196,7 @@ export function renderWorkshopUI() {
                 box.className = 'box';
             }
 
-            // Se siamo in Pit Stop e la casella ha una X rossa, permettiamo il click per rimuovere il punto e ripristinare la parte
+            // Se siamo in Pit Stop e la casella ha una X rossa, permette il click per rimuovere il punto e ripristinare la parte
             if (gameState.isPitStopActive && workshopUsages.includes(idx)) {
                 box.classList.add('clickable');
                 box.style.pointerEvents = 'auto';
