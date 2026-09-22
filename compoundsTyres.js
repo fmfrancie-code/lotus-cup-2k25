@@ -239,8 +239,11 @@ export function handleTyreClick(type, lap) {
     });
 
     renderTyreDeck();
-    if (typeof renderBoard === 'function') {
-        renderBoard();
+    if (typeof window.renderBoard === 'function') {
+        window.renderBoard();
     }
-    if (typeof saveGameState === 'function') saveGameState();
+    
+    if (typeof saveGameState === 'function') {
+        saveGameState();
+    }
 }
