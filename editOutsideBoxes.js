@@ -40,11 +40,12 @@ export function toggleRaceEdit() {
             btnEdit.innerText = "Modalità Edit Sbloccata (Clicca per bloccare)";
             btnEdit.classList.remove('btn-read-mode');
             btnEdit.classList.add('btn-edit-mode');
-            if (btnPitStop) btnPitStop.style.display = 'block'; // Mostra il bottone dei box solo dopo l'edit
+            if (btnPitStop) btnPitStop.style.display = 'block'; // Mostra il bottone dei box quando l'edit è sbloccato
         } else {
             btnEdit.innerText = "Modalità edit attiva (clicca per sbloccare)";
             btnEdit.classList.remove('btn-edit-mode');
             btnEdit.classList.add('btn-read-mode');
+            if (btnPitStop) btnPitStop.style.display = 'none'; // Nasconde il bottone dei box quando l'edit viene bloccato
         }
     }
 }
