@@ -100,25 +100,49 @@ export function finalizzaRipartenzaDaiBox() {
         };
     }
 
+    // 1. Calcolo malus riparazioni officina
     const quantitaPuntiOfficinaUsati = gameState.workshopUsages.length;
     let malusMovFinaleOfficina = 0;
     if (quantitaPuntiOfficinaUsati === 1) malusMovFinaleOfficina = -2;
     else if (quantitaPuntiOfficinaUsati === 2) malusMovFinaleOfficina = -4;
     else if (quantitaPuntiOfficinaUsati === 3) malusMovFinaleOfficina = -6;
 
+    // 2. Calcolo bilancio carburante in base alle caselle libere rimaste
+    const baseBenzina = gameState.baseValues.fuel;
+    const allocBenzina = gameState.allocations.fuel;
+    const totaleCaselleDisponibiliBenzina = baseBenzina + allocBenzina;
+    const usurateBenzina = gameState.markedUsages.fuel ? gameState.markedUsages.fuel.length : 0;
+    const caselleLibereBenzina = totaleCaselleDisponibiliBenzina - usurateBenzina;
+
+    let fuelMov = 0;
+    let fuelText = "+0 MOV";
+    if (caselleLibereBenzina >= 4) {
+        fuelMov = -2;
+        fuelText = "-2 MOV";
+    } else {
+        fuelMov = 1;
+        fuelText = "+1 MOV";
+    }
+
+    // 3. Somma algebrica per il totale netto
+    const totaleNetto = malusMovFinaleOfficina + fuelMov;
+    const totaleNettoStr = totaleNetto >= 0 ? `+${totaleNetto}` : `${totaleNetto}`;
+
+    // 4. Pulizia dello stato della sosta box
     updateGameState({
         isPitStopActive: false,
-        isEditingAllowed: false, // Blocca automaticamente le modifiche all'uscita dai box
+        isEditingAllowed: false,
         workshopUsages: [],
         workshopRepairs: {},
         previousTyreUsages: null
     });
 
-    const messaggioRiepilogoUscita = `Uscita dai box completata! Malus officina applicato al tiro di dado: ${malusMovFinaleOfficina} MOV. Il contatore malus è stato azzerato a +0 MOV.`;
+    // 5. Messaggio di riepilogo combinato dettagliato
+    const messaggioRiepilogoUscita = `Uscita dai box completata!\nRiparazioni: ${malusMovFinaleOfficina} MOV\nBilancio carburante: ${fuelText}\nTotale movimento netto: ${totaleNettoStr} MOV.\nIl contatore malus è stato azzerato a +0 MOV.`;
 
     return {
         operazioneRiuscita: true,
-        malusApplicato: malusMovFinaleOfficina,
+        malusApplicato: totaleNetto,
         messaggioDescrittivo: messaggioRiepilogoUscita
     };
 }
