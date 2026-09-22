@@ -504,3 +504,6 @@ export function gestisciTestKers(esitoTest) {
     }
     return risultato;
 }
+
+window.renderBoard = renderBoard;
+window.handleTyreClick = handleTyreClick;
