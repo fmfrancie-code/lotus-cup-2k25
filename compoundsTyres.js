@@ -66,7 +66,7 @@ export function gestisciSelezioneMescolaEGiri(nomeMescolaSelezionata, numeroGiro
     }
 
     // Regime Pit Stop: Mutua esclusione tra tick 2 e tick 3 sulla stessa mescola
-    if (gameState.isRaceMode && gameState.isPitStopActive && (numeroGiroStint === 2 || numeroGiorStint === 3)) {
+    if (gameState.isRaceMode && gameState.isPitStopActive && (numeroGiroStint === 2 || numeroGiroStint === 3)) {
         const lapOpposto = (numeroGiroStint === 2) ? 3 : 2;
         const initialLaps = gameState.pitStopInitialTyreLaps || {};
         
