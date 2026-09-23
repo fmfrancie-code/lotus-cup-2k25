@@ -66,11 +66,19 @@ export function gestisciSelezioneMescolaEGiri(nomeMescolaSelezionata, numeroGiro
     }
 
     // Regime Pit Stop: Mutua esclusione tra tick 2 e tick 3 sulla stessa mescola
-    if (gameState.isRaceMode && gameState.isPitStopActive && (numeroGiroStint === 2 || numeroGiroStint === 3)) {
+    if (gameState.isRaceMode && gameState.isPitStopActive && (numeroGiroStint === 2 || numeroGiorStint === 3)) {
         const lapOpposto = (numeroGiroStint === 2) ? 3 : 2;
-        mappaGiriStintAggiornata[nomeMescolaSelezionata] = mappaGiriStintAggiornata[nomeMescolaSelezionata].filter(
-            girorif => girorif !== lapOpposto
-        );
+        const initialLaps = gameState.pitStopInitialTyreLaps || {};
+        
+        // Verifica se il tick opposto era già presente prima di entrare in questo pit stop (storico)
+        const eraTickInizialeDellaSosta = Object.values(initialLaps).some(laps => laps.includes(lapOpposto));
+
+        // Rimuove il tick opposto SOLO se NON apparteneva a una sosta precedente
+        if (!eraTickInizialeDellaSosta) {
+            mappaGiriStintAggiornata[nomeMescolaSelezionata] = mappaGiriStintAggiornata[nomeMescolaSelezionata].filter(
+                girorif => girorif !== lapOpposto
+            );
+        }
     }
 
     if (!mappaGiriStintAggiornata[nomeMescolaSelezionata].includes(numeroGiroStint)) {
