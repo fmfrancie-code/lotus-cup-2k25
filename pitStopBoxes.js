@@ -6,12 +6,16 @@
 import { gameState, updateGameState } from './state.js';
 
 export function avviaSessionePitStop(numeroGiroCorrente) {
+    // Cattura lo snapshot dei pneumatici attivi prima di iniziare la sosta
+    const initialTyreLapsSnapshot = JSON.parse(JSON.stringify(gameState.tyreLaps || {}));
+
     updateGameState({
         isPitStopActive: true,
         pitStopStartLap: numeroGiroCorrente,
         previousTyreUsages: [...(gameState.markedUsages.tyres || [])],
         workshopUsages: [],
-        workshopRepairs: {} // Traccia quale componente/casella ha generato ciascun punto officina
+        workshopRepairs: {},
+        pitStopInitialTyreLaps: initialTyreLapsSnapshot // Salvataggio dello snapshot
     });
 
     return {
@@ -134,7 +138,8 @@ export function finalizzaRipartenzaDaiBox() {
         isEditingAllowed: false,
         workshopUsages: [],
         workshopRepairs: {},
-        previousTyreUsages: null
+        previousTyreUsages: null,
+        pitStopInitialTyreLaps: null
     });
 
     // 5. Messaggio di riepilogo combinato dettagliato
