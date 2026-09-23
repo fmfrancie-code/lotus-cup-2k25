@@ -141,22 +141,19 @@ export function renderTyreDeck() {
                 } else if (gameState.isRaceMode) {
                     if (gameState.isPitStopActive && isSelected) {
                         if (lap !== 1) {
-                        const otherLapOnThisTyre = (lap === 2) ? 3 : 2;
-                        const otherLapMarkedOnThisTyre = gameState.tyreLaps[t].includes(otherLapOnThisTyre);
-                        
-                        // Se stiamo valutando il tick 2, ma c'è un tick 3 attivo altrove sulla plancia, bloccalo globalmente
-                        let globalBlock = (lap === 2 && isLapMarkedAnywhere(3));
+                            // Se stiamo valutando il tick 2, ma c'è un tick 3 attivo altrove sulla plancia, bloccalo globalmente
+                            let globalBlock = (lap === 2 && isLapMarkedAnywhere(3));
 
-                        // Verifica se lo stesso tick è già marcato su un'altra mescola
-                        const sameLapMarkedElsewhere = Object.keys(gameState.tyreLaps).some(
-                            tyre => tyre !== t && gameState.tyreLaps[tyre].includes(lap)
-                        );
+                            // Verifica se lo stesso tick è già marcato su un'altra mescola
+                            const sameLapMarkedElsewhere = Object.keys(gameState.tyreLaps).some(
+                                tyre => tyre !== t && gameState.tyreLaps[tyre].includes(lap)
+                            );
 
-                        // Cliccabile se è già segnato oppure se rispetta tutti i filtri e blocchi
-                        if (isMarked || (!globalBlock && !sameLapMarkedElsewhere && !otherLapMarkedOnThisTyre && !lapUsedAnywhere)) {
-                            isClickable = true;
+                            // Cliccabile se è già segnato oppure se rispetta tutti i filtri e blocchi (rimosso il vincolo otherLapMarkedOnThisTyre)
+                            if (isMarked || (!globalBlock && !sameLapMarkedElsewhere && !lapUsedAnywhere)) {
+                                isClickable = true;
+                            }
                         }
-                    }
                     }
                 }
             }
