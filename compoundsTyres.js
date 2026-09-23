@@ -148,7 +148,12 @@ export function renderTyreDeck() {
                     }
                 } else if (gameState.isRaceMode) {
                     if (gameState.isPitStopActive && isSelected) {
-                        if (lap !== 1) {
+                        // Verifica se il tick è storico (già presente prima di entrare in questo Pit Stop)
+                        const initialLaps = gameState.pitStopInitialTyreLaps || {};
+                        const isHistorical = initialLaps[t] && initialLaps[t].includes(lap);
+
+                        // Il tick 1 e tutti i tick storici delle soste passate sono intoccabili (immutabili)
+                        if (lap !== 1 && !isHistorical) {
                             // Se stiamo valutando il tick 2, ma c'è un tick 3 attivo altrove sulla plancia, bloccalo globalmente
                             let globalBlock = (lap === 2 && isLapMarkedAnywhere(3));
 
@@ -157,7 +162,7 @@ export function renderTyreDeck() {
                                 tyre => tyre !== t && gameState.tyreLaps[tyre].includes(lap)
                             );
 
-                            // Cliccabile se è già segnato oppure se rispetta tutti i filtri e blocchi (rimosso il vincolo otherLapMarkedOnThisTyre)
+                            // Cliccabile se è già segnato oppure se rispetta tutti i filtri e blocchi
                             if (isMarked || (!globalBlock && !sameLapMarkedElsewhere && !lapUsedAnywhere)) {
                                 isClickable = true;
                             }
