@@ -406,7 +406,13 @@ export function renderBoard() {
     const allocBenzina = gameState.allocations.fuel;
     const usurateBenzina = gameState.markedUsages.fuel ? gameState.markedUsages.fuel.length : 0;
     const libereBenzina = (baseBenzina + allocBenzina) - usurateBenzina;
-    const stringaMovCorrente = (libereBenzina <= 3 && libereBenzina > 0) ? "+1 MOV" : "+0 MOV";
+    
+    let stringaMovCorrente = "+0 MOV";
+    if (gameState.isPitStopActive && libereBenzina >= 4) {
+        stringaMovCorrente = "-2 MOV";
+    } else if (libereBenzina <= 3 && libereBenzina > 0) {
+        stringaMovCorrente = "+1 MOV";
+    }
     aggiornaLabelMovBenzina(stringaMovCorrente);
 
     const budgetCountEl = document.getElementById('budget-count');
