@@ -59,6 +59,20 @@ export function inizializzaSchedaPilota(datiInizialiPilota) {
 export function gestisciAvvioPitStop(numeroGiro) {
     const risultato = avviaSessionePitStop(numeroGiro);
     if (risultato.operazioneRiuscita) {
+        // Trasforma il pulsante di edit in una label statica "Sei nei box" con lo stile magenta coordinato
+        const btnEdit = document.getElementById('btn-toggle-edit');
+        if (btnEdit) {
+            btnEdit.innerText = "SEI NEI BOX";
+            btnEdit.classList.remove('btn-read-mode', 'btn-edit-mode');
+            btnEdit.classList.add('btn-pitstop-mode');
+            btnEdit.style.pointerEvents = 'none';
+            btnEdit.style.cursor = 'default';
+            // Stile coordinato con il pulsante "Conferma Uscita Box"
+            btnEdit.style.color = '#ff2a8d';
+            btnEdit.style.borderColor = '#ff2a8d';
+            btnEdit.style.background = 'rgba(255, 42, 141, 0.1)';
+        }
+
         renderTyreDeck(); // Sblocca i tick 2 e 3
         renderBoard();
     }
