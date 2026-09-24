@@ -782,8 +782,46 @@
   <div id="screen-new-game" class="screen">
     <h2>Crea Nuova Partita</h2>
     <div style="max-width: 500px; margin: 0 auto;">
-      <label>Nome Gara / Circuito:</label>
-      <input type="text" id="input-circuit" placeholder="es. Monza, Spa, Monaco...">
+    <div class="form-group">
+        <label for="input-circuit">Nome Gara / Circuito:</label>
+        <select id="input-circuit" class="styled-dropdown">
+        <option value="" disabled selected>-- Seleziona Circuito --</option>
+        <option value="Monaco">Monaco</option>
+        <option value="Zandvoort 1 - Olanda">Zandvoort 1 - Olanda</option>
+        <option value="Zandvoort 2 - Olanda">Zandvoort 2 - Olanda</option>
+        <option value="Spa-Francorchamps - Belgio">Spa-Francorchamps - Belgio</option>
+        <option value="Kyalami - South Africa">Kyalami - South Africa</option>
+        <option value="San Marino (Imola / Enzo & Dino Ferrari)">San Marino (Imola / Enzo & Dino Ferrari)</option>
+        <option value="Magny-Cours - Francia">Magny-Cours - Francia</option>
+        <option value="Monza - Italia">Monza - Italia</option>
+        <option value="Estoril - Portugal">Estoril - Portugal</option>
+        <option value="Interlagos - Brasile">Interlagos - Brasile</option>
+        <option value="Watkins Glen">Watkins Glen</option>
+        <option value="Silverstone - Inghilterra">Silverstone - Inghilterra</option>
+        <option value="Montreal - Canada">Montreal - Canada</option>
+        <option value="Long Beach - USA">Long Beach - USA</option>
+        <option value="Hockenheim - Germania">Hockenheim - Germania</option>
+        <option value="Zeltweg (A1-Ring / Österreichring)">Zeltweg (A1-Ring / Österreichring)</option>
+        <option value="Buenos Aires - Argentina">Buenos Aires - Argentina</option>
+        <option value="Barcelona - Spagna">Barcelona - Spagna</option>
+        <option value="Suzuka - Giappone">Suzuka - Giappone</option>
+        <option value="Melbourne - Canada">Melbourne - Canada</option>
+        <option value="Budapest (Hungaroring)">Budapest (Hungaroring)</option>
+        <option value="Nürburgring - Germania">Nürburgring - Germania</option>
+        <option value="Monterey (Laguna Seca)">Monterey (Laguna Seca)</option>
+        <option value="Portland - USA">Portland - USA</option>
+        <option value="Elkhart Lake - USA">Elkhart Lake - USA</option>
+        <option value="Indianapolis - USA">Indianapolis - USA</option>
+        <option value="Detroit - USA">Detroit - USA</option>
+        <option value="Atlanta - USA">Atlanta - USA</option>
+        <option value="Daytona - USA">Daytona - USA</option>
+        <option value="Zhuhai">Zhuhai</option>
+        <option value="Sepang - Malesia">Sepang - Malesia</option>
+        <option value="Anniversary Track">Anniversary Track</option>
+        <option value="Shanghai - Cina">Shanghai - Cina</option>
+        <option value="Bahrain">Bahrain</option>
+    </select>
+</div>
       <label>Nome Pilota / Host:</label>
       <input type="text" id="input-host" placeholder="Il tuo nome...">
       
