@@ -6,10 +6,11 @@
 import { applyTheme, inizializzaLayout } from './layout.js';
 import { gameState, updateGameState } from './state.js';
 import { 
-    inizializzaMeteoGara, 
+inizializzaMeteoGara, 
     ottieniEtichettaMeteo, 
+    ottieniIconaMeteo,
     eseguiControlloMeteoVariabile, 
-    verificaSeAsfaltoBagnato 
+    verificaSeAsfaltoBagnato
 } from './weather.js';
 import { 
     inizializzaSchedaPilota, 
