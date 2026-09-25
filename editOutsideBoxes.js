@@ -34,18 +34,34 @@ export function toggleRaceEdit() {
     const isEditActive = document.body.classList.toggle('edit-mode-active', risultato.editConsentito);
     const btnEdit = document.getElementById('btn-toggle-edit');
     const btnPitStop = document.getElementById('btn-pitstop-action');
+    
+    // Riferimenti per il controllo meteo variabile
+    const weatherTestBtn = document.getElementById('btn-weather-test');
+    const isVariableWeather = (gameState.weather === 'var_dry' || gameState.weather === 'var_wet');
 
     if (btnEdit) {
         if (isEditActive) {
             btnEdit.innerText = "Modalità Edit Sbloccata (Clicca per bloccare)";
             btnEdit.classList.remove('btn-read-mode');
             btnEdit.classList.add('btn-edit-mode');
-            if (btnPitStop) btnPitStop.style.display = 'block'; // Mostra il bottone dei box quando l'edit è sbloccato
+            
+            if (btnPitStop) btnPitStop.style.display = 'block'; // Mostra il bottone dei box quando l'edit è sbloccato[cite: 24]
+            
+            // Mostra il Test Motore / Meteo solo se il meteo della partita è effettivamente variabile
+            if (weatherTestBtn && isVariableWeather) {
+                weatherTestBtn.style.display = 'block';
+            }
         } else {
             btnEdit.innerText = "Modalità edit attiva (clicca per sbloccare)";
             btnEdit.classList.remove('btn-edit-mode');
             btnEdit.classList.add('btn-read-mode');
-            if (btnPitStop) btnPitStop.style.display = 'none'; // Nasconde il bottone dei box quando l'edit viene bloccato
+            
+            if (btnPitStop) btnPitStop.style.display = 'none'; // Nasconde il bottone dei box quando l'edit viene bloccato[cite: 24]
+            
+            // Nasconde il Test Meteo quando l'edit viene chiuso
+            if (weatherTestBtn) {
+                weatherTestBtn.style.display = 'none';
+            }
         }
     }
 }
