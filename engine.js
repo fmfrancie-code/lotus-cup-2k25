@@ -18,16 +18,15 @@ export function gestisciUsuraMotore(indiceCasellaSelezionata) {
     let indiceModificato = -1;
     let nuovoStatoKers = gameState.kersState;
     let kersDamagedByEngine = gameState.kersDamagedByEngine || false;
+    let kersPriorState = gameState.kersPriorState || 'empty';
 
     const valoreBaseMotore = gameState.baseValues.engine;
     const puntiAssegnatiSetupMotore = gameState.allocations.engine;
     const totaleCaselleDisponibiliMotore = valoreBaseMotore + puntiAssegnatiSetupMotore;
     
-    // Verifica se il motore era già completamente esaurito PRIMA di questo click
     const eraCompletamenteOccupato = (arrayUsureMotoreCorrente.length === totaleCaselleDisponibiliMotore);
 
     if (laCasellaContieneGiaUnaX && arrayUsureMotoreCorrente.length > 0) {
-        // Rimozione LIFO (riparazione -> rimuove l'ultimo punto a destra)
         const indiceDaRimuovere = Math.max(...arrayUsureMotoreCorrente);
         const pos = arrayUsureMotoreCorrente.indexOf(indiceDaRimuovere);
         if (pos !== -1) {
@@ -35,7 +34,6 @@ export function gestisciUsuraMotore(indiceCasellaSelezionata) {
             indiceModificato = indiceDaRimuovere;
         }
     } else {
-        // Inserimento usura
         const totalBoxes = 6;
         const startIdx = totalBoxes - totaleCaselleDisponibiliMotore;
         const endIdx = totalBoxes - 1;
@@ -54,30 +52,36 @@ export function gestisciUsuraMotore(indiceCasellaSelezionata) {
         }
     }
 
-    // Verifica se il motore è completamente esaurito DOPO il click
     const oraCompletamenteOccupato = (arrayUsureMotoreCorrente.length === totaleCaselleDisponibiliMotore);
 
-    // Gestione logica KERS legata al motore:
     if (!eraCompletamenteOccupato && oraCompletamenteOccupato) {
-        // Il motore si è appena esaurito del tutto
-        if (nuovoStatoKers === 'damaged') {
-            // SCENARIO 2: Il KERS era già rotto prima (es. test fallito). Rimane permanentemente rotto.
-            kersDamagedByEngine = false;
-        } else {
-            // SCENARI 1 & 3: Il KERS era attivo/carico o vuoto, ora viene bloccato dal motore
+        // Il motore si è appena rotto del tutto
+        if (nuovoStatoKers !== 'damaged') {
+            kersPriorState = nuovoStatoKers; // Salviamo lo stato esatto del KERS prima che si rompesse il motore
             nuovoStatoKers = 'damaged';
             kersDamagedByEngine = true;
+        } else {
+            kersDamagedByEngine = false; // Era già rotto in precedenza per test KERS fallito
         }
         messaggioAllertaCritica = "Attenzione: Hai esaurito tutti i punti del motore! KERS disabilitato.";
     } else if (eraCompletamenteOccupato && !oraCompletamenteOccupato) {
-        // RIPARAZIONE MOTORE: Se il KERS era stato bloccato dal motore, ora torna disponibile e vuoto
-        if (kersDamagedByEngine) {
-            nuovoStatoKers = 'empty'; 
-            kersDamagedByEngine = false;
-            messaggioAllertaCritica = "Motore riparato: KERS tornato disponibile e pronto per essere ricaricato.";
+        // Stiamo rimuovendo una X dal motore (riparazione o correzione click)
+        if (gameState.isPitStopActive) {
+            // SIAMO AI BOX: La riparazione sblocca il KERS facendolo tornare vuoto (empty)
+            if (kersDamagedByEngine) {
+                nuovoStatoKers = 'empty'; 
+                kersDamagedByEngine = false;
+                messaggioAllertaCritica = "Motore riparato ai box: KERS tornato disponibile e pronto per essere ricaricato.";
+            } else {
+                messaggioAllertaCritica = "Motore riparato ai box (il KERS rimane permanentemente danneggiato).";
+            }
         } else {
-            // Se era rotto in modo permanente (test KERS), la riparazione del motore non sblocca il KERS
-            messaggioAllertaCritica = "Motore riparato (il KERS rimane permanentemente danneggiato).";
+            // NON SIAMO AI BOX (es. click accidentale corretto al volo): Ripristiniamo esattamente lo stato precedente del KERS!
+            if (kersDamagedByEngine) {
+                nuovoStatoKers = kersPriorState; 
+                kersDamagedByEngine = false;
+                messaggioAllertaCritica = "Ripristino punto motore: il KERS è tornato allo stato precedente.";
+            }
         }
     } else if (oraCompletamenteOccupato) {
         messaggioAllertaCritica = "Attenzione: Hai esaurito tutti i punti del motore!";
@@ -89,7 +93,8 @@ export function gestisciUsuraMotore(indiceCasellaSelezionata) {
             engine: arrayUsureMotoreCorrente
         },
         kersState: nuovoStatoKers,
-        kersDamagedByEngine: kersDamagedByEngine
+        kersDamagedByEngine: kersDamagedByEngine,
+        kersPriorState: kersPriorState
     });
 
     return {
