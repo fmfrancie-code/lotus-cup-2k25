@@ -315,6 +315,15 @@ window.processWeatherCheck = function(newCheck) {
         weatherIconEl.innerHTML = ottieniIconaMeteo(gameState.weather);
     }
 
+    // --- AGGIUNTA CORRETTIVA ---
+    // Nasconde immediatamente il pulsante del test meteo se il meteo è diventato fisso
+    const weatherTestBtn = document.getElementById('btn-weather-test');
+    const isVariableWeather = (gameState.weather === 'var_dry' || gameState.weather === 'var_wet');
+    if (weatherTestBtn && !isVariableWeather) {
+        weatherTestBtn.style.display = 'none';
+    }
+    // ---------------------------
+
     renderTyreDeck();
     renderBoard();
     saveGameState();
