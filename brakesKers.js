@@ -22,15 +22,14 @@ export function gestisciModificaUsuraFreniETrafilamentoKers(indiceCasellaFrenoSe
     const laCasellaContieneGiaUnaX = arrayCaselleFreniCorrente.includes(indiceCasellaFrenoSelezionata);
     let nuovoStatoKers = gameState.kersState;
 
-    if (laCasellaContieneGiaUnaX) {
-        // Se la casella ha già una X, rimuovila liberamente
-        const indiceDaRimuovere = arrayCaselleFreniCorrente.indexOf(indiceCasellaFrenoSelezionata);
-        if (indiceDaRimuovere !== -1) {
-            arrayCaselleFreniCorrente.splice(indiceDaRimuovere, 1);
+    if (laCasellaContieneGiaUnaX && arrayCaselleFreniCorrente.length > 0) {
+        // Rimuove automaticamente l'ultima X aggiunta (LIFO: l'indice minimo per riempimento da destra)
+        const indiceDaRimuovere = Math.min(...arrayCaselleFreniCorrente);
+        const pos = arrayCaselleFreniCorrente.indexOf(indiceDaRimuovere);
+        if (pos !== -1) {
+            arrayCaselleFreniCorrente.splice(pos, 1);
         }
     } else {
-        // REGOLA GEOMETRICA PER LE SEZIONI DI SINISTRA (DA DESTRA VERSO SINISTRA):
-        // Scansiona dall'estremo destro dell'area attiva verso sinistra per trovare la prima casella libera
         let indiceDestraDisponibile = -1;
         for (let i = totaleCaselleDisponibiliFreni - 1; i >= 0; i--) {
             if (!arrayCaselleFreniCorrente.includes(i)) {
@@ -43,7 +42,7 @@ export function gestisciModificaUsuraFreniETrafilamentoKers(indiceCasellaFrenoSe
             arrayCaselleFreniCorrente.push(indiceDestraDisponibile);
         }
     }
-
+    
     // REGOLA DI BUSINESS: Quando almeno un punto freno è consumato, il KERS si carica.
     // Il KERS si carica solo se non è in stato permanentemente danneggiato.
     const esisteAlmenoUnFrenoConsumato = arrayCaselleFreniCorrente.length > 0;
@@ -54,7 +53,6 @@ export function gestisciModificaUsuraFreniETrafilamentoKers(indiceCasellaFrenoSe
         nuovoStatoKers = 'empty';
     }
 
-    // Aggiornamento dello stato globale
     updateGameState({
         markedUsages: {
             ...gameState.markedUsages,
