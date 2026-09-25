@@ -511,7 +511,10 @@ function updateKersDisplay() {
     const statoKers = gameState.kersState;
     let htmlContenuto = '';
 
-    boxKers.classList.remove('charged', 'damaged', 'empty', 'circle-kers');
+    // Rimuove rigorosamente qualsiasi residuo di classi precedenti (inclusa la X rossa)
+    boxKers.classList.remove('charged', 'damaged', 'empty', 'circle-kers', 'x-red');
+    boxKers.style.removeProperty('pointer-events');
+    boxKers.style.removeProperty('cursor');
 
     if (statoKers === 'damaged') {
         boxKers.classList.add('x-red'); 
@@ -531,6 +534,8 @@ function updateKersDisplay() {
             if (modalKers) modalKers.style.display = 'flex';
         };
     } else {
+        // Stato vuoto (empty) di default: ripristina la grafica standard (casella nera, bordi azzurri puliti)
+        boxKers.classList.add('empty');
         htmlContenuto = `<div class="kers-icon-container empty"></div>`;
         boxKers.style.setProperty('pointer-events', 'none', 'important');
         boxKers.style.cursor = 'default';
