@@ -16,11 +16,14 @@ export function gestisciUsuraMotore(indiceCasellaSelezionata) {
     
     let messaggioAllertaCritica = "";
 
-    if (laCasellaContieneGiaUnaX) {
-        // Se la casella cliccata ha già una X, rimuovila
-        arrayUsureMotoreCorrente.splice(arrayUsureMotoreCorrente.indexOf(indiceCasellaSelezionata), 1);
+    if (laCasellaContieneGiaUnaX && arrayUsureMotoreCorrente.length > 0) {
+        // Rimozione LIFO automatica (indice massimo per riempimento da sinistra a destra)
+        const indiceDaRimuovere = Math.max(...arrayUsureMotoreCorrente);
+        const pos = arrayUsureMotoreCorrente.indexOf(indiceDaRimuovere);
+        if (pos !== -1) {
+            arrayUsureMotoreCorrente.splice(pos, 1);
+        }
     } else {
-        // Inserimento sequenziale da sinistra a destra per le sezioni di destra
         const totalBoxes = 6;
         const valoreBaseMotore = gameState.baseValues.engine;
         const puntiAssegnatiSetupMotore = gameState.allocations.engine;
@@ -48,7 +51,6 @@ export function gestisciUsuraMotore(indiceCasellaSelezionata) {
     const tutteLeCaselleMotoreSonoOccupate = (arrayUsureMotoreCorrente.length === totaleCaselleDisponibiliMotore);
 
     if (tutteLeCaselleMotoreSonoOccupate) {
-        // RIMOSSO: La forzatura automatica di kersState = 'damaged'
         messaggioAllertaCritica = "Attenzione: Hai esaurito tutti i punti del motore!";
     }
 
@@ -57,7 +59,6 @@ export function gestisciUsuraMotore(indiceCasellaSelezionata) {
             ...gameState.markedUsages,
             engine: arrayUsureMotoreCorrente
         }
-        // Il kersState non viene più toccato qui dentro
     });
 
     return {
