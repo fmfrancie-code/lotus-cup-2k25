@@ -326,8 +326,7 @@ window.processWeatherCheck = function(newCheck) {
 
     renderTyreDeck();
     renderBoard();
-    saveGameState();
-
+    
     alert(risultato.messaggioDescrittivo);
 };
 console.log("Lotus Cup 2k25: Script Main orchestrato e ripulito correttamente.");
