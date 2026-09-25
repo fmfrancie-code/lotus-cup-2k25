@@ -136,16 +136,14 @@ export function ottieniEtichettaMeteo(codiceMeteo) {
         'var_dry': 'VARIABILE ASCIUTTO',
         'var_wet': 'VARIABILE BAGNATO'
     };
-    return etichetteMeteo[codiceMeteo] || codiceMeteo.toUpperCase();
-}
+    
+    let etichettaBase = etichetteMeteo[codiceMeteo] || codiceMeteo.toUpperCase();
 
+    // Se il meteo è variabile e c'è un ultimo check registrato nello stato, aggiunge il dettaglio
+    if ((codiceMeteo === 'var_dry' || codiceMeteo === 'var_wet') && gameState.weatherLastCheck) {
+        const simboloCheck = (gameState.weatherLastCheck === 'sun') ? '☀️' : '🌧️';
+        return `${etichettaBase} (ULTIMO: ${simboloCheck})`;
+    }
 
-export function ottieniIconaMeteo(codiceMeteo) {
-    const iconeMeteo = {
-        'sun': '&#9728;&#65039;',
-        'rain': '&#127783;&#65039;',
-        'var_dry': '&#9925;',
-        'var_wet': '&#127783;&#65039;'
-    };
-    return iconeMeteo[codiceMeteo] || '&#9728;&#65039;';
+    return etichettaBase;
 }
