@@ -22,7 +22,6 @@ export function gestisciUsuraTelaio(indiceCasellaSelezionata) {
     const endIdx = totalBoxes - 1;
     const wingBoxIndex = gameState.alettoneAttivo ? startIdx : -1;
 
-    // Impedisce di cliccare o marcare la casella dell'alettone come usura
     if (indiceCasellaSelezionata === wingBoxIndex) {
         return { operazioneRiuscita: false, messaggioDescrittivo: "Questa casella indica l'alettone attivo e non riceve usura diretta." };
     }
@@ -30,13 +29,15 @@ export function gestisciUsuraTelaio(indiceCasellaSelezionata) {
     const laCasellaContieneGiaUnaX = arrayUsureTelaioCorrente.includes(indiceCasellaSelezionata);
     let alettoneDanneggiatoAggiornato = gameState.alettoneDanneggiato || false;
 
-    if (laCasellaContieneGiaUnaX) {
-        const indiceDaRimuovere = arrayUsureTelaioCorrente.indexOf(indiceCasellaSelezionata);
-        if (indiceDaRimuovere !== -1) {
-            arrayUsureTelaioCorrente.splice(indiceDaRimuovere, 1);
+    const usureEffettive = arrayUsureTelaioCorrente.filter(i => i !== wingBoxIndex);
+
+    if (laCasellaContieneGiaUnaX && usureEffettive.length > 0) {
+        const indiceDaRimuovere = Math.max(...usureEffettive);
+        const pos = arrayUsureTelaioCorrente.indexOf(indiceDaRimuovere);
+        if (pos !== -1) {
+            arrayUsureTelaioCorrente.splice(pos, 1);
         }
     } else {
-        // Inserimento sequenziale da sinistra a destra, saltando rigorosamente la casella alettone
         let indiceSinistraDisponibile = -1;
         for (let i = startIdx; i <= endIdx; i++) {
             if (gameState.alettoneAttivo && i === wingBoxIndex) continue;
@@ -50,17 +51,16 @@ export function gestisciUsuraTelaio(indiceCasellaSelezionata) {
         }
     }
 
-    // Calcoliamo se le caselle di usura effettive sono esaurite
     const slotUsuraTotali = gameState.alettoneAttivo ? (totaleCaselleDisponibiliTelaio - 1) : totaleCaselleDisponibiliTelaio;
     const usureEffettiveCount = arrayUsureTelaioCorrente.filter(i => i !== wingBoxIndex).length;
 
     let messaggioAllertaCritica = "";
     if (gameState.alettoneAttivo && usureEffettiveCount >= slotUsuraTotali) {
-        alettoneDanneggiatoAggiornato = true; // L'alettone in basso si rompe (X rossa)
+        alettoneDanneggiatoAggiornato = true;
         messaggioAllertaCritica = "Attenzione: Punti telaio esauriti! L'alettone è fuori uso.";
     } else {
         if (usureEffettiveCount < slotUsuraTotali) {
-            alettoneDanneggiatoAggiornato = false; // Riparando il telaio, l'alettone torna integro
+            alettoneDanneggiatoAggiornato = false;
         }
     }
 
