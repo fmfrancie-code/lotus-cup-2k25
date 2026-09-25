@@ -14,11 +14,14 @@ export function gestisciUsuraSospensioni(indiceCasellaSelezionata) {
     const arrayUsureSospensioniCorrente = [...gameState.markedUsages.suspension];
     const laCasellaContieneGiaUnaX = arrayUsureSospensioniCorrente.includes(indiceCasellaSelezionata);
     
+    let indiceModificato = -1;
+
     if (laCasellaContieneGiaUnaX && arrayUsureSospensioniCorrente.length > 0) {
         const indiceDaRimuovere = Math.max(...arrayUsureSospensioniCorrente);
         const pos = arrayUsureSospensioniCorrente.indexOf(indiceDaRimuovere);
         if (pos !== -1) {
             arrayUsureSospensioniCorrente.splice(pos, 1);
+            indiceModificato = indiceDaRimuovere;
         }
     } else {
         const totalBoxes = 6;
@@ -39,6 +42,7 @@ export function gestisciUsuraSospensioni(indiceCasellaSelezionata) {
 
         if (indiceSinistraDisponibile !== -1) {
             arrayUsureSospensioniCorrente.push(indiceSinistraDisponibile);
+            indiceModificato = indiceSinistraDisponibile;
         }
     }
 
@@ -52,6 +56,7 @@ export function gestisciUsuraSospensioni(indiceCasellaSelezionata) {
     return {
         operazioneRiuscita: true,
         usureSospensioniAggiornate: arrayUsureSospensioniCorrente,
+        indiceModificato: indiceModificato,
         messaggioDescrittivo: "Sospensioni aggiornate con successo."
     };
 }
