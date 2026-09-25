@@ -21,7 +21,7 @@ export function gestisciConsumoBenzinaEModifica(indiceCasellaBenzinaSelezionata)
     let stringaMovimentoAttiva = "+0 MOV";
 
     if (laCasellaContieneGiaUnaX && arrayCaselleBenzinaCorrente.length > 0) {
-        // Rimozione LIFO automatica (indice minimo)
+        // Rimozione LIFO automatica (indice minimo, poiché riempie da destra a sinistra)
         const indiceDaRimuovere = Math.min(...arrayCaselleBenzinaCorrente);
         const pos = arrayCaselleBenzinaCorrente.indexOf(indiceDaRimuovere);
         if (pos !== -1) {
@@ -85,10 +85,12 @@ export function gestisciConsumoBenzinaAiBox(indiceCasellaBenzinaSelezionata) {
     const laCasellaContieneGiaUnaX = arrayCaselleBenzinaCorrente.includes(indiceCasellaBenzinaSelezionata);
     let stringaMovimentoBox = "+0 MOV";
 
-    if (laCasellaContieneGiaUnaX) {
-        const indiceDaRimuovere = arrayCaselleBenzinaCorrente.indexOf(indiceCasellaBenzinaSelezionata);
-        if (indiceDaRimuovere !== -1) {
-            arrayCaselleBenzinaCorrente.splice(indiceDaRimuovere, 1);
+    if (laCasellaContieneGiaUnaX && arrayCaselleBenzinaCorrente.length > 0) {
+        // Rimozione LIFO automatica coerente anche all'interno dei box
+        const indiceDaRimuovere = Math.min(...arrayCaselleBenzinaCorrente);
+        const pos = arrayCaselleBenzinaCorrente.indexOf(indiceDaRimuovere);
+        if (pos !== -1) {
+            arrayCaselleBenzinaCorrente.splice(pos, 1);
         }
     } else {
         let indiceDestraDisponibile = -1;
