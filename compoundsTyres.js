@@ -14,10 +14,11 @@ export function gestisciModificaUsuraPneumaticiInGara(indiceCasellaSelezionata) 
 
     const laCasellaContieneGiaUnaX = arrayCasellePneumaticiCorrente.includes(indiceCasellaSelezionata);
 
-    if (laCasellaContieneGiaUnaX) {
-        const indiceDaRimuovere = arrayCasellePneumaticiCorrente.indexOf(indiceCasellaSelezionata);
-        if (indiceDaRimuovere !== -1) {
-            arrayCasellePneumaticiCorrente.splice(indiceDaRimuovere, 1);
+    if (laCasellaContieneGiaUnaX && arrayCasellePneumaticiCorrente.length > 0) {
+        const indiceDaRimuovere = Math.min(...arrayCasellePneumaticiCorrente);
+        const pos = arrayCasellePneumaticiCorrente.indexOf(indiceDaRimuovere);
+        if (pos !== -1) {
+            arrayCasellePneumaticiCorrente.splice(pos, 1);
         }
     } else {
         let indiceDestraDisponibile = -1;
