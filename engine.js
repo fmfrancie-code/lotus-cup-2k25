@@ -15,13 +15,14 @@ export function gestisciUsuraMotore(indiceCasellaSelezionata) {
     const laCasellaContieneGiaUnaX = arrayUsureMotoreCorrente.includes(indiceCasellaSelezionata);
     
     let messaggioAllertaCritica = "";
+    let indiceModificato = -1;
 
     if (laCasellaContieneGiaUnaX && arrayUsureMotoreCorrente.length > 0) {
-        // Rimozione LIFO automatica (indice massimo per riempimento da sinistra a destra)
         const indiceDaRimuovere = Math.max(...arrayUsureMotoreCorrente);
         const pos = arrayUsureMotoreCorrente.indexOf(indiceDaRimuovere);
         if (pos !== -1) {
             arrayUsureMotoreCorrente.splice(pos, 1);
+            indiceModificato = indiceDaRimuovere;
         }
     } else {
         const totalBoxes = 6;
@@ -42,6 +43,7 @@ export function gestisciUsuraMotore(indiceCasellaSelezionata) {
 
         if (indiceSinistraDisponibile !== -1) {
             arrayUsureMotoreCorrente.push(indiceSinistraDisponibile);
+            indiceModificato = indiceSinistraDisponibile;
         }
     }
 
@@ -64,6 +66,7 @@ export function gestisciUsuraMotore(indiceCasellaSelezionata) {
     return {
         operazioneRiuscita: true,
         usureMotoreAggiornate: arrayUsureMotoreCorrente,
+        indiceModificato: indiceModificato,
         motoreEsauritoCompletamente: tutteLeCaselleMotoreSonoOccupate,
         messaggioDescrittivo: messaggioAllertaCritica || "Motore aggiornato con successo."
     };
