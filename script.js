@@ -8,7 +8,6 @@ import { gameState, updateGameState } from './state.js';
 import { 
     inizializzaMeteoGara, 
     ottieniEtichettaMeteo, 
-    ottieniIconaMeteo, 
     eseguiControlloMeteoVariabile, 
     verificaSeAsfaltoBagnato 
 } from './weather.js';
