@@ -21,13 +21,14 @@ export function gestisciModificaUsuraFreniETrafilamentoKers(indiceCasellaFrenoSe
     
     const laCasellaContieneGiaUnaX = arrayCaselleFreniCorrente.includes(indiceCasellaFrenoSelezionata);
     let nuovoStatoKers = gameState.kersState;
+    let indiceModificato = -1;
 
     if (laCasellaContieneGiaUnaX && arrayCaselleFreniCorrente.length > 0) {
-        // Rimuove automaticamente l'ultima X aggiunta (LIFO: l'indice minimo per riempimento da destra)
         const indiceDaRimuovere = Math.min(...arrayCaselleFreniCorrente);
         const pos = arrayCaselleFreniCorrente.indexOf(indiceDaRimuovere);
         if (pos !== -1) {
             arrayCaselleFreniCorrente.splice(pos, 1);
+            indiceModificato = indiceDaRimuovere;
         }
     } else {
         let indiceDestraDisponibile = -1;
@@ -40,6 +41,7 @@ export function gestisciModificaUsuraFreniETrafilamentoKers(indiceCasellaFrenoSe
 
         if (indiceDestraDisponibile !== -1) {
             arrayCaselleFreniCorrente.push(indiceDestraDisponibile);
+            indiceModificato = indiceDestraDisponibile;
         }
     }
     
@@ -64,6 +66,7 @@ export function gestisciModificaUsuraFreniETrafilamentoKers(indiceCasellaFrenoSe
     return {
         operazioneRiuscita: true,
         freniAggiornati: arrayCaselleFreniCorrente,
+        indiceModificato: indiceModificato,
         kersStatoCorrente: nuovoStatoKers,
         messaggioDescrittivo: `Stato freni aggiornato. KERS attualmente: [${nuovoStatoKers.toUpperCase()}].`
     };
