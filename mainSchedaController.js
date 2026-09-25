@@ -175,10 +175,11 @@ export function gestisciModificaUsuraInGara(tipoComponente, indiceCasella) {
             return { operazioneRiuscita: false, messaggioDescrittivo: "Componente non gestito." };
     }
 
-    // GESTIONE PIT STOP: I punti officina vengono generati SOLO rimuovendo una X da freni, telaio, motore o sospensioni
+    // GESTIONE PIT STOP: Registriamo l'indice EFFETTIVO rimosso (res.indiceModificato) anziché quello cliccato
     const componentiRiparabiliInOfficina = ['brakes', 'body', 'engine', 'suspension'];
     if (res && res.operazioneRiuscita && gameState.isPitStopActive && staRimuovendoX && componentiRiparabiliInOfficina.includes(tipoComponente)) {
-        registraPuntoRiparazioneOfficina(tipoComponente, indiceCasella);
+        const indiceRealeRimosso = res.indiceModificato !== undefined ? res.indiceModificato : indiceCasella;
+        registraPuntoRiparazioneOfficina(tipoComponente, indiceRealeRimosso);
         renderWorkshopUI();
     }
 
