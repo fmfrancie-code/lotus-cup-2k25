@@ -147,3 +147,20 @@ export function ottieniEtichettaMeteo(codiceMeteo) {
 
     return etichettaBase;
 }
+
+
+/**
+ * Restituisce il simbolo HTML dell'icona meteo in base al codice corrente.
+ * 
+ * @param {string} codiceMeteo - Codice interno ('sun', 'rain', 'var_dry', 'var_wet')
+ * @returns {string} - Stringa HTML dell'icona
+ */
+export function ottieniIconaMeteo(codiceMeteo) {
+    const iconeMeteo = {
+        'sun': '&#9728;&#65039;',       // Sole fisso (☀️)
+        'rain': '&#127783;&#65039;',     // Pioggia fissa (🌧️)
+        'var_dry': '&#9928;&#65039;',   // Sole con nuvola per Variabile Asciutto (⛅)
+        'var_wet': '&#9928;&#65039;'    // Sole con nuvola per Variabile Bagnato (⛅)
+    };
+    return iconeMeteo[codiceMeteo] || '&#9728;&#65039;';
+}
