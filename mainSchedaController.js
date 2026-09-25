@@ -38,6 +38,7 @@ export function inizializzaSchedaPilota(datiInizialiPilota) {
         theme: datiInizialiPilota.theme,
         budget: 13,
         alettoneAttivo: false,
+        kersDamagedByEngine: false,
         selectedTyre: defaultTyre,
         tyreLaps: {
             Prime: defaultTyre === 'Prime' ? [1] : [],
