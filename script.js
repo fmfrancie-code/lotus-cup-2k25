@@ -5,7 +5,13 @@
 
 import { applyTheme, inizializzaLayout } from './layout.js';
 import { gameState, updateGameState } from './state.js';
-import { inizializzaMeteoGara, ottieniEtichettaMeteo, ottieniIconaMeteo } from './weather.js';
+import { 
+    inizializzaMeteoGara, 
+    ottieniEtichettaMeteo, 
+    ottieniIconaMeteo, 
+    eseguiControlloMeteoVariabile, 
+    verificaSeAsfaltoBagnato 
+} from './weather.js';
 import { 
     inizializzaSchedaPilota, 
     ufficializzaSchedaPerGara, 
@@ -237,6 +243,82 @@ window.tentativoUscitaBox = function() {
     }
 
     renderBoard();
+    alert(risultato.messaggioDescrittivo);
+};
+
+// --- GESTIONE METEO VARIABILE & MODALE ---
+
+window.openWeatherModal = function() {
+    if (gameState.weather === 'var_dry' || gameState.weather === 'var_wet') {
+        const modalText = document.getElementById('modal-current-weather-text');
+        const historyText = document.getElementById('modal-check-history');
+        const buttonsContainer = document.getElementById('modal-check-buttons');
+
+        const isDry = gameState.weather === 'var_dry';
+        modalText.innerText = isDry ? 'Variabile Asciutto' : 'Variabile Bagnato';
+        buttonsContainer.innerHTML = '';
+
+        if (!gameState.weatherLastCheck) {
+            historyText.innerText = "Ultimo Check: Nessuno";
+            buttonsContainer.innerHTML = `
+                <button class="btn btn-secondary" onclick="processWeatherCheck('sun')">&#9728;&#65039; Tiro Check: SOLE</button>
+                <button class="btn btn-secondary" onclick="processWeatherCheck('rain')">&#127783;&#65039; Tiro Check: PIOGGIA</button>
+            `;
+        } else {
+            const lastSymbol = gameState.weatherLastCheck === 'sun' ? '&#9728;&#65039; Sole' : '&#127783;&#65039; Pioggia';
+            historyText.innerHTML = `<strong style="color:#00f0ff;">Ultimo tiro registrato:</strong> ${lastSymbol}`;
+
+            let btnSunText = gameState.weatherLastCheck === 'sun'
+                ? '&#9728;&#65039; Tiro Check: SOLE (Stabilizza su SOLE FISSO!)'
+                : '&#9728;&#65039; Tiro Check: SOLE (Asfalto passa ad Asciutto)';
+
+            let btnRainText = gameState.weatherLastCheck === 'rain'
+                ? '&#127783;&#65039; Tiro Check: PIOGGIA (Stabilizza su PIOGGIA FISSA!)'
+                : '&#127783;&#65039; Tiro Check: PIOGGIA (Asfalto passa a Bagnato)';
+
+            buttonsContainer.innerHTML = `
+                <button class="btn btn-secondary" onclick="processWeatherCheck('sun')">${btnSunText}</button>
+                <button class="btn btn-secondary" onclick="processWeatherCheck('rain')">${btnRainText}</button>
+            `;
+        }
+
+        const modal = document.getElementById('modal-weather');
+        if (modal) modal.style.display = 'flex';
+    }
+};
+
+window.processWeatherCheck = function(newCheck) {
+    // Sfrutta la funzione robusta già presente in weather.js[cite: 23]
+    const risultato = eseguiControlloMeteoVariabile(newCheck);
+
+    if (!risultato.operazioneRiuscita) {
+        alert(risultato.messaggioDescrittivo);
+        return;
+    }
+
+    // Coerenza mescola in base allo stato asfalto risultante[cite: 23]
+    const isAsphaltWet = verificaSeAsfaltoBagnato();
+    if (!isAsphaltWet && gameState.selectedTyre === 'Pioggia') {
+        updateGameState({ selectedTyre: 'Prime' });
+    }
+
+    closeModal('modal-weather');
+
+    // Aggiorna gli elementi visivi del meteo nell'header della scheda
+    const weatherTextEl = document.getElementById('weather-text'); 
+    if (weatherTextEl) {
+        weatherTextEl.innerText = ottieniEtichettaMeteo(gameState.weather);
+    }
+    
+    const weatherIconEl = document.getElementById('weather-icon');
+    if (weatherIconEl) {
+        weatherIconEl.innerHTML = ottieniIconaMeteo(gameState.weather);
+    }
+
+    renderTyreDeck();
+    renderBoard();
+    saveGameState();
+
     alert(risultato.messaggioDescrittivo);
 };
 console.log("Lotus Cup 2k25: Script Main orchestrato e ripulito correttamente.");
