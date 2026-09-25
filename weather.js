@@ -159,8 +159,8 @@ export function ottieniIconaMeteo(codiceMeteo) {
     const iconeMeteo = {
         'sun': '&#9728;&#65039;',       // Sole fisso (☀️)
         'rain': '&#127783;&#65039;',     // Pioggia fissa (🌧️)
-        'var_dry': '&#9928;&#65039;',   // Sole con nuvola per Variabile Asciutto (⛅)
-        'var_wet': '&#9928;&#65039;'    // Sole con nuvola per Variabile Bagnato (⛅)
+        'var_dry': '&#9925;',          // Sole dietro la nuvola per Variabile Asciutto (⛅)
+        'var_wet': '&#127783;&#65039;'   // Nuvola con pioggia per Variabile Bagnato (🌧️)
     };
     return iconeMeteo[codiceMeteo] || '&#9728;&#65039;';
 }
