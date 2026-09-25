@@ -30,12 +30,14 @@ export function gestisciUsuraTelaio(indiceCasellaSelezionata) {
     let alettoneDanneggiatoAggiornato = gameState.alettoneDanneggiato || false;
 
     const usureEffettive = arrayUsureTelaioCorrente.filter(i => i !== wingBoxIndex);
+    let indiceModificato = -1;
 
     if (laCasellaContieneGiaUnaX && usureEffettive.length > 0) {
         const indiceDaRimuovere = Math.max(...usureEffettive);
         const pos = arrayUsureTelaioCorrente.indexOf(indiceDaRimuovere);
         if (pos !== -1) {
             arrayUsureTelaioCorrente.splice(pos, 1);
+            indiceModificato = indiceDaRimuovere;
         }
     } else {
         let indiceSinistraDisponibile = -1;
@@ -48,6 +50,7 @@ export function gestisciUsuraTelaio(indiceCasellaSelezionata) {
         }
         if (indiceSinistraDisponibile !== -1) {
             arrayUsureTelaioCorrente.push(indiceSinistraDisponibile);
+            indiceModificato = indiceSinistraDisponibile;
         }
     }
 
@@ -75,6 +78,7 @@ export function gestisciUsuraTelaio(indiceCasellaSelezionata) {
     return {
         operazioneRiuscita: true,
         usureTelaioAggiornate: arrayUsureTelaioCorrente,
+        indiceModificato: indiceModificato,
         messaggioDescrittivo: messaggioAllertaCritica || "Telaio aggiornato con successo."
     };
 }
