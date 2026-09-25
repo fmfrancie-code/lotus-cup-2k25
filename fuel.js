@@ -20,13 +20,14 @@ export function gestisciConsumoBenzinaEModifica(indiceCasellaBenzinaSelezionata)
     let messaggioAvvisoUtente = "";
     let stringaMovimentoAttiva = "+0 MOV";
 
-    if (laCasellaContieneGiaUnaX) {
-        const indiceDaRimuovere = arrayCaselleBenzinaCorrente.indexOf(indiceCasellaBenzinaSelezionata);
-        if (indiceDaRimuovere !== -1) {
-            arrayCaselleBenzinaCorrente.splice(indiceDaRimuovere, 1);
+    if (laCasellaContieneGiaUnaX && arrayCaselleBenzinaCorrente.length > 0) {
+        // Rimozione LIFO automatica (indice minimo)
+        const indiceDaRimuovere = Math.min(...arrayCaselleBenzinaCorrente);
+        const pos = arrayCaselleBenzinaCorrente.indexOf(indiceDaRimuovere);
+        if (pos !== -1) {
+            arrayCaselleBenzinaCorrente.splice(pos, 1);
         }
     } else {
-        // Regola geometrica per le sezioni di sinistra: inserimento da destra verso sinistra
         let indiceDestraDisponibile = -1;
         for (let i = totaleCaselleDisponibiliBenzina - 1; i >= 0; i--) {
             if (!arrayCaselleBenzinaCorrente.includes(i)) {
