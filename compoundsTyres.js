@@ -108,7 +108,6 @@ export function renderTyreDeck() {
     const tyres = ['Prime', 'Option', 'Intermedie', 'Pioggia'];
 
     const isWet = verificaSeAsfaltoBagnato();
-    const isVariableWeather = (gameState.weather === 'var_dry' || gameState.weather === 'var_wet');
     const isInspecting = typeof inspectingPilotId !== 'undefined' && inspectingPilotId !== null;
 
     tyres.forEach(t => {
@@ -130,13 +129,14 @@ export function renderTyreDeck() {
             }
         }
 
-        // --- REGOLA VARIABILE ---
-        // Se il tempo è VARIABILE e la gomma è quella attualmente montata/selezionata, 
-        // non viene disabilitata dal meteo transitorio. Con tempo fisso, invece, valgono i blocchi rigidi.
-        if (isVariableWeather && isSelected) {
+        // --- REGOLA DEFINITIVA GOMMA ATTUALE IN PISTA ---
+        // Se la gomma è quella attualmente montata e in uso sulla vettura, 
+        // non viene MAI disabilitata dal meteo (anche se il meteo da variabile si è stabilizzato su fisso). 
+        // Resterà attiva finché il pilota non rientrerà ai box per sceglierne una nuova.
+        if (isSelected) {
             isDisabledByWeather = false;
         }
-        // -------------------------
+        // ------------------------------------------------
 
         const card = document.createElement('div');
         card.className = `tyre-card ${isSelected ? 'active' : ''} ${isDisabledByWeather ? 'disabled-weather' : ''}`;
@@ -175,12 +175,13 @@ export function renderTyreDeck() {
                     }
                 }
             }
+
             const classList = [
                 'lap-box',
                 isMarked ? 'marked' : '',
                 (!isMarked && isPreSelectedStyle) ? 'pre-selected' : '',
                 isClickable ? 'clickable' : 'disabled'
-            ].filter(Boolean).join(' ');
+            ].filter(Boolean).join(' '); // Assicurati di mantenere lo spazio ' '
 
             lapsHtml += `<div class="${classList}" ${isClickable ? `onclick="handleTyreClick('${t}',${lap})"` : ''}>${lap}</div>`;
         });
