@@ -108,12 +108,14 @@ export function renderTyreDeck() {
     const tyres = ['Prime', 'Option', 'Intermedie', 'Pioggia'];
 
     const isWet = verificaSeAsfaltoBagnato();
+    const isVariableWeather = (gameState.weather === 'var_dry' || gameState.weather === 'var_wet');
     const isInspecting = typeof inspectingPilotId !== 'undefined' && inspectingPilotId !== null;
 
     tyres.forEach(t => {
         const isSelected = gameState.selectedTyre === t;
         let isDisabledByWeather = false;
 
+        // Regola meteo standard
         if (t === 'Intermedie') {
             isDisabledByWeather = false;
         } else if (gameState.weather === 'sun') {
@@ -127,6 +129,14 @@ export function renderTyreDeck() {
                 if (t === 'Pioggia') isDisabledByWeather = true;
             }
         }
+
+        // --- REGOLA VARIABILE ---
+        // Se il tempo è VARIABILE e la gomma è quella attualmente montata/selezionata, 
+        // non viene disabilitata dal meteo transitorio. Con tempo fisso, invece, valgono i blocchi rigidi.
+        if (isVariableWeather && isSelected) {
+            isDisabledByWeather = false;
+        }
+        // -------------------------
 
         const card = document.createElement('div');
         card.className = `tyre-card ${isSelected ? 'active' : ''} ${isDisabledByWeather ? 'disabled-weather' : ''}`;
@@ -149,21 +159,15 @@ export function renderTyreDeck() {
                     }
                 } else if (gameState.isRaceMode) {
                     if (gameState.isPitStopActive && isSelected) {
-                        // Verifica se il tick è storico (già presente prima di entrare in questo Pit Stop)
                         const initialLaps = gameState.pitStopInitialTyreLaps || {};
                         const isHistorical = initialLaps[t] && initialLaps[t].includes(lap);
 
-                        // Il tick 1 e tutti i tick storici delle soste passate sono intoccabili (immutabili)
                         if (lap !== 1 && !isHistorical) {
-                            // Se stiamo valutando il tick 2, ma c'è un tick 3 attivo altrove sulla plancia, bloccalo globalmente
                             let globalBlock = (lap === 2 && isLapMarkedAnywhere(3));
-
-                            // Verifica se lo stesso tick è già marcato su un'altra mescola
                             const sameLapMarkedElsewhere = Object.keys(gameState.tyreLaps).some(
                                 tyre => tyre !== t && gameState.tyreLaps[tyre].includes(lap)
                             );
 
-                            // Cliccabile se è già segnato oppure se rispetta tutti i filtri e blocchi
                             if (isMarked || (!globalBlock && !sameLapMarkedElsewhere && !lapUsedAnywhere)) {
                                 isClickable = true;
                             }
@@ -171,13 +175,12 @@ export function renderTyreDeck() {
                     }
                 }
             }
-
             const classList = [
                 'lap-box',
                 isMarked ? 'marked' : '',
                 (!isMarked && isPreSelectedStyle) ? 'pre-selected' : '',
                 isClickable ? 'clickable' : 'disabled'
-            ].filter(Boolean).join(' ');
+            ].filter(Boolean).join(';');
 
             lapsHtml += `<div class="${classList}" ${isClickable ? `onclick="handleTyreClick('${t}',${lap})"` : ''}>${lap}</div>`;
         });
