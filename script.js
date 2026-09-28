@@ -296,12 +296,6 @@ window.processWeatherCheck = function(newCheck) {
         return;
     }
 
-    // Coerenza mescola in base allo stato asfalto risultante[cite: 23]
-    const isAsphaltWet = verificaSeAsfaltoBagnato();
-    if (!isAsphaltWet && gameState.selectedTyre === 'Pioggia') {
-        updateGameState({ selectedTyre: 'Prime' });
-    }
-
     closeModal('modal-weather');
 
     // Aggiorna gli elementi visivi del meteo nell'header della scheda
