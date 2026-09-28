@@ -68,11 +68,17 @@ export function gestisciAvvioPitStop(numeroGiro) {
             btnEdit.classList.add('btn-pitstop-mode');
             btnEdit.style.pointerEvents = 'none';
             btnEdit.style.cursor = 'default';
-            // Stile coordinato con il pulsante "Conferma Uscita Box"
             btnEdit.style.color = '#ff2a8d';
             btnEdit.style.borderColor = '#ff2a8d';
             btnEdit.style.background = 'rgba(255, 42, 141, 0.1)';
         }
+
+        // --- AGGIUNTA PER NASCONDERE IL TEST METEO AI BOX ---
+        const weatherTestBtn = document.getElementById('btn-weather-test');
+        if (weatherTestBtn) {
+            weatherTestBtn.style.display = 'none';
+        }
+        // ----------------------------------------------------
 
         renderTyreDeck(); // Sblocca i tick 2 e 3
         renderBoard();
@@ -101,6 +107,13 @@ export function gestisciUscitaBox() {
         if (btnPitStop) {
             btnPitStop.style.display = 'none';
         }
+
+        // Nasconde il test meteo all'uscita dai box (poiché la fase di edit si richiude)
+        const weatherTestBtn = document.getElementById('btn-weather-test');
+        if (weatherTestBtn) {
+            weatherTestBtn.style.display = 'none';
+        }
+        // ---------------------------
 
         renderTyreDeck();      
         renderWorkshopUI();    
