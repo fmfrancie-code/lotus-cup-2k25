@@ -95,7 +95,7 @@ export function gestisciUscitaBox() {
         // Ripristina graficamente il pulsante di edit nello stato bloccato (Read Mode)
         const btnEdit = document.getElementById('btn-toggle-edit');
         if (btnEdit) {
-            btnEdit.innerText = "Modalità edit attiva (clicca per sbloccare)";
+            btnEdit.innerText = "Modalità edit bloccata(clicca per sbloccare)";
             btnEdit.classList.remove('btn-edit-mode', 'btn-pitstop-mode');
             btnEdit.classList.add('btn-read-mode');
             btnEdit.style.opacity = '1';
