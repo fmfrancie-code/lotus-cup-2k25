@@ -5,13 +5,7 @@
 
 import { applyTheme, inizializzaLayout } from './layout.js';
 import { gameState, updateGameState } from './state.js';
-import { 
-inizializzaMeteoGara, 
-    ottieniEtichettaMeteo, 
-    ottieniIconaMeteo,
-    eseguiControlloMeteoVariabile, 
-    verificaSeAsfaltoBagnato
-} from './weather.js';
+import { inizializzaMeteoGara, ottieniEtichettaMeteo, ottieniIconaMeteo, eseguiControlloMeteoVariabile, verificaSeAsfaltoBagnato } from './weather.js';
 import { 
     inizializzaSchedaPilota, 
     ufficializzaSchedaPerGara, 
@@ -25,6 +19,7 @@ import {
     gestisciAvvioPitStop,
     gestisciUscitaBox
 } from './mainSchedaController.js';
+import { formattaEOrdinaGrigliaPiloti, attivaModalitaIspezioneAvversario, aggiornaTelemetria } from './telemetryGrid.js';
 
 // ---- ESPOSIZIONE GLOBALE PER I PULSANTI HTML (onclick) ----
 window.selectTyre = selectTyreFromUI;
@@ -323,4 +318,43 @@ window.processWeatherCheck = function(newCheck) {
     
     alert(risultato.messaggioDescrittivo);
 };
+
+// --- GESTIONE ISPEZIONE SCHEDE AVVERSARI (SCOUTING) ---
+
+window.inspectPilotBoard = function(pilotId) {
+    // Simulazione o recupero dei dati dell'avversario dalla stanza attiva
+    const elencoSimulatoAvversari = window.currentRoomPilots || []; 
+    
+    const risultato = attivaModalitaIspezioneAvversario(pilotId, elencoSimulatoAvversari);
+
+    if (!risultato.operazioneRiuscita) {
+        // Fallback visivo di cortesia se i dati di rete non sono ancora agganciati
+        const banner = document.getElementById('inspection-banner');
+        const nameSpan = document.getElementById('inspecting-pilot-name');
+        if (banner && nameSpan) {
+            nameSpan.innerText = "Pilota Avversario (ID: " + pilotId + ")";
+            banner.style.display = 'block';
+        }
+        return;
+    }
+
+    const banner = document.getElementById('inspection-banner');
+    const nameSpan = document.getElementById('inspecting-pilot-name');
+    if (banner && nameSpan) {
+        nameSpan.innerText = risultato.nomeAvversarioIspezionato;
+        banner.style.display = 'block';
+    }
+
+    console.log(risultato.messaggioDescrittivo);
+};
+
+window.returnToMyBoard = function() {
+    const banner = document.getElementById('inspection-banner');
+    if (banner) {
+        banner.style.display = 'none';
+    }
+    // Ripristina il rendering della plancia locale
+    renderBoard();
+};
+
 console.log("Lotus Cup 2k25: Script Main orchestrato e ripulito correttamente.");
