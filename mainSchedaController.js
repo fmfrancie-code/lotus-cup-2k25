@@ -114,6 +114,10 @@ export function gestisciUscitaBox() {
             weatherTestBtn.style.display = 'none';
         }
         // ---------------------------
+        
+        updateGameState({
+            sheetStatus: "Aggiornato" // <--- Aggiornato al completamento della sosta
+        });
 
         renderTyreDeck();      
         renderWorkshopUI();    
@@ -139,7 +143,8 @@ export function ufficializzaSchedaPerGara() {
         isSetupMode: false,
         isRaceMode: true,
         isEditingAllowed: false,
-        isReady: true
+        isReady: true,
+        sheetStatus: "Aggiornato"
     });
 
     return {
@@ -188,6 +193,12 @@ export function gestisciModificaUsuraInGara(tipoComponente, indiceCasella) {
         default:
             return { operazioneRiuscita: false, messaggioDescrittivo: "Componente non gestito." };
     }
+
+    // --- AGGIUNTA PER LO STATO AGGIORNATO ---
+    if (res && res.operazioneRiuscita) {
+        updateGameState({ sheetStatus: "Aggiornato" });
+    }
+    // ----------------------------------------
 
     // GESTIONE PIT STOP: Registriamo l'indice EFFETTIVO rimosso (res.indiceModificato) anziché quello cliccato
     const componentiRiparabiliInOfficina = ['brakes', 'body', 'engine', 'suspension'];
@@ -499,7 +510,9 @@ export function toggleWing() {
         isWingActive = false;
     }
        
-    updateGameState({ alettoneAttivo: isWingActive });
+    updateGameState({ 
+        alettoneAttivo: isWingActive
+    });
     renderBoard();
 }
 
