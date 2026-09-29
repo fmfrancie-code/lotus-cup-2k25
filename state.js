@@ -28,12 +28,13 @@ export let gameState = {
     workshopUsages: [],
     workshopStartCount: 0,
     pitStopStartLap: null,
-    isReady: false
+    isReady: false,
+    sheetStatus: "In Compilazione"
 };
 
 /**
  * Aggiorna parzialmente o totalmente lo stato globale del gioco.
- * @param {Object} newState - ProprietÃ  da aggiornare nello stato
+ * @param {Object} newState - ProprietÃƒÂ  da aggiornare nello stato
  */
 export function updateGameState(newState) {
     gameState = { ...gameState, ...newState };
@@ -57,7 +58,7 @@ export function saveGameState() {
  * Carica lo stato dal localStorage se esiste una sessione salvata.
  * @param {string} code - Codice della stanza
  * @param {string} playerId - ID univoco del giocatore
- * @returns {boolean} - True se il caricamento Ã¨ riuscito, false altrimenti
+ * @returns {boolean} - True se il caricamento ÃƒÂ¨ riuscito, false altrimenti
  */
 export function loadGameState(code, playerId) {
     try {
@@ -77,7 +78,7 @@ export function loadGameState(code, playerId) {
  * Resetta lo stato globale ai valori iniziali di default.
  */
 export function resetGameState() {
-    gameState = {
+gameState = {
         code: null, circuit: '', host: '', date: '', playerName: '', playerId: '',
         theme: 'ironman', isSetupMode: false, isRaceMode: false, isEditingAllowed: false,
         isPitStopActive: false, weather: 'var_dry', budget: 13, weatherLastCheck: null,
@@ -85,6 +86,7 @@ export function resetGameState() {
         wingActive: false, kersState: 'empty', baseValues: { tyres: 4, brakes: 2, fuel: 2, body: 2, engine: 2, suspension: 1 },
         allocations: { tyres: 0, brakes: 0, fuel: 0, body: 0, engine: 0, suspension: 0 },
         markedUsages: { tyres: [], brakes: [], fuel: [], body: [], engine: [], suspension: [] },
-        workshopUsages: [], workshopStartCount: 0, pitStopStartLap: null, isReady: false
+        workshopUsages: [], workshopStartCount: 0, pitStopStartLap: null, isReady: false,
+        sheetStatus: "In Compilazione"
     };
 }
