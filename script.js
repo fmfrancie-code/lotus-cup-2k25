@@ -95,6 +95,7 @@ window.createGame = function() {
     
     renderTyreDeck();
     renderBoard();
+    window.refreshOpponentsList();
 };
 
 window.startConfiguration = function() {
@@ -144,6 +145,7 @@ window.officializeSetup = function() {
     if (raceControls) raceControls.style.display = 'flex';
 
     renderBoard(); // Ridisegna la plancia chiudendo la fase di setup e sbloccando la gara
+    window.refreshOpponentsList();
     alert(risultato.messaggioDescrittivo);
 };
 
@@ -166,6 +168,7 @@ document.addEventListener("DOMContentLoaded", () => {
     inizializzaLayout();
     renderTyreDeck();
     renderBoard();
+    window.refreshOpponentsList();
 });
 
 
@@ -355,6 +358,25 @@ window.returnToMyBoard = function() {
     }
     // Ripristina il rendering della plancia locale
     renderBoard();
+};
+
+// --- GESTIONE AGGIORNAMENTO TELEMETRIA E PILOTI ---
+
+window.refreshOpponentsList = function() {
+    // Recupera la lista dei piloti attivi (se gestita via multiplayer o simulata)
+    // Se non ci sono ancora altri giocatori, mostra almeno il giocatore locale nello stato attuale
+    const giocatoreLocale = {
+        id: gameState.playerId || 'local_player',
+        name: gameState.playerName || gameState.host || 'Pilota',
+        sheetStatus: gameState.sheetStatus || 'In Compilazione',
+        boardData: gameState
+    };
+
+    const pilotiStanza = window.currentRoomPilots && window.currentRoomPilots.length > 0 
+        ? window.currentRoomPilots 
+        : [giocatoreLocale];
+
+    aggiornaTelemetria(pilotiStanza);
 };
 
 console.log("Lotus Cup 2k25: Script Main orchestrato e ripulito correttamente.");
