@@ -186,19 +186,13 @@ window.officializeSetup = function() {
 };
 
 let stanzaSelezionataJoin = null;
-window.openJoinGameScreen = function() {
-    window.showScreen('screen-join-game');
-    
-    // Richiede la lista aggiornata delle stanze direttamente al server
-    richiediListaStanze();
-
+// Funzione globale per disegnare o aggiornare la lista delle stanze attive
+window.renderLobbiesContainer = function() {
     const containerLobbies = document.getElementById('lobbies-list-container');
     const joinFormSection = document.getElementById('join-form-section');
-    if (joinFormSection) joinFormSection.style.display = 'none';
     if (!containerLobbies) return;
 
     containerLobbies.innerHTML = '';
-    // Legge esclusivamente dal server tramite network.js
     const stanzeAttive = window.activeRoomsFromServer || [];
 
     if (stanzeAttive.length === 0) {
@@ -211,7 +205,6 @@ window.openJoinGameScreen = function() {
         card.className = 'lobby-card';
         
         const sonoHost = (stanza.hostId === gameState.playerId); 
-
         const iconaMeteoHtml = ottieniIconaMeteo(stanza.weather);
         const etichettaMeteo = ottieniEtichettaMeteo(stanza.weather);
 
@@ -244,6 +237,17 @@ window.openJoinGameScreen = function() {
 
         containerLobbies.appendChild(card);
     });
+};
+
+window.openJoinGameScreen = function() {
+    window.showScreen('screen-join-game');
+    
+    const joinFormSection = document.getElementById('join-form-section');
+    if (joinFormSection) joinFormSection.style.display = 'none';
+
+    // Disegna subito lo stato attuale e richiede i dati aggiornati al server
+    window.renderLobbiesContainer();
+    richiediListaStanze();
 };
 
 window.loadSavedGameModal = function() {
