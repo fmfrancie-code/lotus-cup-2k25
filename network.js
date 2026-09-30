@@ -3,7 +3,6 @@ import { aggiornaTelemetria } from './telemetryGrid.js';
 
 let socket = null;
 
-// Variabile globale per memorizzare le stanze ricevute dal server
 window.activeRoomsFromServer = [];
 
 export function inizializzaConnessioneServer() {
@@ -16,9 +15,12 @@ export function inizializzaConnessioneServer() {
         }
     });
 
-    // Riceve la lista aggiornata di tutte le stanze attive sul server
+    // Aggiorna i dati e forza il refresh visivo se la funzione di rendering esiste
     socket.on('rooms_list_update', (rooms) => {
         window.activeRoomsFromServer = rooms;
+        if (typeof window.renderLobbiesContainer === 'function') {
+            window.renderLobbiesContainer();
+        }
     });
 
     socket.on('room_closed', (data) => {
