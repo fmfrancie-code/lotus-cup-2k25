@@ -472,4 +472,57 @@ window.richiediEliminazioneStanza = function(roomCode) {
     // Ricarica la schermata di unione per aggiornare subito la lista a schermo
     window.openJoinGameScreen();
 };
+
+// --- GESTIONE INGRESSO NELLA STANZA SELEZIONATA (JOIN) ---
+
+window.joinGame = function() {
+    const nomeInserito = document.getElementById('input-player-name').value.trim();
+
+    if (!stanzaSelezionataJoin) {
+        alert("Seleziona una partita dalla lista prima di entrare!");
+        return;
+    }
+    if (!nomeInserito) {
+        alert("Inserisci il tuo nome pilota!");
+        return;
+    }
+
+    const uniquePlayerId = 'player_' + Date.now();
+
+    // Inizializza la scheda per il nuovo giocatore unito alla stanza
+    inizializzaSchedaPilota({
+        code: stanzaSelezionataJoin.code,
+        playerName: nomeInserito,
+        playerId: uniquePlayerId,
+        weather: stanzaSelezionataJoin.weather,
+        theme: gameState.theme
+    });
+
+    updateGameState({
+        circuit: stanzaSelezionataJoin.circuit,
+        host: stanzaSelezionataJoin.host,
+        weather: stanzaSelezionataJoin.weather,
+        isSetupMode: false
+    });
+
+    window.showScreen('screen-setup');
+
+    document.getElementById('display-circuit').innerText = stanzaSelezionataJoin.circuit.toUpperCase();
+    document.getElementById('display-meta').innerText = `Data: ${stanzaSelezionataJoin.date} | Pilota: ${nomeInserito}`;
+    document.getElementById('display-code').innerText = gameState.code;
+
+    const weatherTextEl = document.getElementById('weather-text'); 
+    if (weatherTextEl) {
+        weatherTextEl.innerText = ottieniEtichettaMeteo(stanzaSelezionataJoin.weather);
+    }
+    const weatherIconEl = document.getElementById('weather-icon');
+    if (weatherIconEl) {
+        weatherIconEl.innerHTML = ottieniIconaMeteo(stanzaSelezionataJoin.weather);
+    }
+
+    renderTyreDeck();
+    renderBoard();
+    window.refreshOpponentsList();
+};
+
 console.log("Lotus Cup 2k25: Script Main orchestrato e ripulito correttamente.");
