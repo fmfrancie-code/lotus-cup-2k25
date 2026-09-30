@@ -20,6 +20,14 @@ import {
     gestisciUscitaBox
 } from './mainSchedaController.js';
 import { formattaEOrdinaGrigliaPiloti, attivaModalitaIspezioneAvversario, aggiornaTelemetria } from './telemetryGrid.js';
+import { 
+    inizializzaConnessioneServer, 
+    richiediListaStanze, 
+    inviaCreazioneStanza, 
+    inviaIngressoStanza, 
+    inviaAggiornamentoStato, 
+    inviaEliminazioneStanza 
+} from './network.js';
 
 // ---- ESPOSIZIONE GLOBALE PER I PULSANTI HTML (onclick) ----
 window.selectTyre = selectTyreFromUI;
@@ -77,40 +85,33 @@ window.createGame = function() {
         circuit: circuit,
         host: host,
         weather: weather,
-        isSetupMode: false
+        isSetupMode: false,
+        code: roomCode,
+        playerId: uniquePlayerId,
+        playerName: host
     });
 
-    // --- SALVATAGGIO STANZA ATTIVA E PILOTI HOST ---
-    const giocatoreHost = {
-        id: uniquePlayerId,
-        name: host,
-        sheetStatus: 'In Compilazione',
-        boardData: gameState
-    };
-
-    const stanzaInfo = {
+    // Invia direttamente al server tramite network.js (zero localStorage)
+    inviaCreazioneStanza({
         code: roomCode,
         circuit: circuit,
         host: host,
         hostId: uniquePlayerId,
-        date: todayFormatted,
         weather: weather,
-        pilots: [giocatoreHost]
-    };
-    
-    let stanzeAttive = JSON.parse(localStorage.getItem('lotus_active_rooms') || '[]');
-    stanzeAttive = stanzeAttive.filter(s => s.code !== roomCode);
-    stanzeAttive.push(stanzaInfo);
-    localStorage.setItem('lotus_active_rooms', JSON.stringify(stanzeAttive));
-
-    window.currentRoomPilots = stanzaInfo.pilots;
-    // ----------------------------------------------
+        date: todayFormatted,
+        pilot: {
+            id: uniquePlayerId,
+            name: host,
+            sheetStatus: 'In Compilazione',
+            boardData: gameState
+        }
+    });
 
     window.showScreen('screen-setup');
     
     document.getElementById('display-circuit').innerText = circuit.toUpperCase();
     document.getElementById('display-meta').innerText = `Data: ${todayFormatted} | Pilota: ${host}`;
-    document.getElementById('display-code').innerText = gameState.code;
+    document.getElementById('display-code').innerText = roomCode;
     
     const weatherTextEl = document.getElementById('weather-text'); 
     if (weatherTextEl) {
@@ -124,7 +125,6 @@ window.createGame = function() {
     
     renderTyreDeck();
     renderBoard();
-    window.refreshOpponentsList();
 };
 
 window.startConfiguration = function() {
@@ -160,6 +160,14 @@ window.officializeSetup = function() {
         return;
     }
 
+    // Comunica al server il cambio di stato ("Aggiornato") in tempo reale
+    inviaAggiornamentoStato({
+        code: gameState.code,
+        pilotId: gameState.playerId,
+        sheetStatus: 'Aggiornato',
+        boardData: gameState
+    });
+
     const setupScreen = document.getElementById('screen-setup');
     if (setupScreen) {
         setupScreen.classList.remove('setup-active');
@@ -174,7 +182,6 @@ window.officializeSetup = function() {
     if (raceControls) raceControls.style.display = 'flex';
 
     renderBoard(); 
-    window.refreshOpponentsList();
     alert(risultato.messaggioDescrittivo);
 };
 
@@ -182,13 +189,17 @@ let stanzaSelezionataJoin = null;
 window.openJoinGameScreen = function() {
     window.showScreen('screen-join-game');
     
+    // Richiede la lista aggiornata delle stanze direttamente al server
+    richiediListaStanze();
+
     const containerLobbies = document.getElementById('lobbies-list-container');
     const joinFormSection = document.getElementById('join-form-section');
     if (joinFormSection) joinFormSection.style.display = 'none';
     if (!containerLobbies) return;
 
     containerLobbies.innerHTML = '';
-    const stanzeAttive = JSON.parse(localStorage.getItem('lotus_active_rooms') || '[]');
+    // Legge esclusivamente dal server tramite network.js
+    const stanzeAttive = window.activeRoomsFromServer || [];
 
     if (stanzeAttive.length === 0) {
         containerLobbies.innerHTML = `<p style="color: #a0aec0; text-align: center; font-size: 0.85rem;">Nessuna partita attiva trovata. Creane una nuova!</p>`;
@@ -250,6 +261,7 @@ document.addEventListener("DOMContentLoaded", () => {
     inizializzaLayout();
     renderTyreDeck();
     renderBoard();
+    inizializzaConnessioneServer(); // Avvia la connessione Socket.io con il server Render
     window.refreshOpponentsList();
 });
 
@@ -417,8 +429,6 @@ window.inspectPilotBoard = function(pilotId) {
         nameSpan.innerText = risultato.nomeAvversarioIspezionato;
         banner.style.display = 'block';
     }
-
-    console.log(risultato.messaggioDescrittivo);
 };
 
 window.returnToMyBoard = function() {
@@ -432,44 +442,31 @@ window.returnToMyBoard = function() {
 // --- GESTIONE AGGIORNAMENTO TELEMETRIA E PILOTI ---
 
 window.refreshOpponentsList = function() {
-    const codiceStanzaCorrente = gameState.code;
-    let pilotiStanza = [];
-
-    if (codiceStanzaCorrente) {
-        const stanzeAttive = JSON.parse(localStorage.getItem('lotus_active_rooms') || '[]');
-        const stanzaTrovata = stanzeAttive.find(s => s.code === codiceStanzaCorrente);
-        if (stanzaTrovata && stanzaTrovata.pilots) {
-            pilotiStanza = stanzaTrovata.pilots;
-            window.currentRoomPilots = pilotiStanza;
-        }
-    }
-
-    if (!pilotiStanza || pilotiStanza.length === 0) {
-        pilotiStanza = [{
+    const pilotiStanza = window.currentRoomPilots && window.currentRoomPilots.length > 0 
+        ? window.currentRoomPilots 
+        : [{
             id: gameState.playerId || 'local_player',
             name: gameState.playerName || gameState.host || 'Pilota',
             sheetStatus: gameState.sheetStatus || 'In Compilazione',
             boardData: gameState
         }];
-    }
 
     aggiornaTelemetria(pilotiStanza);
 };
 
-// --- GESTIONE ELIMINAZIONE STANZA (CONFERMA HOST) ---
+// --- GESTIONE ELIMINAZIONE STANZA (VIA SERVER) ---
 
 window.richiediEliminazioneStanza = function(roomCode) {
     const conferma = confirm("Sei sicuro di voler cancellare la gara?");
     if (!conferma) return;
 
-    let stanzeAttive = JSON.parse(localStorage.getItem('lotus_active_rooms') || '[]');
-    stanzeAttive = stanzeAttive.filter(s => s.code !== roomCode);
-    localStorage.setItem('lotus_active_rooms', JSON.stringify(stanzeAttive));
-
-    window.openJoinGameScreen();
+    inviaEliminazioneStanza({
+        code: roomCode,
+        playerId: gameState.playerId
+    });
 };
 
-// --- GESTIONE INGRESSO NELLA STANZA SELEZIONATA (JOIN) ---
+// --- GESTIONE INGRESSO NELLA STANZA SELEZIONATA (JOIN VIA SERVER) ---
 
 window.joinGame = function() {
     const nomeInserito = document.getElementById('input-player-name').value.trim();
@@ -497,35 +494,28 @@ window.joinGame = function() {
         circuit: stanzaSelezionataJoin.circuit,
         host: stanzaSelezionataJoin.host,
         weather: stanzaSelezionataJoin.weather,
-        isSetupMode: false
+        isSetupMode: false,
+        code: stanzaSelezionataJoin.code,
+        playerId: uniquePlayerId,
+        playerName: nomeInserito
     });
 
-    // --- AGGIORNAMENTO LISTA PILOTI NELLA STANZA CONDIVISA ---
-    let stanzeAttive = JSON.parse(localStorage.getItem('lotus_active_rooms') || '[]');
-    const stanzaCorrente = stanzeAttive.find(s => s.code === stanzaSelezionataJoin.code);
-    
-    const nuovoPilota = {
-        id: uniquePlayerId,
-        name: nomeInserito,
-        sheetStatus: 'In Compilazione',
-        boardData: gameState
-    };
-
-    if (stanzaCorrente) {
-        if (!stanzaCorrente.pilots) stanzaCorrente.pilots = [];
-        stanzaCorrente.pilots = stanzaCorrente.pilots.filter(p => p.name !== nomeInserito);
-        stanzaCorrente.pilots.push(nuovoPilota);
-        
-        localStorage.setItem('lotus_active_rooms', JSON.stringify(stanzeAttive));
-        window.currentRoomPilots = stanzaCorrente.pilots;
-    }
-    // --------------------------------------------------------
+    // Invia l'ingresso al server tramite network.js
+    inviaIngressoStanza({
+        code: stanzaSelezionataJoin.code,
+        pilot: {
+            id: uniquePlayerId,
+            name: nomeInserito,
+            sheetStatus: 'In Compilazione',
+            boardData: gameState
+        }
+    });
 
     window.showScreen('screen-setup');
 
     document.getElementById('display-circuit').innerText = stanzaSelezionataJoin.circuit.toUpperCase();
     document.getElementById('display-meta').innerText = `Data: ${stanzaSelezionataJoin.date} | Pilota: ${nomeInserito}`;
-    document.getElementById('display-code').innerText = gameState.code;
+    document.getElementById('display-code').innerText = stanzaSelezionataJoin.code;
 
     const weatherTextEl = document.getElementById('weather-text'); 
     if (weatherTextEl) {
@@ -538,7 +528,6 @@ window.joinGame = function() {
 
     renderTyreDeck();
     renderBoard();
-    window.refreshOpponentsList();
 };
 
-console.log("Lotus Cup 2k25: Script Main orchestrato e ripulito correttamente.");
+console.log("Lotus Cup 2k25: Script Main orchestrato con server remoto su Render.");
