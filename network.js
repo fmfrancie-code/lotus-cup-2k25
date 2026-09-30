@@ -7,7 +7,7 @@ let socket = null;
 window.activeRoomsFromServer = [];
 
 export function inizializzaConnessioneServer() {
-    socket = io('https://tuo-servizio.onrender.com');
+    socket = io('https://lotus-cup-server.onrender.com');
 
     socket.on('room_update', (roomData) => {
         if (roomData && roomData.pilots) {
@@ -22,7 +22,7 @@ export function inizializzaConnessioneServer() {
     });
 
     socket.on('room_closed', (data) => {
-        alert(data.message || "La stanza è stata chiusa.");
+        alert(data.message || "La stanza Ã¨ stata chiusa.");
         window.showScreen('screen-home');
     });
 
