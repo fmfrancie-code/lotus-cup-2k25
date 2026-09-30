@@ -80,21 +80,31 @@ window.createGame = function() {
         isSetupMode: false
     });
 
-    // --- SALVATAGGIO STANZA ATTIVA PER IL JOIN E RICONOSCIMENTO HOST ---
+    // --- SALVATAGGIO STANZA ATTIVA E PILOTI HOST ---
+    const giocatoreHost = {
+        id: uniquePlayerId,
+        name: host,
+        sheetStatus: 'In Compilazione',
+        boardData: gameState
+    };
+
     const stanzaInfo = {
         code: roomCode,
         circuit: circuit,
         host: host,
-        hostId: uniquePlayerId, // Cruciale per abilitare il tasto Elimina solo al creatore
+        hostId: uniquePlayerId,
         date: todayFormatted,
-        weather: weather
+        weather: weather,
+        pilots: [giocatoreHost]
     };
     
     let stanzeAttive = JSON.parse(localStorage.getItem('lotus_active_rooms') || '[]');
     stanzeAttive = stanzeAttive.filter(s => s.code !== roomCode);
     stanzeAttive.push(stanzaInfo);
     localStorage.setItem('lotus_active_rooms', JSON.stringify(stanzeAttive));
-    // -----------------------------------------------------------------
+
+    window.currentRoomPilots = stanzaInfo.pilots;
+    // ----------------------------------------------
 
     window.showScreen('screen-setup');
     
@@ -139,7 +149,7 @@ window.startConfiguration = function() {
     if (budgetCount) budgetCount.innerText = gameState.budget;
     
     renderTyreDeck();
-    renderBoard(); // Disegna la plancia con i click di setup abilitati
+    renderBoard();
 };
 
 window.officializeSetup = function() {
@@ -163,7 +173,7 @@ window.officializeSetup = function() {
     if (budgetBar) budgetBar.style.display = 'none';
     if (raceControls) raceControls.style.display = 'flex';
 
-    renderBoard(); // Ridisegna la plancia chiudendo la fase di setup e sbloccando la gara
+    renderBoard(); 
     window.refreshOpponentsList();
     alert(risultato.messaggioDescrittivo);
 };
@@ -189,34 +199,26 @@ window.openJoinGameScreen = function() {
         const card = document.createElement('div');
         card.className = 'lobby-card';
         
-        // Verifica se l'utente corrente è il creatore della stanza per abilitare il tasto Elimina
         const sonoHost = (stanza.hostId === gameState.playerId); 
 
-        // Recupera icona ed etichetta meteo salvate nella sessione
         const iconaMeteoHtml = ottieniIconaMeteo(stanza.weather);
         const etichettaMeteo = ottieniEtichettaMeteo(stanza.weather);
 
-        // Struttura verticale a 4 righe (Stile Monolite)
         card.innerHTML = `
             <div style="display: flex; flex-direction: column; gap: 3px; text-align: left; width: 100%;">
-                <!-- Riga 1: Nome del Circuito + Badge Meteo con Icona -->
                 <div style="display: flex; justify-content: space-between; align-items: center;">
                     <strong style="color: #00f0ff; font-family: 'Orbitron'; font-size: 0.95rem;">${stanza.circuit}</strong>
                     <span style="font-size: 0.75rem; color: #00f0ff; border: 1px solid rgba(0,240,255,0.4); padding: 2px 6px; border-radius: 4px; display: inline-flex; align-items: center; gap: 4px; background: rgba(0,240,255,0.08);">
                         ${iconaMeteoHtml} ${etichettaMeteo}
                     </span>
                 </div>
-                <!-- Riga 2: Data di creazione della gara (senza ora) -->
                 <div style="font-size: 0.8rem; color: #cbd5e1;">Data: ${stanza.date}</div>
-                <!-- Riga 3: Nome del creatore della gara -->
                 <div style="font-size: 0.8rem; color: #cbd5e1;">Host: ${stanza.host}</div>
-                <!-- Riga 4: Codice stanza in evidenza -->
                 <div style="font-family: 'Orbitron'; font-weight: bold; color: #ffb700; font-size: 0.85rem; margin-top: 2px;">ROOM: ${stanza.code}</div>
             </div>
             ${sonoHost ? `<button class="btn btn-danger" style="width: auto; padding: 6px 12px; margin: 0; font-size: 0.75rem;" onclick="richiediEliminazioneStanza('${stanza.code}')">Elimina</button>` : ''}
         `;
         
-        // Click sulla card per selezionare la stanza e procedere con l'inserimento del nome
         card.onclick = (e) => {
             if (e.target.tagName === 'BUTTON') return;
 
@@ -232,6 +234,7 @@ window.openJoinGameScreen = function() {
         containerLobbies.appendChild(card);
     });
 };
+
 window.loadSavedGameModal = function() {
     const modal = document.getElementById('modal-load-game');
     if (modal) modal.style.display = 'flex';
@@ -250,15 +253,13 @@ document.addEventListener("DOMContentLoaded", () => {
     window.refreshOpponentsList();
 });
 
-
 // Funzione globale collegata ai bottoni della modale KERS
 window.resolveKers = function(isDamaged) {
     const esitoStr = isDamaged ? 'damaged' : 'ok';
-    const risultato = gestisciTestKers(esitoStr); // Passa attraverso il main controller
+    const risultato = gestisciTestKers(esitoStr); 
 
     if (risultato.operazioneRiuscita) {
         if (!isDamaged) {
-            // Effetto visivo di scossione della casella KERS quando svuotata con successo
             const kersBox = document.getElementById('box-kers');
             if (kersBox) {
                 kersBox.classList.add('kers-shake');
@@ -271,7 +272,6 @@ window.resolveKers = function(isDamaged) {
     }
 };
 
-
 // --- GESTIONE INTERATTIVITÀ BOX (PIT STOP) ---
 
 window.handlePitStopButtonClick = function() {
@@ -282,7 +282,6 @@ window.handlePitStopButtonClick = function() {
 };
 
 window.confirmEnterPitStop = function() {
-    // Esempio: giro corrente impostato a 1 o recuperato dallo stato
     const giroCorrente = 1; 
     const risultato = gestisciAvvioPitStop(giroCorrente);
 
@@ -306,7 +305,6 @@ window.tentativoUscitaBox = function() {
     const risultato = gestisciUscitaBox();
 
     if (!risultato.operazioneRiuscita) {
-        // Se non è possibile uscire (es. manca lo stint 2 o 3), mostra l'avviso
         alert(risultato.messaggioDescrittivo);
         return;
     }
@@ -365,7 +363,6 @@ window.openWeatherModal = function() {
 };
 
 window.processWeatherCheck = function(newCheck) {
-    // Sfrutta la funzione robusta già presente in weather.js[cite: 23]
     const risultato = eseguiControlloMeteoVariabile(newCheck);
 
     if (!risultato.operazioneRiuscita) {
@@ -375,7 +372,6 @@ window.processWeatherCheck = function(newCheck) {
 
     closeModal('modal-weather');
 
-    // Aggiorna gli elementi visivi del meteo nell'header della scheda
     const weatherTextEl = document.getElementById('weather-text'); 
     if (weatherTextEl) {
         weatherTextEl.innerText = ottieniEtichettaMeteo(gameState.weather);
@@ -386,14 +382,11 @@ window.processWeatherCheck = function(newCheck) {
         weatherIconEl.innerHTML = ottieniIconaMeteo(gameState.weather);
     }
 
-    // --- AGGIUNTA CORRETTIVA ---
-    // Nasconde immediatamente il pulsante del test meteo se il meteo è diventato fisso
     const weatherTestBtn = document.getElementById('btn-weather-test');
     const isVariableWeather = (gameState.weather === 'var_dry' || gameState.weather === 'var_wet');
     if (weatherTestBtn && !isVariableWeather) {
         weatherTestBtn.style.display = 'none';
     }
-    // ---------------------------
 
     renderTyreDeck();
     renderBoard();
@@ -404,13 +397,11 @@ window.processWeatherCheck = function(newCheck) {
 // --- GESTIONE ISPEZIONE SCHEDE AVVERSARI (SCOUTING) ---
 
 window.inspectPilotBoard = function(pilotId) {
-    // Simulazione o recupero dei dati dell'avversario dalla stanza attiva
     const elencoSimulatoAvversari = window.currentRoomPilots || []; 
     
     const risultato = attivaModalitaIspezioneAvversario(pilotId, elencoSimulatoAvversari);
 
     if (!risultato.operazioneRiuscita) {
-        // Fallback visivo di cortesia se i dati di rete non sono ancora agganciati
         const banner = document.getElementById('inspection-banner');
         const nameSpan = document.getElementById('inspecting-pilot-name');
         if (banner && nameSpan) {
@@ -435,25 +426,32 @@ window.returnToMyBoard = function() {
     if (banner) {
         banner.style.display = 'none';
     }
-    // Ripristina il rendering della plancia locale
     renderBoard();
 };
 
 // --- GESTIONE AGGIORNAMENTO TELEMETRIA E PILOTI ---
 
 window.refreshOpponentsList = function() {
-    // Recupera la lista dei piloti attivi (se gestita via multiplayer o simulata)
-    // Se non ci sono ancora altri giocatori, mostra almeno il giocatore locale nello stato attuale
-    const giocatoreLocale = {
-        id: gameState.playerId || 'local_player',
-        name: gameState.playerName || gameState.host || 'Pilota',
-        sheetStatus: gameState.sheetStatus || 'In Compilazione',
-        boardData: gameState
-    };
+    const codiceStanzaCorrente = gameState.code;
+    let pilotiStanza = [];
 
-    const pilotiStanza = window.currentRoomPilots && window.currentRoomPilots.length > 0 
-        ? window.currentRoomPilots 
-        : [giocatoreLocale];
+    if (codiceStanzaCorrente) {
+        const stanzeAttive = JSON.parse(localStorage.getItem('lotus_active_rooms') || '[]');
+        const stanzaTrovata = stanzeAttive.find(s => s.code === codiceStanzaCorrente);
+        if (stanzaTrovata && stanzaTrovata.pilots) {
+            pilotiStanza = stanzaTrovata.pilots;
+            window.currentRoomPilots = pilotiStanza;
+        }
+    }
+
+    if (!pilotiStanza || pilotiStanza.length === 0) {
+        pilotiStanza = [{
+            id: gameState.playerId || 'local_player',
+            name: gameState.playerName || gameState.host || 'Pilota',
+            sheetStatus: gameState.sheetStatus || 'In Compilazione',
+            boardData: gameState
+        }];
+    }
 
     aggiornaTelemetria(pilotiStanza);
 };
@@ -464,12 +462,10 @@ window.richiediEliminazioneStanza = function(roomCode) {
     const conferma = confirm("Sei sicuro di voler cancellare la gara?");
     if (!conferma) return;
 
-    // Rimuove la stanza dal localStorage (in attesa del passaggio definitivo a Socket.io)
     let stanzeAttive = JSON.parse(localStorage.getItem('lotus_active_rooms') || '[]');
     stanzeAttive = stanzeAttive.filter(s => s.code !== roomCode);
     localStorage.setItem('lotus_active_rooms', JSON.stringify(stanzeAttive));
 
-    // Ricarica la schermata di unione per aggiornare subito la lista a schermo
     window.openJoinGameScreen();
 };
 
@@ -489,7 +485,6 @@ window.joinGame = function() {
 
     const uniquePlayerId = 'player_' + Date.now();
 
-    // Inizializza la scheda per il nuovo giocatore unito alla stanza
     inizializzaSchedaPilota({
         code: stanzaSelezionataJoin.code,
         playerName: nomeInserito,
@@ -504,6 +499,27 @@ window.joinGame = function() {
         weather: stanzaSelezionataJoin.weather,
         isSetupMode: false
     });
+
+    // --- AGGIORNAMENTO LISTA PILOTI NELLA STANZA CONDIVISA ---
+    let stanzeAttive = JSON.parse(localStorage.getItem('lotus_active_rooms') || '[]');
+    const stanzaCorrente = stanzeAttive.find(s => s.code === stanzaSelezionataJoin.code);
+    
+    const nuovoPilota = {
+        id: uniquePlayerId,
+        name: nomeInserito,
+        sheetStatus: 'In Compilazione',
+        boardData: gameState
+    };
+
+    if (stanzaCorrente) {
+        if (!stanzaCorrente.pilots) stanzaCorrente.pilots = [];
+        stanzaCorrente.pilots = stanzaCorrente.pilots.filter(p => p.name !== nomeInserito);
+        stanzaCorrente.pilots.push(nuovoPilota);
+        
+        localStorage.setItem('lotus_active_rooms', JSON.stringify(stanzeAttive));
+        window.currentRoomPilots = stanzaCorrente.pilots;
+    }
+    // --------------------------------------------------------
 
     window.showScreen('screen-setup');
 
