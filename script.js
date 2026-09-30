@@ -62,10 +62,13 @@ window.createGame = function() {
         year: 'numeric'
     });
 
+    const roomCode = Math.floor(1000 + Math.random() * 9000).toString();
+    const uniquePlayerId = 'player_' + Date.now();
+
     inizializzaSchedaPilota({
-        code: Math.floor(1000 + Math.random() * 9000).toString(),
+        code: roomCode,
         playerName: host,
-        playerId: 'player_' + Date.now(),
+        playerId: uniquePlayerId,
         weather: weather,
         theme: gameState.theme
     });
@@ -76,6 +79,22 @@ window.createGame = function() {
         weather: weather,
         isSetupMode: false
     });
+
+    // --- SALVATAGGIO STANZA ATTIVA PER IL JOIN E RICONOSCIMENTO HOST ---
+    const stanzaInfo = {
+        code: roomCode,
+        circuit: circuit,
+        host: host,
+        hostId: uniquePlayerId, // Cruciale per abilitare il tasto Elimina solo al creatore
+        date: todayFormatted,
+        weather: weather
+    };
+    
+    let stanzeAttive = JSON.parse(localStorage.getItem('lotus_active_rooms') || '[]');
+    stanzeAttive = stanzeAttive.filter(s => s.code !== roomCode);
+    stanzeAttive.push(stanzaInfo);
+    localStorage.setItem('lotus_active_rooms', JSON.stringify(stanzeAttive));
+    // -----------------------------------------------------------------
 
     window.showScreen('screen-setup');
     
@@ -149,10 +168,70 @@ window.officializeSetup = function() {
     alert(risultato.messaggioDescrittivo);
 };
 
+let stanzaSelezionataJoin = null;
 window.openJoinGameScreen = function() {
     window.showScreen('screen-join-game');
-};
+    
+    const containerLobbies = document.getElementById('lobbies-list-container');
+    const joinFormSection = document.getElementById('join-form-section');
+    if (joinFormSection) joinFormSection.style.display = 'none';
+    if (!containerLobbies) return;
 
+    containerLobbies.innerHTML = '';
+    const stanzeAttive = JSON.parse(localStorage.getItem('lotus_active_rooms') || '[]');
+
+    if (stanzeAttive.length === 0) {
+        containerLobbies.innerHTML = `<p style="color: #a0aec0; text-align: center; font-size: 0.85rem;">Nessuna partita attiva trovata. Creane una nuova!</p>`;
+        return;
+    }
+
+    stanzeAttive.forEach(stanza => {
+        const card = document.createElement('div');
+        card.className = 'lobby-card';
+        
+        // Verifica se l'utente corrente è il creatore della stanza per abilitare il tasto Elimina
+        const sonoHost = (stanza.hostId === gameState.playerId); 
+
+        // Recupera icona ed etichetta meteo salvate nella sessione
+        const iconaMeteoHtml = ottieniIconaMeteo(stanza.weather);
+        const etichettaMeteo = ottieniEtichettaMeteo(stanza.weather);
+
+        // Struttura verticale a 4 righe (Stile Monolite)
+        card.innerHTML = `
+            <div style="display: flex; flex-direction: column; gap: 3px; text-align: left; width: 100%;">
+                <!-- Riga 1: Nome del Circuito + Badge Meteo con Icona -->
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <strong style="color: #00f0ff; font-family: 'Orbitron'; font-size: 0.95rem;">${stanza.circuit}</strong>
+                    <span style="font-size: 0.75rem; color: #00f0ff; border: 1px solid rgba(0,240,255,0.4); padding: 2px 6px; border-radius: 4px; display: inline-flex; align-items: center; gap: 4px; background: rgba(0,240,255,0.08);">
+                        ${iconaMeteoHtml} ${etichettaMeteo}
+                    </span>
+                </div>
+                <!-- Riga 2: Data di creazione della gara (senza ora) -->
+                <div style="font-size: 0.8rem; color: #cbd5e1;">Data: ${stanza.date}</div>
+                <!-- Riga 3: Nome del creatore della gara -->
+                <div style="font-size: 0.8rem; color: #cbd5e1;">Host: ${stanza.host}</div>
+                <!-- Riga 4: Codice stanza in evidenza -->
+                <div style="font-family: 'Orbitron'; font-weight: bold; color: #ffb700; font-size: 0.85rem; margin-top: 2px;">ROOM: ${stanza.code}</div>
+            </div>
+            ${sonoHost ? `<button class="btn btn-danger" style="width: auto; padding: 6px 12px; margin: 0; font-size: 0.75rem;" onclick="richiediEliminazioneStanza('${stanza.code}')">Elimina</button>` : ''}
+        `;
+        
+        // Click sulla card per selezionare la stanza e procedere con l'inserimento del nome
+        card.onclick = (e) => {
+            if (e.target.tagName === 'BUTTON') return;
+
+            document.querySelectorAll('.lobby-card').forEach(c => c.classList.remove('selected'));
+            card.classList.add('selected');
+            stanzaSelezionataJoin = stanza;
+            
+            const labelStanza = document.getElementById('selected-room-label');
+            if (labelStanza) labelStanza.innerText = `${stanza.circuit} (Room: ${stanza.code})`;
+            if (joinFormSection) joinFormSection.style.display = 'block';
+        };
+
+        containerLobbies.appendChild(card);
+    });
+};
 window.loadSavedGameModal = function() {
     const modal = document.getElementById('modal-load-game');
     if (modal) modal.style.display = 'flex';
@@ -379,4 +458,18 @@ window.refreshOpponentsList = function() {
     aggiornaTelemetria(pilotiStanza);
 };
 
+// --- GESTIONE ELIMINAZIONE STANZA (CONFERMA HOST) ---
+
+window.richiediEliminazioneStanza = function(roomCode) {
+    const conferma = confirm("Sei sicuro di voler cancellare la gara?");
+    if (!conferma) return;
+
+    // Rimuove la stanza dal localStorage (in attesa del passaggio definitivo a Socket.io)
+    let stanzeAttive = JSON.parse(localStorage.getItem('lotus_active_rooms') || '[]');
+    stanzeAttive = stanzeAttive.filter(s => s.code !== roomCode);
+    localStorage.setItem('lotus_active_rooms', JSON.stringify(stanzeAttive));
+
+    // Ricarica la schermata di unione per aggiornare subito la lista a schermo
+    window.openJoinGameScreen();
+};
 console.log("Lotus Cup 2k25: Script Main orchestrato e ripulito correttamente.");
