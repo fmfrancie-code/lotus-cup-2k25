@@ -186,13 +186,19 @@ window.officializeSetup = function() {
 };
 
 let stanzaSelezionataJoin = null;
-// Funzione globale per disegnare o aggiornare la lista delle stanze attive
-window.renderLobbiesContainer = function() {
+window.openJoinGameScreen = function() {
+    window.showScreen('screen-join-game');
+    
+    // Richiede la lista aggiornata delle stanze direttamente al server
+    richiediListaStanze();
+
     const containerLobbies = document.getElementById('lobbies-list-container');
     const joinFormSection = document.getElementById('join-form-section');
+    if (joinFormSection) joinFormSection.style.display = 'none';
     if (!containerLobbies) return;
 
     containerLobbies.innerHTML = '';
+    // Legge esclusivamente dal server tramite network.js
     const stanzeAttive = window.activeRoomsFromServer || [];
 
     if (stanzeAttive.length === 0) {
@@ -205,6 +211,7 @@ window.renderLobbiesContainer = function() {
         card.className = 'lobby-card';
         
         const sonoHost = (stanza.hostId === gameState.playerId); 
+
         const iconaMeteoHtml = ottieniIconaMeteo(stanza.weather);
         const etichettaMeteo = ottieniEtichettaMeteo(stanza.weather);
 
@@ -237,17 +244,6 @@ window.renderLobbiesContainer = function() {
 
         containerLobbies.appendChild(card);
     });
-};
-
-window.openJoinGameScreen = function() {
-    window.showScreen('screen-join-game');
-    
-    const joinFormSection = document.getElementById('join-form-section');
-    if (joinFormSection) joinFormSection.style.display = 'none';
-
-    // Disegna subito lo stato attuale e richiede i dati aggiornati al server
-    window.renderLobbiesContainer();
-    richiediListaStanze();
 };
 
 window.loadSavedGameModal = function() {
@@ -417,6 +413,12 @@ window.inspectPilotBoard = function(pilotId) {
     
     const risultato = attivaModalitaIspezioneAvversario(pilotId, elencoSimulatoAvversari);
 
+    // 1. Nascondi i controlli di gara personali durante l'ispezione dell'avversario
+    const raceControls = document.getElementById('race-controls');
+    if (raceControls) {
+        raceControls.style.display = 'none';
+    }
+
     if (!risultato.operazioneRiuscita) {
         const banner = document.getElementById('inspection-banner');
         const nameSpan = document.getElementById('inspecting-pilot-name');
@@ -440,6 +442,13 @@ window.returnToMyBoard = function() {
     if (banner) {
         banner.style.display = 'none';
     }
+
+    // 2. Ripristina i controlli di gara se l'utente ha già superato la fase di setup iniziale
+    const raceControls = document.getElementById('race-controls');
+    if (raceControls && !gameState.isSetupMode && gameState.sheetStatus === 'Aggiornato') {
+        raceControls.style.display = 'flex';
+    }
+
     renderBoard();
 };
 
