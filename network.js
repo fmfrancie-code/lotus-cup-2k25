@@ -12,10 +12,17 @@ export function inizializzaConnessioneServer() {
         if (roomData && roomData.pilots) {
             window.currentRoomPilots = roomData.pilots;
             aggiornaTelemetria(roomData.pilots);
+
+            // Se stiamo ispezionando un pilota e lui aggiorna la scheda, rinfreschiamo la plancia live!
+            if (window.inspectedPilotId) {
+                const pilotaIspezionato = roomData.pilots.find(p => p.id === window.inspectedPilotId);
+                if (pilotaIspezionato && typeof window.renderBoardAvversario === 'function') {
+                    window.renderBoardAvversario(pilotaIspezionato.boardData);
+                }
+            }
         }
     });
 
-    // Aggiorna i dati e forza il refresh visivo se la funzione di rendering esiste
     socket.on('rooms_list_update', (rooms) => {
         window.activeRoomsFromServer = rooms;
         if (typeof window.renderLobbiesContainer === 'function') {
