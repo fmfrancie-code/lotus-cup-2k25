@@ -4,7 +4,7 @@
 // ==========================================
 
 import { applyTheme, inizializzaLayout } from './layout.js';
-import { gameState, updateGameState } from './state.js';
+import { gameState, updateGameState, loadGameState } from './state.js';
 import { inizializzaMeteoGara, ottieniEtichettaMeteo, ottieniIconaMeteo, eseguiControlloMeteoVariabile, verificaSeAsfaltoBagnato } from './weather.js';
 import { 
     inizializzaSchedaPilota, 
@@ -28,6 +28,9 @@ import {
     inviaAggiornamentoStato, 
     inviaEliminazioneStanza 
 } from './network.js';
+
+// ---- VARIABILI GLOBALI PER LO SCOUTING ----
+window.inspectedPilotId = null;
 
 // ---- ESPOSIZIONE GLOBALE PER I PULSANTI HTML (onclick) ----
 window.selectTyre = selectTyreFromUI;
@@ -91,7 +94,6 @@ window.createGame = function() {
         playerName: host
     });
 
-    // Invia direttamente al server tramite network.js (zero localStorage)
     inviaCreazioneStanza({
         code: roomCode,
         circuit: circuit,
@@ -160,7 +162,6 @@ window.officializeSetup = function() {
         return;
     }
 
-    // Comunica al server il cambio di stato ("Aggiornato") in tempo reale
     inviaAggiornamentoStato({
         code: gameState.code,
         pilotId: gameState.playerId,
@@ -186,19 +187,12 @@ window.officializeSetup = function() {
 };
 
 let stanzaSelezionataJoin = null;
-window.openJoinGameScreen = function() {
-    window.showScreen('screen-join-game');
-    
-    // Richiede la lista aggiornata delle stanze direttamente al server
-    richiediListaStanze();
-
+window.renderLobbiesContainer = function() {
     const containerLobbies = document.getElementById('lobbies-list-container');
     const joinFormSection = document.getElementById('join-form-section');
-    if (joinFormSection) joinFormSection.style.display = 'none';
     if (!containerLobbies) return;
 
     containerLobbies.innerHTML = '';
-    // Legge esclusivamente dal server tramite network.js
     const stanzeAttive = window.activeRoomsFromServer || [];
 
     if (stanzeAttive.length === 0) {
@@ -211,7 +205,6 @@ window.openJoinGameScreen = function() {
         card.className = 'lobby-card';
         
         const sonoHost = (stanza.hostId === gameState.playerId); 
-
         const iconaMeteoHtml = ottieniIconaMeteo(stanza.weather);
         const etichettaMeteo = ottieniEtichettaMeteo(stanza.weather);
 
@@ -246,6 +239,17 @@ window.openJoinGameScreen = function() {
     });
 };
 
+window.openJoinGameScreen = function() {
+    window.showScreen('screen-join-game');
+    
+    richiediListaStanze();
+
+    const joinFormSection = document.getElementById('join-form-section');
+    if (joinFormSection) joinFormSection.style.display = 'none';
+
+    window.renderLobbiesContainer();
+};
+
 window.loadSavedGameModal = function() {
     const modal = document.getElementById('modal-load-game');
     if (modal) modal.style.display = 'flex';
@@ -256,16 +260,14 @@ window.closeModal = function(modalId) {
     if (modal) modal.style.display = 'none';
 };
 
-// --- INIZIALIZZAZIONE INTERFACCIA AL CARICAMENTO ---
 document.addEventListener("DOMContentLoaded", () => {
     inizializzaLayout();
     renderTyreDeck();
     renderBoard();
-    inizializzaConnessioneServer(); // Avvia la connessione Socket.io con il server Render
+    inizializzaConnessioneServer();
     window.refreshOpponentsList();
 });
 
-// Funzione globale collegata ai bottoni della modale KERS
 window.resolveKers = function(isDamaged) {
     const esitoStr = isDamaged ? 'damaged' : 'ok';
     const risultato = gestisciTestKers(esitoStr); 
@@ -283,8 +285,6 @@ window.resolveKers = function(isDamaged) {
         alert(risultato.messaggioDescrittivo);
     }
 };
-
-// --- GESTIONE INTERATTIVITÀ BOX (PIT STOP) ---
 
 window.handlePitStopButtonClick = function() {
     const modal = document.getElementById('modal-pitstop-confirm');
@@ -332,8 +332,6 @@ window.tentativoUscitaBox = function() {
     renderBoard();
     alert(risultato.messaggioDescrittivo);
 };
-
-// --- GESTIONE METEO VARIABILE & MODALE ---
 
 window.openWeatherModal = function() {
     if (gameState.weather === 'var_dry' || gameState.weather === 'var_wet') {
@@ -406,44 +404,54 @@ window.processWeatherCheck = function(newCheck) {
     alert(risultato.messaggioDescrittivo);
 };
 
-// --- GESTIONE ISPEZIONE SCHEDE AVVERSARI (SCOUTING) ---
+// --- GESTIONE ISPEZIONE SCHEDE AVVERSARI (SCOUTING LIVE) ---
+
+window.aggiornaVistaIspezioneLive = function(pilotId, listaPiloti) {
+    const pilotaTarget = listaPiloti.find(p => p.id === pilotId);
+    if (pilotaTarget && pilotaTarget.boardData) {
+        Object.assign(gameState, pilotaTarget.boardData);
+        renderBoard();
+    }
+};
 
 window.inspectPilotBoard = function(pilotId) {
-    const elencoSimulatoAvversari = window.currentRoomPilots || []; 
+    window.inspectedPilotId = pilotId;
+    const elencoAvversari = window.currentRoomPilots || []; 
+    const pilotaTarget = elencoAvversari.find(p => p.id === pilotId);
     
-    const risultato = attivaModalitaIspezioneAvversario(pilotId, elencoSimulatoAvversari);
+    const risultato = attivaModalitaIspezioneAvversario(pilotId, elencoAvversari);
 
-    // 1. Nascondi i controlli di gara personali durante l'ispezione dell'avversario
     const raceControls = document.getElementById('race-controls');
     if (raceControls) {
         raceControls.style.display = 'none';
     }
 
-    if (!risultato.operazioneRiuscita) {
-        const banner = document.getElementById('inspection-banner');
-        const nameSpan = document.getElementById('inspecting-pilot-name');
-        if (banner && nameSpan) {
-            nameSpan.innerText = "Pilota Avversario (ID: " + pilotId + ")";
-            banner.style.display = 'block';
-        }
-        return;
-    }
-
     const banner = document.getElementById('inspection-banner');
     const nameSpan = document.getElementById('inspecting-pilot-name');
     if (banner && nameSpan) {
-        nameSpan.innerText = risultato.nomeAvversarioIspezionato;
+        nameSpan.innerText = risultato.operazioneRiuscita ? risultato.nomeAvversarioIspezionato : "Pilota Avversario";
         banner.style.display = 'block';
+    }
+
+    if (pilotaTarget && pilotaTarget.boardData) {
+        Object.assign(gameState, pilotaTarget.boardData);
+        renderBoard();
     }
 };
 
 window.returnToMyBoard = function() {
+    window.inspectedPilotId = null;
+
     const banner = document.getElementById('inspection-banner');
     if (banner) {
         banner.style.display = 'none';
     }
 
-    // 2. Ripristina i controlli di gara se l'utente ha già superato la fase di setup iniziale
+    // Ripristina lo stato salvato del giocatore locale
+    if (gameState.code && gameState.playerId) {
+        loadGameState(gameState.code, gameState.playerId);
+    }
+
     const raceControls = document.getElementById('race-controls');
     if (raceControls && !gameState.isSetupMode && gameState.sheetStatus === 'Aggiornato') {
         raceControls.style.display = 'flex';
@@ -467,8 +475,6 @@ window.refreshOpponentsList = function() {
     aggiornaTelemetria(pilotiStanza);
 };
 
-// --- GESTIONE ELIMINAZIONE STANZA (VIA SERVER) ---
-
 window.richiediEliminazioneStanza = function(roomCode) {
     const conferma = confirm("Sei sicuro di voler cancellare la gara?");
     if (!conferma) return;
@@ -478,8 +484,6 @@ window.richiediEliminazioneStanza = function(roomCode) {
         playerId: gameState.playerId
     });
 };
-
-// --- GESTIONE INGRESSO NELLA STANZA SELEZIONATA (JOIN VIA SERVER) ---
 
 window.joinGame = function() {
     const nomeInserito = document.getElementById('input-player-name').value.trim();
@@ -513,7 +517,6 @@ window.joinGame = function() {
         playerName: nomeInserito
     });
 
-    // Invia l'ingresso al server tramite network.js
     inviaIngressoStanza({
         code: stanzaSelezionataJoin.code,
         pilot: {
