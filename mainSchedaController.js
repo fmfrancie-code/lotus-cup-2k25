@@ -13,6 +13,7 @@ import { renderTyreDeck, selectTyreFromUI, handleTyreClick, gestisciModificaUsur
 import { toggleRaceEdit as toggleEditFromModule } from './editOutsideBoxes.js';
 import { avviaSessionePitStop, finalizzaRipartenzaDaiBox, registraPuntoRiparazioneOfficina, rimuoviPuntoRiparazioneOfficina, ottieniStringaMovOfficina } from './pitStopBoxes.js';
 import { getKersIconHtml } from './layout.js';
+import { inviaAggiornamentoStato } from './network.js';
 
 export { renderTyreDeck, selectTyreFromUI, handleTyreClick };
 
@@ -35,6 +36,22 @@ function getActiveBoardState() {
     
     return gameState;
 }
+
+/**
+ * Funzione di supporto per sincronizzare in tempo reale lo stato con il server (via Socket.io).
+ * Non usa il localStorage: spedisce semplicemente i dati aggiornati alla stanza.
+ */
+function sincronizzaStatoRemoto() {
+    if (gameState.code && gameState.playerId) {
+        inviaAggiornamentoStato({
+            code: gameState.code,
+            pilotId: gameState.playerId,
+            sheetStatus: gameState.sheetStatus || "Aggiornato",
+            boardData: gameState
+        });
+    }
+}
+
 
 /**
  * Inizializza la scheda del pilota caricando le preferenze e impostando il tema grafico.
@@ -129,7 +146,8 @@ export function gestisciUscitaBox() {
         updateGameState({
             sheetStatus: "Aggiornato"
         });
-
+            
+        sincronizzaStatoRemoto()
         renderTyreDeck();      
         renderWorkshopUI();    
         renderBoard();
@@ -198,6 +216,7 @@ export function gestisciModificaUsuraInGara(tipoComponente, indiceCasella) {
 
     if (risultatoModifica && risultatoModifica.operazioneRiuscita) {
         updateGameState({ sheetStatus: "Aggiornato" });
+        sincronizzaStatoRemoto()
     }
 
     const componentiRiparabiliInOfficina = ['brakes', 'body', 'engine', 'suspension'];
