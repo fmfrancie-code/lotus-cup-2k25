@@ -1,6 +1,5 @@
 // ==========================================
 // MODULO: MAIN SCHEDA CONTROLLER (mainSchedaController.js)
-// Coordinatore globale della plancia e delle fasi di gioco
 // ==========================================
 
 import { gameState, updateGameState } from './state.js';
@@ -11,11 +10,31 @@ import { gestisciModificaUsuraFreniETrafilamentoKers, eseguiTestAttivazioneKers 
 import { gestisciUsuraTelaio } from './chassis.js';
 import { gestisciUsuraSospensioni } from './suspension.js';
 import { renderTyreDeck, selectTyreFromUI, handleTyreClick, gestisciModificaUsuraPneumaticiInGara } from './compoundsTyres.js';
-import { toggleRaceEdit as toggleEditFromModule, ottieniDirezioneGeometricaComponente } from './editOutsideBoxes.js';
+import { toggleRaceEdit as toggleEditFromModule } from './editOutsideBoxes.js';
 import { avviaSessionePitStop, finalizzaRipartenzaDaiBox, registraPuntoRiparazioneOfficina, rimuoviPuntoRiparazioneOfficina, ottieniStringaMovOfficina } from './pitStopBoxes.js';
 import { getKersIconHtml } from './layout.js';
 
 export { renderTyreDeck, selectTyreFromUI, handleTyreClick };
+
+/**
+ * Funzione di supporto interna per ottenere lo stato attivo della scheda in modo chiaro e leggibile.
+ * Se è attivo lo scouting, restituisce i dati dell'avversario dalla memoria; altrimenti restituisce il gameState locale.
+ */
+function getActiveBoardState() {
+    const isInspectingAnotherPlayer = (window.inspectedPilotId !== null);
+    
+    if (isInspectingAnotherPlayer && window.currentRoomPilots) {
+        const targetPilot = window.currentRoomPilots.find(function(pilotaConnesso) {
+            return pilotaConnesso.id === window.inspectedPilotId;
+        });
+        
+        if (targetPilot && targetPilot.boardData) {
+            return targetPilot.boardData;
+        }
+    }
+    
+    return gameState;
+}
 
 /**
  * Inizializza la scheda del pilota caricando le preferenze e impostando il tema grafico.
@@ -60,7 +79,6 @@ export function inizializzaSchedaPilota(datiInizialiPilota) {
 export function gestisciAvvioPitStop(numeroGiro) {
     const risultato = avviaSessionePitStop(numeroGiro);
     if (risultato.operazioneRiuscita) {
-        // Trasforma il pulsante di edit in una label statica "Sei nei box" con lo stile magenta coordinato
         const btnEdit = document.getElementById('btn-toggle-edit');
         if (btnEdit) {
             btnEdit.innerText = "SEI NEI BOX";
@@ -73,14 +91,12 @@ export function gestisciAvvioPitStop(numeroGiro) {
             btnEdit.style.background = 'rgba(255, 42, 141, 0.1)';
         }
 
-        // --- AGGIUNTA PER NASCONDERE IL TEST METEO AI BOX ---
         const weatherTestBtn = document.getElementById('btn-weather-test');
         if (weatherTestBtn) {
             weatherTestBtn.style.display = 'none';
         }
-        // ----------------------------------------------------
 
-        renderTyreDeck(); // Sblocca i tick 2 e 3
+        renderTyreDeck(); 
         renderBoard();
     }
     return risultato;
@@ -89,10 +105,8 @@ export function gestisciAvvioPitStop(numeroGiro) {
 export function gestisciUscitaBox() {
     const risultato = finalizzaRipartenzaDaiBox();
     if (risultato.operazioneRiuscita) {
-        // Rimuove eventuali classi di attivazione rimaste sul body
         document.body.classList.remove('edit-mode-active', 'pitstop-mode-active');
 
-        // Ripristina graficamente il pulsante di edit nello stato bloccato (Read Mode)
         const btnEdit = document.getElementById('btn-toggle-edit');
         if (btnEdit) {
             btnEdit.innerText = "Modalità edit bloccata(clicca per sbloccare)";
@@ -102,21 +116,18 @@ export function gestisciUscitaBox() {
             btnEdit.style.pointerEvents = 'auto';
         }
 
-        // Nasconde completamente il pulsante di accesso ai box
         const btnPitStop = document.getElementById('btn-pitstop-action'); 
         if (btnPitStop) {
             btnPitStop.style.display = 'none';
         }
 
-        // Nasconde il test meteo all'uscita dai box (poiché la fase di edit si richiude)
         const weatherTestBtn = document.getElementById('btn-weather-test');
         if (weatherTestBtn) {
             weatherTestBtn.style.display = 'none';
         }
-        // ---------------------------
         
         updateGameState({
-            sheetStatus: "Aggiornato" // <--- Aggiornato al completamento della sosta
+            sheetStatus: "Aggiornato"
         });
 
         renderTyreDeck();      
@@ -126,9 +137,6 @@ export function gestisciUscitaBox() {
     return risultato;
 }
 
-/**
- * Transizione della scheda verso la fase di Ufficializzazione / Gara.
- */
 export function ufficializzaSchedaPerGara() {
     const budgetRimanenteInSetup = gameState.budget;
     
@@ -153,67 +161,55 @@ export function ufficializzaSchedaPerGara() {
     };
 }
 
-/**
- * Gestisce l'assegnazione o la modifica di un punto budget.
- */
 export function gestisciAssegnazioneBudget(tipoArea, delta) {
     return assegnaPuntoBudgetSetup(tipoArea, delta);
 }
 
-/**
- * Coordina la modifica dell'usura di un componente durante la gara in modalità edit o pit stop
- */
 export function gestisciModificaUsuraInGara(tipoComponente, indiceCasella) {
     const usureCorrenti = gameState.markedUsages[tipoComponente] || [];
     const staRimuovendoX = usureCorrenti.includes(indiceCasella);
 
-    let res = null;
+    let risultatoModifica = null;
     switch (tipoComponente) {
         case 'tyres':
-            res = gestisciModificaUsuraPneumaticiInGara(indiceCasella);
+            risultatoModifica = gestisciModificaUsuraPneumaticiInGara(indiceCasella);
             break;
         case 'brakes':
-            res = gestisciModificaUsuraFreniETrafilamentoKers(indiceCasella);
+            risultatoModifica = gestisciModificaUsuraFreniETrafilamentoKers(indiceCasella);
             break;
         case 'fuel':
-            res = gestisciConsumoBenzinaEModifica(indiceCasella);
-            if (res && res.operazioneRiuscita) {
-                aggiornaLabelMovBenzina(res.stringaMov);
+            risultatoModifica = gestisciConsumoBenzinaEModifica(indiceCasella);
+            if (risultatoModifica && risultatoModifica.operazioneRiuscita) {
+                aggiornaLabelMovBenzina(risultatoModifica.stringaMov);
             }
             break;
         case 'engine':
-            res = gestisciUsuraMotore(indiceCasella);
+            risultatoModifica = gestisciUsuraMotore(indiceCasella);
             break;
         case 'body':
-            res = gestisciUsuraTelaio(indiceCasella);
+            risultatoModifica = gestisciUsuraTelaio(indiceCasella);
             break;
         case 'suspension':
-            res = gestisciUsuraSospensioni(indiceCasella);
+            risultatoModifica = gestisciUsuraSospensioni(indiceCasella);
             break;
         default:
             return { operazioneRiuscita: false, messaggioDescrittivo: "Componente non gestito." };
     }
 
-    // --- AGGIUNTA PER LO STATO AGGIORNATO ---
-    if (res && res.operazioneRiuscita) {
+    if (risultatoModifica && risultatoModifica.operazioneRiuscita) {
         updateGameState({ sheetStatus: "Aggiornato" });
     }
-    // ----------------------------------------
 
-    // GESTIONE PIT STOP: Registriamo l'indice EFFETTIVO rimosso (res.indiceModificato) anziché quello cliccato
     const componentiRiparabiliInOfficina = ['brakes', 'body', 'engine', 'suspension'];
-    if (res && res.operazioneRiuscita && gameState.isPitStopActive && staRimuovendoX && componentiRiparabiliInOfficina.includes(tipoComponente)) {
-        const indiceRealeRimosso = res.indiceModificato !== undefined ? res.indiceModificato : indiceCasella;
+    if (risultatoModifica && risultatoModifica.operazioneRiuscita && gameState.isPitStopActive && staRimuovendoX && componentiRiparabiliInOfficina.includes(tipoComponente)) {
+        const indiceRealeRimosso = risultatoModifica.indiceModificato !== undefined ? risultatoModifica.indiceModificato : indiceCasella;
         registraPuntoRiparazioneOfficina(tipoComponente, indiceRealeRimosso);
         renderWorkshopUI();
     }
 
-    return res;
+    return risultatoModifica;
 }
 
-/**
- * Aggiorna dinamicamente l'etichetta visiva del MOV della benzina a schermo
- */
 function aggiornaLabelMovBenzina(stringaMov) {
     const labelMov = document.getElementById('fuel-mov-label');
     if (labelMov) {
@@ -227,11 +223,9 @@ function aggiornaLabelMovBenzina(stringaMov) {
     }
 }
 
-/**
- * Aggiorna la UI della sezione officina (valore MOV e caselle con X rosse da sinistra a destra)
- */
 export function renderWorkshopUI() {
-    const workshopUsages = gameState.workshopUsages || [];
+    const activeBoardState = getActiveBoardState();
+    const workshopUsages = activeBoardState.workshopUsages || [];
     const movText = ottieniStringaMovOfficina();
     
     const movLabelEl = document.getElementById('workshop-mov-label');
@@ -240,174 +234,169 @@ export function renderWorkshopUI() {
     const rowWorkshop = document.getElementById('row-workshop');
     if (rowWorkshop) {
         const boxes = rowWorkshop.querySelectorAll('.box');
-        boxes.forEach((box, idx) => {
-            if (workshopUsages.includes(idx)) {
-                box.innerText = 'X';
-                box.className = 'box x-red';
+        boxes.forEach(function(boxElement, index) {
+            if (workshopUsages.includes(index)) {
+                boxElement.innerText = 'X';
+                boxElement.className = 'box x-red';
             } else {
-                box.innerText = '1';
-                box.className = 'box';
+                boxElement.innerText = '1';
+                boxElement.className = 'box';
             }
 
-            // Se siamo in Pit Stop e la casella ha una X rossa, permette il click per rimuovere il punto e ripristinare la parte
-            if (gameState.isPitStopActive && workshopUsages.includes(idx)) {
-                box.classList.add('clickable');
-                box.style.pointerEvents = 'auto';
-                box.style.cursor = 'pointer';
-                box.onclick = () => {
-                    rimuoviPuntoRiparazioneOfficina(idx);
-                    renderBoard(); // Ridisegna la plancia e aggiorna l'officina/MOV
+            const isInspectingAnotherPlayer = (window.inspectedPilotId !== null);
+            if (!isInspectingAnotherPlayer && activeBoardState.isPitStopActive && workshopUsages.includes(index)) {
+                boxElement.classList.add('clickable');
+                boxElement.style.pointerEvents = 'auto';
+                boxElement.style.cursor = 'pointer';
+                boxElement.onclick = function() {
+                    rimuoviPuntoRiparazioneOfficina(index);
+                    renderBoard(); 
                 };
             } else {
-                box.classList.remove('clickable');
-                box.style.pointerEvents = 'none';
-                box.onclick = null;
+                boxElement.classList.remove('clickable');
+                boxElement.style.pointerEvents = 'none';
+                boxElement.onclick = null;
             }
         });
     }
 }
 
-
-// ==========================================
-// FUNZIONE DI RENDERING UNIFICATA DELLA PLANCIA (Stile Monolite)
-// ==========================================
-
 export function renderBoard() {
-    const components = ['tyres', 'brakes', 'fuel', 'body', 'engine', 'suspension'];
-    const rightAligned = ['body', 'engine', 'suspension'];
-    const isInspecting = false; 
+    const activeBoardState = getActiveBoardState();
+    const isInspectingAnotherPlayer = (window.inspectedPilotId !== null);
+    
+    const componentNames = ['tyres', 'brakes', 'fuel', 'body', 'engine', 'suspension'];
+    const rightAlignedComponents = ['body', 'engine', 'suspension'];
 
-    components.forEach(comp => {
-        const container = document.getElementById(`row-${comp}`);
+    componentNames.forEach(function(componentName) {
+        const container = document.getElementById(`row-${componentName}`);
         if (!container) return;
         container.innerHTML = '';
 
-        const totalBoxes = (comp === 'tyres') ? 10 : 6;
-        const baseVal = gameState.baseValues[comp];
-        const addedVal = gameState.allocations[comp];
-        const totalPoints = baseVal + addedVal;
-        const isRight = rightAligned.includes(comp);
+        const totalBoxes = (componentName === 'tyres') ? 10 : 6;
+        const baseValue = activeBoardState.baseValues[componentName];
+        const allocatedValue = activeBoardState.allocations[componentName];
+        const totalPoints = baseValue + allocatedValue;
+        const isRightAligned = rightAlignedComponents.includes(componentName);
         const wingBoxIndex = totalBoxes - totalPoints;
-        const isWingActive = gameState.alettoneAttivo || false;
+        const isWingActive = activeBoardState.alettoneAttivo || false;
 
-        for (let i = 0; i < totalBoxes; i++) {
-            const box = document.createElement('div');
-            box.className = 'box';
+        for (let boxIndex = 0; boxIndex < totalBoxes; boxIndex++) {
+            const boxElement = document.createElement('div');
+            boxElement.className = 'box';
 
-            if (!isRight) {
-                if (comp === 'tyres' && i === 0) {
-                    box.innerHTML = `<svg viewBox="0 0 100 100" style="width:22px;height:22px;color:currentColor;"><path d="M 50 15 A 35 35 0 1 1 20 60" fill="none" stroke="currentColor" stroke-width="8" stroke-dasharray="6,4"/><polygon points="12,50 25,65 30,45" fill="currentColor"/><text x="50" y="62" font-size="34" font-weight="bold" text-anchor="middle" fill="currentColor" font-family="Orbitron">1</text></svg>`;
-                } else if (i < baseVal) {
-                    box.innerText = '1';
-                } else if (i < totalPoints) {
-                    box.innerText = '1';
-                    box.classList.add('user-allocated');
-                    if (gameState.isSetupMode && !isInspecting) {
-                        box.classList.add('clickable');
-                        box.onclick = () => {
-                            const res = gestisciAssegnazioneBudget(comp, -1);
-                            if (res.operazioneRiuscita) {
+            if (!isRightAligned) {
+                if (componentName === 'tyres' && boxIndex === 0) {
+                    boxElement.innerHTML = `<svg viewBox="0 0 100 100" style="width:22px;height:22px;color:currentColor;"><path d="M 50 15 A 35 35 0 1 1 20 60" fill="none" stroke="currentColor" stroke-width="8" stroke-dasharray="6,4"/><polygon points="12,50 25,65 30,45" fill="currentColor"/><text x="50" y="62" font-size="34" font-weight="bold" text-anchor="middle" fill="currentColor" font-family="Orbitron">1</text></svg>`;
+                } else if (boxIndex < baseValue) {
+                    boxElement.innerText = '1';
+                } else if (boxIndex < totalPoints) {
+                    boxElement.innerText = '1';
+                    boxElement.classList.add('user-allocated');
+                    if (activeBoardState.isSetupMode && !isInspectingAnotherPlayer) {
+                        boxElement.classList.add('clickable');
+                        boxElement.onclick = function() {
+                            const risultatoAssegnazione = gestisciAssegnazioneBudget(componentName, -1);
+                            if (risultatoAssegnazione.operazioneRiuscita) {
                                 renderBoard();
-                                aggiornaInterfacciaBudgetMod(res.budgetResiduo);
+                                aggiornaInterfacciaBudgetMod(risultatoAssegnazione.budgetResiduo);
                             }
                         };
                     }
                 } else {
-                    box.innerText = '';
-                    if (gameState.isSetupMode && !isInspecting) {
-                        if (gameState.budget > 0) {
-                            box.classList.add('box-setup-highlight', 'clickable');
-                            box.onclick = () => {
-                                const res = gestisciAssegnazioneBudget(comp, 1);
-                                if (res.operazioneRiuscita) {
+                    boxElement.innerText = '';
+                    if (activeBoardState.isSetupMode && !isInspectingAnotherPlayer) {
+                        if (activeBoardState.budget > 0) {
+                            boxElement.classList.add('box-setup-highlight', 'clickable');
+                            boxElement.onclick = function() {
+                                const risultatoAssegnazione = gestisciAssegnazioneBudget(componentName, 1);
+                                if (risultatoAssegnazione.operazioneRiuscita) {
                                     renderBoard();
-                                    aggiornaInterfacciaBudgetMod(res.budgetResiduo);
+                                    aggiornaInterfacciaBudgetMod(risultatoAssegnazione.budgetResiduo);
                                 } else {
-                                    alert(res.messaggioDescrittivo);
+                                    alert(risultatoAssegnazione.messaggioDescrittivo);
                                 }
                             };
                         } else {
-                            box.classList.add('box-setup-disabled');
+                            boxElement.classList.add('box-setup-disabled');
                         }
                     }
                 }
             } else {
-                const fromRight = totalBoxes - 1 - i;
+                const distancefromRight = totalBoxes - 1 - boxIndex;
                 
-                if (comp === 'body' && isWingActive && i === wingBoxIndex) {
-                    box.innerText = 'X';
-                    box.classList.add('wing-x', 'x-black');
-                    box.dataset.base = "true";
-                } else if (fromRight < baseVal) {
-                    box.innerText = '1';
-                } else if (fromRight < totalPoints) {
-                    box.innerText = '1';
-                    box.classList.add('user-allocated');
-                    if (gameState.isSetupMode && !isInspecting) {
-                        box.classList.add('clickable');
-                        box.onclick = () => {
-                            const res = gestisciAssegnazioneBudget(comp, -1);
-                            if (res.operazioneRiuscita) {
-                                if (comp === 'body') gestisciAggiornamentoAlettoneDopoModifica(comp);
+                if (componentName === 'body' && isWingActive && boxIndex === wingBoxIndex) {
+                    boxElement.innerText = 'X';
+                    boxElement.classList.add('wing-x', 'x-black');
+                    boxElement.dataset.base = "true";
+                } else if (distancefromRight < baseValue) {
+                    boxElement.innerText = '1';
+                } else if (distancefromRight < totalPoints) {
+                    boxElement.innerText = '1';
+                    boxElement.classList.add('user-allocated');
+                    if (activeBoardState.isSetupMode && !isInspectingAnotherPlayer) {
+                        boxElement.classList.add('clickable');
+                        boxElement.onclick = function() {
+                            const risultatoAssegnazione = gestisciAssegnazioneBudget(componentName, -1);
+                            if (risultatoAssegnazione.operazioneRiuscita) {
+                                if (componentName === 'body') gestisciAggiornamentoAlettoneDopoModifica(componentName);
                                 renderBoard();
-                                aggiornaInterfacciaBudgetMod(res.budgetResiduo);
+                                aggiornaInterfacciaBudgetMod(risultatoAssegnazione.budgetResiduo);
                             }
                         };
                     }
                 } else {
-                    box.innerText = '';
-                    if (gameState.isSetupMode && !isInspecting) {
-                        if (gameState.budget > 0) {
-                            box.classList.add('box-setup-highlight', 'clickable');
-                            box.onclick = () => {
-                                const res = gestisciAssegnazioneBudget(comp, 1);
-                                if (res.operazioneRiuscita) {
-                                    if (comp === 'body') gestisciAggiornamentoAlettoneDopoModifica(comp);
+                    boxElement.innerText = '';
+                    if (activeBoardState.isSetupMode && !isInspectingAnotherPlayer) {
+                        if (activeBoardState.budget > 0) {
+                            boxElement.classList.add('box-setup-highlight', 'clickable');
+                            boxElement.onclick = function() {
+                                const risultatoAssegnazione = gestisciAssegnazioneBudget(componentName, 1);
+                                if (risultatoAssegnazione.operazioneRiuscita) {
+                                    if (componentName === 'body') gestisciAggiornamentoAlettoneDopoModifica(componentName);
                                     renderBoard();
-                                    aggiornaInterfacciaBudgetMod(res.budgetResiduo);
+                                    aggiornaInterfacciaBudgetMod(risultatoAssegnazione.budgetResiduo);
                                 } else {
-                                    alert(res.messaggioDescrittivo);
+                                    alert(risultatoAssegnazione.messaggioDescrittivo);
                                 }
                             };
                         } else {
-                            box.classList.add('box-setup-disabled');
+                            boxElement.classList.add('box-setup-disabled');
                         }
                     }
                 }
             }
 
-            if (gameState.isRaceMode) {
-                const isWingXBox = (comp === 'body' && isWingActive && i === wingBoxIndex);
+            if (activeBoardState.isRaceMode) {
+                const isWingXBox = (componentName === 'body' && isWingActive && boxIndex === wingBoxIndex);
                 
                 if (isWingXBox) {
-                    box.innerText = 'X';
-                    box.className = 'box wing-x';
-                } else if (gameState.markedUsages[comp] && gameState.markedUsages[comp].includes(i)) {
-                    box.innerText = 'X';
-                    box.className = 'box x-red'; 
+                    boxElement.innerText = 'X';
+                    boxElement.className = 'box wing-x';
+                } else if (activeBoardState.markedUsages[componentName] && activeBoardState.markedUsages[componentName].includes(boxIndex)) {
+                    boxElement.innerText = 'X';
+                    boxElement.className = 'box x-red'; 
                 }
 
-                let isClickableBox = (gameState.isEditingAllowed || gameState.isPitStopActive) && !isInspecting && !isWingXBox;
+                let isClickableBox = (activeBoardState.isEditingAllowed || activeBoardState.isPitStopActive) && !isInspectingAnotherPlayer && !isWingXBox;
                 if (isClickableBox) {
-                    box.classList.add('clickable');
-                    box.onclick = () => {
-                        let res;
-                        // Se siamo sul carburante e siamo ai box, usiamo la funzione dedicata ai box
-                        if (comp === 'fuel' && gameState.isPitStopActive) {
-                            res = gestisciConsumoBenzinaAiBox(i);
+                    boxElement.classList.add('clickable');
+                    boxElement.onclick = function() {
+                        let risultatoModifica;
+                        if (componentName === 'fuel' && activeBoardState.isPitStopActive) {
+                            risultatoModifica = gestisciConsumoBenzinaAiBox(boxIndex);
                         } else {
-                            // Altrimenti, usiamo il flusso standard di gara
-                            res = gestisciModificaUsuraInGara(comp, i);
+                            risultatoModifica = gestisciModificaUsuraInGara(componentName, boxIndex);
                         }
 
-                        if (res && res.operazioneRiuscita) {
+                        if (risultatoModifica && risultatoModifica.operazioneRiuscita) {
                             renderBoard();
                         }
                     };
                 }
             }
 
-            container.appendChild(box);
+            container.appendChild(boxElement);
         }
     });
     
@@ -418,10 +407,10 @@ export function renderBoard() {
     const boxWing = document.getElementById('box-wing');
     if (boxWing) {
         boxWing.classList.remove('wing-active', 'circle-green', 'x-red');
-        if (gameState.alettoneDanneggiato) {
+        if (activeBoardState.alettoneDanneggiato) {
             boxWing.innerHTML = `<span class="flicker-text">X</span>`;
             boxWing.classList.add('x-red');
-        } else if (gameState.alettoneAttivo) {
+        } else if (activeBoardState.alettoneAttivo) {
             boxWing.classList.add('wing-active', 'circle-green');
             if (!boxWing.querySelector('svg')) {
                 boxWing.innerHTML = `
@@ -439,16 +428,15 @@ export function renderBoard() {
         }
     }
 
-    // Sincronizzazione UI officina e MOV benzina
     renderWorkshopUI();
 
-    const baseBenzina = gameState.baseValues.fuel;
-    const allocBenzina = gameState.allocations.fuel;
-    const usurateBenzina = gameState.markedUsages.fuel ? gameState.markedUsages.fuel.length : 0;
+    const baseBenzina = activeBoardState.baseValues.fuel;
+    const allocBenzina = activeBoardState.allocations.fuel;
+    const usurateBenzina = activeBoardState.markedUsages.fuel ? activeBoardState.markedUsages.fuel.length : 0;
     const libereBenzina = (baseBenzina + allocBenzina) - usurateBenzina;
     
     let stringaMovCorrente = "+0 MOV";
-    if (gameState.isPitStopActive && libereBenzina >= 4) {
+    if (activeBoardState.isPitStopActive && libereBenzina >= 4) {
         stringaMovCorrente = "-2 MOV";
     } else if (libereBenzina <= 3 && libereBenzina > 0) {
         stringaMovCorrente = "+1 MOV";
@@ -456,12 +444,9 @@ export function renderBoard() {
     aggiornaLabelMovBenzina(stringaMovCorrente);
 
     const budgetCountEl = document.getElementById('budget-count');
-    if (budgetCountEl) budgetCountEl.innerText = gameState.budget;
+    if (budgetCountEl) budgetCountEl.innerText = activeBoardState.budget;
 }
 
-/**
- * Funzione di servizio interna per aggiornare graficamente il budget e il pulsante di blocco
- */
 function aggiornaInterfacciaBudgetMod(budgetResiduo) {
     const budgetCount = document.getElementById('budget-count');
     if (budgetCount) budgetCount.innerText = budgetResiduo;
@@ -480,10 +465,6 @@ function aggiornaInterfacciaBudgetMod(budgetResiduo) {
         }
     }
 }
-
-// ==========================================
-// GESTIONE ALETTONE (Wing) & TELAIO
-// ==========================================
 
 export function toggleWing() {
     const boxWing = document.getElementById('box-wing');
@@ -525,7 +506,7 @@ export function gestisciAggiornamentoAlettoneDopoModifica(tipoComponente) {
 }
 
 export function toggleRaceEdit() {
-    if (gameState.isPitStopActive) return; // Blocco di sicurezza: impedisce l'edit ai box
+    if (gameState.isPitStopActive) return; 
     toggleEditFromModule();
     renderBoard();
 }
@@ -534,10 +515,10 @@ function updateKersDisplay() {
     const boxKers = document.getElementById('box-kers');
     if (!boxKers) return;
 
-    const statoKers = gameState.kersState;
+    const activeBoardState = getActiveBoardState();
+    const statoKers = activeBoardState.kersState;
     let htmlContenuto = '';
 
-    // Rimuove rigorosamente qualsiasi residuo di classi precedenti (inclusa la X rossa)
     boxKers.classList.remove('charged', 'damaged', 'empty', 'circle-kers', 'x-red');
     boxKers.style.removeProperty('pointer-events');
     boxKers.style.removeProperty('cursor');
@@ -549,18 +530,21 @@ function updateKersDisplay() {
         boxKers.style.cursor = 'default';
     } else if (statoKers === 'charged') {
         boxKers.classList.add('circle-kers', 'charged');
-        const iconaTematica = getKersIconHtml(gameState.theme);
+        const iconaTematica = getKersIconHtml(activeBoardState.theme);
         htmlContenuto = `<div class="kers-icon-container charged">${iconaTematica}</div>`;
         
-        boxKers.style.setProperty('pointer-events', 'auto', 'important');
-        boxKers.style.cursor = 'pointer';
-        
-        boxKers.onclick = () => {
-            const modalKers = document.getElementById('modal-kers');
-            if (modalKers) modalKers.style.display = 'flex';
-        };
+        const isInspectingAnotherPlayer = (window.inspectedPilotId !== null);
+        if (!isInspectingAnotherPlayer) {
+            boxKers.style.setProperty('pointer-events', 'auto', 'important');
+            boxKers.style.cursor = 'pointer';
+            boxKers.onclick = function() {
+                const modalKers = document.getElementById('modal-kers');
+                if (modalKers) modalKers.style.display = 'flex';
+            };
+        } else {
+            boxKers.style.setProperty('pointer-events', 'none', 'important');
+        }
     } else {
-        // Stato vuoto (empty) di default: ripristina la grafica standard (casella nera, bordi azzurri puliti)
         boxKers.classList.add('empty');
         htmlContenuto = `<div class="kers-icon-container empty"></div>`;
         boxKers.style.setProperty('pointer-events', 'none', 'important');
