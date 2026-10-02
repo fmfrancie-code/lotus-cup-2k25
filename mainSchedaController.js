@@ -445,7 +445,10 @@ export function renderBoard() {
             boxWing.innerHTML = '';
         }
     }
-
+    if (typeof renderTyreDeck === 'function') {
+        renderTyreDeck();
+    }
+    
     renderWorkshopUI();
 
     const baseBenzina = activeBoardState.baseValues.fuel;
