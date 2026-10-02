@@ -588,6 +588,8 @@ function updateKersDisplay() {
 export function gestisciTestKers(esitoTest) {
     const risultato = eseguiTestAttivazioneKers(esitoTest);
     if (risultato.operazioneRiuscita) {
+        updateGameState({ sheetStatus: "Aggiornato" }); // Aggiorna lo stato della scheda[cite: 27]
+        sincronizzaStatoRemoto();                      // Notifica immediatamente il server via Socket.io[cite: 27]
         renderBoard();
     }
     return risultato;
