@@ -6,6 +6,25 @@
 import { gameState, updateGameState } from './state.js';
 import { verificaSeAsfaltoBagnato } from './weather.js';
 
+/**
+ * Funzione di supporto interna per ottenere lo stato attivo della scheda (gestisce lo scouting in tempo reale).
+ */
+function getActiveBoardState() {
+    const isInspectingAnotherPlayer = (window.inspectedPilotId !== null);
+    
+    if (isInspectingAnotherPlayer && window.currentRoomPilots) {
+        const targetPilot = window.currentRoomPilots.find(function(pilotaConnesso) {
+            return pilotaConnesso.id === window.inspectedPilotId;
+        });
+        
+        if (targetPilot && targetPilot.boardData) {
+            return targetPilot.boardData;
+        }
+    }
+    
+    return gameState;
+}
+
 export function gestisciModificaUsuraPneumaticiInGara(indiceCasellaSelezionata) {
     const arrayCasellePneumaticiCorrente = [...gameState.markedUsages.tyres];
     const valoreBasePneumatici = gameState.baseValues.tyres;
@@ -97,8 +116,9 @@ export function gestisciSelezioneMescolaEGiri(nomeMescolaSelezionata, numeroGiro
     };
 }
 
-function isLapMarkedAnywhere(lap) {
-    return Object.keys(gameState.tyreLaps).some(t => gameState.tyreLaps[t].includes(lap));
+function isLapMarkedAnywhereInActiveState(lap, activeBoardState) {
+    const tyreLapsMap = activeBoardState.tyreLaps || { Prime: [], Option: [], Intermedie: [], Pioggia: [] };
+    return Object.keys(tyreLapsMap).some(t => tyreLapsMap[t].includes(lap));
 }
 
 export function renderTyreDeck() {
@@ -107,11 +127,12 @@ export function renderTyreDeck() {
     container.innerHTML = '';
     const tyres = ['Prime', 'Option', 'Intermedie', 'Pioggia'];
 
+    const activeBoardState = getActiveBoardState(); // Usa lo stato attivo (locale o avversario in scouting)
     const isWet = verificaSeAsfaltoBagnato();
-    const isInspecting = typeof inspectingPilotId !== 'undefined' && inspectingPilotId !== null;
+    const isInspecting = (window.inspectedPilotId !== null);
 
     tyres.forEach(t => {
-        const isSelected = gameState.selectedTyre === t;
+        const isSelected = activeBoardState.selectedTyre === t;
         let isDisabledByWeather = false;
 
         // Regola meteo standard
@@ -130,9 +151,6 @@ export function renderTyreDeck() {
         }
 
         // --- REGOLA DEFINITIVA GOMMA ATTUALE IN PISTA ---
-        // Se la gomma è quella attualmente montata e in uso sulla vettura, 
-        // non viene MAI disabilitata dal meteo (anche se il meteo da variabile si è stabilizzato su fisso). 
-        // Resterà attiva finché il pilota non rientrerà ai box per sceglierne una nuova.
         if (isSelected) {
             isDisabledByWeather = false;
         }
@@ -143,29 +161,30 @@ export function renderTyreDeck() {
 
         let lapsHtml = '';
         [1, 2, 3].forEach(lap => {
-            const isMarked = gameState.tyreLaps[t].includes(lap);
-            const lapUsedAnywhere = isLapMarkedAnywhere(lap);
+            const tyreLapsMap = activeBoardState.tyreLaps || { Prime: [], Option: [], Intermedie: [], Pioggia: [] };
+            const isMarked = tyreLapsMap[t] && tyreLapsMap[t].includes(lap);
+            const lapUsedAnywhere = isLapMarkedAnywhereInActiveState(lap, activeBoardState);
             let isClickable = false;
             let isPreSelectedStyle = false;
 
             if (!isInspecting) {
-                if ((!gameState.isRaceMode || gameState.isSetupMode) && isSelected && lap === 1) {
+                if ((!activeBoardState.isRaceMode || activeBoardState.isSetupMode) && isSelected && lap === 1) {
                     isPreSelectedStyle = true;
                 }
 
-                if (gameState.isSetupMode) {
+                if (activeBoardState.isSetupMode) {
                     if (lap === 1 && isSelected) {
                         if (!lapUsedAnywhere || isMarked) isClickable = true;
                     }
-                } else if (gameState.isRaceMode) {
-                    if (gameState.isPitStopActive && isSelected) {
-                        const initialLaps = gameState.pitStopInitialTyreLaps || {};
+                } else if (activeBoardState.isRaceMode) {
+                    if (activeBoardState.isPitStopActive && isSelected) {
+                        const initialLaps = activeBoardState.pitStopInitialTyreLaps || {};
                         const isHistorical = initialLaps[t] && initialLaps[t].includes(lap);
 
                         if (lap !== 1 && !isHistorical) {
-                            let globalBlock = (lap === 2 && isLapMarkedAnywhere(3));
-                            const sameLapMarkedElsewhere = Object.keys(gameState.tyreLaps).some(
-                                tyre => tyre !== t && gameState.tyreLaps[tyre].includes(lap)
+                            let globalBlock = (lap === 2 && isLapMarkedAnywhereInActiveState(3, activeBoardState));
+                            const sameLapMarkedElsewhere = Object.keys(tyreLapsMap).some(
+                                tyre => tyre !== t && tyreLapsMap[tyre].includes(lap)
                             );
 
                             if (isMarked || (!globalBlock && !sameLapMarkedElsewhere && !lapUsedAnywhere)) {
@@ -181,7 +200,7 @@ export function renderTyreDeck() {
                 isMarked ? 'marked' : '',
                 (!isMarked && isPreSelectedStyle) ? 'pre-selected' : '',
                 isClickable ? 'clickable' : 'disabled'
-            ].filter(Boolean).join(' '); // Assicurati di mantenere lo spazio ' '
+            ].filter(Boolean).join(' ');
 
             lapsHtml += `<div class="${classList}" ${isClickable ? `onclick="handleTyreClick('${t}',${lap})"` : ''}>${lap}</div>`;
         });
@@ -230,18 +249,18 @@ export function handleTyreClick(type, lap) {
     const list = gameState.tyreLaps[type];
     const pos = list.indexOf(lap);
     
-    let markedTyres = [...(gameState.markedUsages.tyres || [])];
+    let markedUsagesPneumatici = [...(gameState.markedUsages.tyres || [])];
     let previousTyres = gameState.previousTyreUsages ? [...gameState.previousTyreUsages] : [];
 
     if (pos > -1) {
         // Deselezione del tick (2 o 3): ripristina le X dei pneumatici che erano state rimosse
         list.splice(pos, 1);
-        markedTyres = previousTyres;
+        markedUsagesPneumatici = previousTyres;
     } else {
         // Selezione di un nuovo tick (2 o 3): salva le usure attuali prima di pulirle, poi azzera SUBITO le X delle gomme
-        previousTyres = [...markedTyres];
+        previousTyres = [...markedUsagesPneumatici];
         gestisciSelezioneMescolaEGiri(type, lap);
-        markedTyres = []; 
+        markedUsagesPneumatici = []; 
     }
 
     updateGameState({ 
@@ -249,7 +268,7 @@ export function handleTyreClick(type, lap) {
         previousTyreUsages: previousTyres,
         markedUsages: {
             ...gameState.markedUsages,
-            tyres: markedTyres
+            tyres: markedUsagesPneumatici
         }
     });
 
