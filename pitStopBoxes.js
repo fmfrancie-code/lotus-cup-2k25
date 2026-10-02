@@ -6,16 +6,15 @@
 import { gameState, updateGameState } from './state.js';
 
 export function avviaSessionePitStop(numeroGiroCorrente) {
-    // Cattura lo snapshot dei pneumatici attivi prima di iniziare la sosta
     const initialTyreLapsSnapshot = JSON.parse(JSON.stringify(gameState.tyreLaps || {}));
 
     updateGameState({
         isPitStopActive: true,
         pitStopStartLap: numeroGiroCorrente,
         previousTyreUsages: [...(gameState.markedUsages.tyres || [])],
-        currentPitStopUsages: [],                                       // Inizia vuoto per questa specifica sosta
+        currentPitStopUsages: [], // Traccia solo le riparazioni fatte in questa sosta specifica
         workshopRepairs: {},
-        pitStopInitialTyreLaps: initialTyreLapsSnapshot                 // Salvataggio dello snapshot
+        pitStopInitialTyreLaps: initialTyreLapsSnapshot
     });
 
     return {
@@ -27,41 +26,47 @@ export function avviaSessionePitStop(numeroGiroCorrente) {
 export function registraPuntoRiparazioneOfficina(componente, indiceCasella) {
     if (!gameState.isPitStopActive) return null;
 
-    let permanentWorkshop = [...(gameState.workshopUsages || [])];
+    let workshop = [...(gameState.workshopUsages || [])];
     let currentStop = [...(gameState.currentPitStopUsages || [])];
     let repairs = { ...(gameState.workshopRepairs || {}) };
 
-    const allUsed = [...new Set([...permanentWorkshop, ...currentStop])];
-
-    if (allUsed.length < 3) {
+    if (workshop.length < 3) {
         let indiceLibero = -1;
         for (let i = 0; i < 3; i++) {
-            if (!allUsed.includes(i)) {
+            if (!workshop.includes(i)) {
                 indiceLibero = i;
                 break;
             }
         }
         if (indiceLibero !== -1) {
+            workshop.push(indiceLibero);
+            workshop.sort((a, b) => a - b);
+            
             currentStop.push(indiceLibero);
             currentStop.sort((a, b) => a - b);
+
             repairs[indiceLibero] = { component: componente, index: indiceCasella };
             
             updateGameState({ 
-                currentPitStopUsages: currentStop,
+                workshopUsages: workshop,         // Aggiornato SUBITO per mostrarlo a schermo
+                currentPitStopUsages: currentStop, // Tracciato per l'undo e il malus
                 workshopRepairs: repairs
             });
         }
     }
-    return currentStop;
+    return workshop;
 }
 
 export function rimuoviPuntoRiparazioneOfficina(indiceOfficina) {
     if (!gameState.isPitStopActive) return;
 
+    let workshop = [...(gameState.workshopUsages || [])];
     let currentStop = [...(gameState.currentPitStopUsages || [])];
     let repairs = { ...(gameState.workshopRepairs || {}) };
 
+    // Si può rimuovere (undo) solo se è stato aggiunto in questa sosta corrente
     if (currentStop.includes(indiceOfficina)) {
+        workshop = workshop.filter(idx => idx !== indiceOfficina);
         currentStop = currentStop.filter(idx => idx !== indiceOfficina);
 
         const repairInfo = repairs[indiceOfficina];
@@ -81,6 +86,7 @@ export function rimuoviPuntoRiparazioneOfficina(indiceOfficina) {
         }
 
         updateGameState({
+            workshopUsages: workshop,
             currentPitStopUsages: currentStop,
             workshopRepairs: repairs
         });
@@ -98,7 +104,7 @@ export function ottieniStringaMovOfficina() {
 export function finalizzaRipartenzaDaiBox() {
     const stint2Attivo = Object.values(gameState.tyreLaps).some(laps => laps.some(g => g > 1));
 
-    if (!stint2Attivo && (gameState.workshopUsages || []).length === 0 && (gameState.currentPitStopUsages || []).length === 0) {
+    if (!stint2Attivo && (gameState.currentPitStopUsages || []).length === 0 && (gameState.workshopUsages || []).length === 0) {
         return {
             operazioneRiuscita: false,
             messaggioDescrittivo: "Impossibile uscire dai box: Devi selezionare lo stint 2 o 3 per i pneumatici prima di ripartire!"
@@ -130,14 +136,11 @@ export function finalizzaRipartenzaDaiBox() {
     const totaleNetto = malusMovFinaleOfficina + fuelMov;
     const totaleNettoStr = totaleNetto >= 0 ? `+${totaleNetto}` : `${totaleNetto}`;
 
-    // Consolida le riparazioni correnti nello storico permanente delle X sull'officina
-    const permanentWorkshop = [...(gameState.workshopUsages || []), ...(gameState.currentPitStopUsages || [])];
-
+    // NOTA IMPORTANTE: workshopUsages NON viene svuotato! Rimane permanente per tutta la gara.
     updateGameState({
         isPitStopActive: false,
         isEditingAllowed: false,
-        workshopUsages: permanentWorkshop, // Salvataggio permanente delle X
-        currentPitStopUsages: [],
+        currentPitStopUsages: [], // Resettato solo in vista della prossima sosta
         workshopRepairs: {},
         previousTyreUsages: null,
         pitStopInitialTyreLaps: null
