@@ -13,9 +13,9 @@ export function avviaSessionePitStop(numeroGiroCorrente) {
         isPitStopActive: true,
         pitStopStartLap: numeroGiroCorrente,
         previousTyreUsages: [...(gameState.markedUsages.tyres || [])],
-        workshopUsages: [],
+        currentPitStopUsages: [],                                       // Inizia vuoto per questa specifica sosta
         workshopRepairs: {},
-        pitStopInitialTyreLaps: initialTyreLapsSnapshot // Salvataggio dello snapshot
+        pitStopInitialTyreLaps: initialTyreLapsSnapshot                 // Salvataggio dello snapshot
     });
 
     return {
@@ -27,42 +27,43 @@ export function avviaSessionePitStop(numeroGiroCorrente) {
 export function registraPuntoRiparazioneOfficina(componente, indiceCasella) {
     if (!gameState.isPitStopActive) return null;
 
-    let workshop = [...(gameState.workshopUsages || [])];
+    let permanentWorkshop = [...(gameState.workshopUsages || [])];
+    let currentStop = [...(gameState.currentPitStopUsages || [])];
     let repairs = { ...(gameState.workshopRepairs || {}) };
 
-    if (workshop.length < 3) {
+    const allUsed = [...new Set([...permanentWorkshop, ...currentStop])];
+
+    if (allUsed.length < 3) {
         let indiceLibero = -1;
         for (let i = 0; i < 3; i++) {
-            if (!workshop.includes(i)) {
+            if (!allUsed.includes(i)) {
                 indiceLibero = i;
                 break;
             }
         }
         if (indiceLibero !== -1) {
-            workshop.push(indiceLibero);
-            workshop.sort((a, b) => a - b);
+            currentStop.push(indiceLibero);
+            currentStop.sort((a, b) => a - b);
             repairs[indiceLibero] = { component: componente, index: indiceCasella };
             
             updateGameState({ 
-                workshopUsages: workshop,
+                currentPitStopUsages: currentStop,
                 workshopRepairs: repairs
             });
         }
     }
-    return workshop;
+    return currentStop;
 }
 
 export function rimuoviPuntoRiparazioneOfficina(indiceOfficina) {
     if (!gameState.isPitStopActive) return;
 
-    let workshop = [...(gameState.workshopUsages || [])];
+    let currentStop = [...(gameState.currentPitStopUsages || [])];
     let repairs = { ...(gameState.workshopRepairs || {}) };
 
-    if (workshop.includes(indiceOfficina)) {
-        // Rimuove lo slot dall'officina
-        workshop = workshop.filter(idx => idx !== indiceOfficina);
+    if (currentStop.includes(indiceOfficina)) {
+        currentStop = currentStop.filter(idx => idx !== indiceOfficina);
 
-        // Ripristina la X sul componente originale da cui era stata rimossa
         const repairInfo = repairs[indiceOfficina];
         if (repairInfo) {
             const { component, index } = repairInfo;
@@ -80,14 +81,14 @@ export function rimuoviPuntoRiparazioneOfficina(indiceOfficina) {
         }
 
         updateGameState({
-            workshopUsages: workshop,
+            currentPitStopUsages: currentStop,
             workshopRepairs: repairs
         });
     }
 }
 
 export function ottieniStringaMovOfficina() {
-    const count = (gameState.workshopUsages || []).length;
+    const count = (gameState.currentPitStopUsages || []).length;
     if (count === 1) return "-2 MOV";
     if (count === 2) return "-4 MOV";
     if (count === 3) return "-6 MOV";
@@ -97,21 +98,19 @@ export function ottieniStringaMovOfficina() {
 export function finalizzaRipartenzaDaiBox() {
     const stint2Attivo = Object.values(gameState.tyreLaps).some(laps => laps.some(g => g > 1));
 
-    if (!stint2Attivo && gameState.workshopUsages.length === 0) {
+    if (!stint2Attivo && (gameState.workshopUsages || []).length === 0 && (gameState.currentPitStopUsages || []).length === 0) {
         return {
             operazioneRiuscita: false,
             messaggioDescrittivo: "Impossibile uscire dai box: Devi selezionare lo stint 2 o 3 per i pneumatici prima di ripartire!"
         };
     }
 
-    // 1. Calcolo malus riparazioni officina
-    const quantitaPuntiOfficinaUsati = gameState.workshopUsages.length;
+    const quantitaPuntiOfficinaUsati = (gameState.currentPitStopUsages || []).length;
     let malusMovFinaleOfficina = 0;
     if (quantitaPuntiOfficinaUsati === 1) malusMovFinaleOfficina = -2;
     else if (quantitaPuntiOfficinaUsati === 2) malusMovFinaleOfficina = -4;
     else if (quantitaPuntiOfficinaUsati === 3) malusMovFinaleOfficina = -6;
 
-    // 2. Calcolo bilancio carburante in base alle caselle libere rimaste
     const baseBenzina = gameState.baseValues.fuel;
     const allocBenzina = gameState.allocations.fuel;
     const totaleCaselleDisponibiliBenzina = baseBenzina + allocBenzina;
@@ -128,21 +127,22 @@ export function finalizzaRipartenzaDaiBox() {
         fuelText = "+1 MOV";
     }
 
-    // 3. Somma algebrica per il totale netto
     const totaleNetto = malusMovFinaleOfficina + fuelMov;
     const totaleNettoStr = totaleNetto >= 0 ? `+${totaleNetto}` : `${totaleNetto}`;
 
-    // 4. Pulizia dello stato della sosta box
+    // Consolida le riparazioni correnti nello storico permanente delle X sull'officina
+    const permanentWorkshop = [...(gameState.workshopUsages || []), ...(gameState.currentPitStopUsages || [])];
+
     updateGameState({
         isPitStopActive: false,
         isEditingAllowed: false,
-        workshopUsages: [],
+        workshopUsages: permanentWorkshop, // Salvataggio permanente delle X
+        currentPitStopUsages: [],
         workshopRepairs: {},
         previousTyreUsages: null,
         pitStopInitialTyreLaps: null
     });
 
-    // 5. Messaggio di riepilogo combinato dettagliato
     const messaggioRiepilogoUscita = `Uscita dai box completata!\nRiparazioni: ${malusMovFinaleOfficina} MOV\nBilancio carburante: ${fuelText}\nTotale movimento netto: ${totaleNettoStr} MOV.\nIl contatore malus è stato azzerato a +0 MOV.`;
 
     return {
