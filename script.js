@@ -1,11 +1,10 @@
 // ==========================================
 // MODULO: SCRIPT PONTE / ENTRY POINT (script.js)
-// Collega l'HTML monolitico ai moduli JavaScript moderni
 // ==========================================
 
 import { applyTheme, inizializzaLayout } from './layout.js';
-import { gameState, updateGameState, loadGameState } from './state.js';
-import { inizializzaMeteoGara, ottieniEtichettaMeteo, ottieniIconaMeteo, eseguiControlloMeteoVariabile, verificaSeAsfaltoBagnato } from './weather.js';
+import { gameState, updateGameState } from './state.js';
+import { inizializzaMeteoGara, ottieniEtichettaMeteo, ottieniIconaMeteo, eseguiControlloMeteoVariabile } from './weather.js';
 import { 
     inizializzaSchedaPilota, 
     ufficializzaSchedaPerGara, 
@@ -223,8 +222,8 @@ window.renderLobbiesContainer = function() {
             ${sonoHost ? `<button class="btn btn-danger" style="width: auto; padding: 6px 12px; margin: 0; font-size: 0.75rem;" onclick="richiediEliminazioneStanza('${stanza.code}')">Elimina</button>` : ''}
         `;
         
-        card.onclick = (e) => {
-            if (e.target.tagName === 'BUTTON') return;
+        card.onclick = (eventoClick) => {
+            if (eventoClick.target.tagName === 'BUTTON') return;
 
             document.querySelectorAll('.lobby-card').forEach(c => c.classList.remove('selected'));
             card.classList.add('selected');
@@ -241,7 +240,6 @@ window.renderLobbiesContainer = function() {
 
 window.openJoinGameScreen = function() {
     window.showScreen('screen-join-game');
-    
     richiediListaStanze();
 
     const joinFormSection = document.getElementById('join-form-section');
@@ -406,18 +404,9 @@ window.processWeatherCheck = function(newCheck) {
 
 // --- GESTIONE ISPEZIONE SCHEDE AVVERSARI (SCOUTING LIVE) ---
 
-window.aggiornaVistaIspezioneLive = function(pilotId, listaPiloti) {
-    const pilotaTarget = listaPiloti.find(p => p.id === pilotId);
-    if (pilotaTarget && pilotaTarget.boardData) {
-        Object.assign(gameState, pilotaTarget.boardData);
-        renderBoard();
-    }
-};
-
 window.inspectPilotBoard = function(pilotId) {
     window.inspectedPilotId = pilotId;
     const elencoAvversari = window.currentRoomPilots || []; 
-    const pilotaTarget = elencoAvversari.find(p => p.id === pilotId);
     
     const risultato = attivaModalitaIspezioneAvversario(pilotId, elencoAvversari);
 
@@ -433,10 +422,7 @@ window.inspectPilotBoard = function(pilotId) {
         banner.style.display = 'block';
     }
 
-    if (pilotaTarget && pilotaTarget.boardData) {
-        Object.assign(gameState, pilotaTarget.boardData);
-        renderBoard();
-    }
+    renderBoard();
 };
 
 window.returnToMyBoard = function() {
@@ -445,11 +431,6 @@ window.returnToMyBoard = function() {
     const banner = document.getElementById('inspection-banner');
     if (banner) {
         banner.style.display = 'none';
-    }
-
-    // Ripristina lo stato salvato del giocatore locale
-    if (gameState.code && gameState.playerId) {
-        loadGameState(gameState.code, gameState.playerId);
     }
 
     const raceControls = document.getElementById('race-controls');
