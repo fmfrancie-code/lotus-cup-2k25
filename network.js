@@ -1,5 +1,6 @@
 // MODULO: network.js
 import { aggiornaTelemetria } from './telemetryGrid.js';
+import { renderBoard } from './mainSchedaController.js';
 
 let socket = null;
 
@@ -13,12 +14,9 @@ export function inizializzaConnessioneServer() {
             window.currentRoomPilots = roomData.pilots;
             aggiornaTelemetria(roomData.pilots);
 
-            // Se stiamo ispezionando un pilota e lui aggiorna la scheda, rinfreschiamo la plancia live!
+            // Se stiamo ispezionando un pilota e lui aggiorna la scheda, aggiorniamo la vista live!
             if (window.inspectedPilotId) {
-                const pilotaIspezionato = roomData.pilots.find(p => p.id === window.inspectedPilotId);
-                if (pilotaIspezionato && typeof window.renderBoardAvversario === 'function') {
-                    window.renderBoardAvversario(pilotaIspezionato.boardData);
-                }
+                renderBoard();
             }
         }
     });
