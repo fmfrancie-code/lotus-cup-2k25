@@ -14,7 +14,7 @@ export function inizializzaConnessioneServer() {
             window.currentRoomPilots = roomData.pilots;
             aggiornaTelemetria(roomData.pilots);
 
-            // Se stiamo ispezionando un pilota e lui aggiorna la scheda, aggiorniamo la vista live!
+            // Se stiamo ispezionando un pilota e lui aggiorna la scheda, aggiorniamo la vista in tempo reale
             if (window.inspectedPilotId) {
                 renderBoard();
             }
