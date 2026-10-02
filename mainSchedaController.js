@@ -38,8 +38,8 @@ function getActiveBoardState() {
 }
 
 /**
- * Funzione di supporto per sincronizzare in tempo reale lo stato con il server (via Socket.io).
- * Non usa il localStorage: spedisce semplicemente i dati aggiornati alla stanza.
+ * Funzione di supporto per sincronizzare in un unico pacchetto lo stato con il server (via Socket.io).
+ * Viene chiamata solo quando si conferma/chiude la modifica (blocco edit) o all'uscita dai box.
  */
 function sincronizzaStatoRemoto() {
     if (gameState.code && gameState.playerId) {
@@ -51,7 +51,6 @@ function sincronizzaStatoRemoto() {
         });
     }
 }
-
 
 /**
  * Inizializza la scheda del pilota caricando le preferenze e impostando il tema grafico.
@@ -147,7 +146,7 @@ export function gestisciUscitaBox() {
             sheetStatus: "Aggiornato"
         });
             
-        sincronizzaStatoRemoto()
+        sincronizzaStatoRemoto(); // Invia il pacchetto completo alla fine del pit stop
         renderTyreDeck();      
         renderWorkshopUI();    
         renderBoard();
@@ -216,7 +215,7 @@ export function gestisciModificaUsuraInGara(tipoComponente, indiceCasella) {
 
     if (risultatoModifica && risultatoModifica.operazioneRiuscita) {
         updateGameState({ sheetStatus: "Aggiornato" });
-        sincronizzaStatoRemoto()
+        // NOTA: Niente sincronizzazione qui per singolo click. Verrà inviato tutto il pacchetto bloccando l'edit.
     }
 
     const componentiRiparabiliInOfficina = ['brakes', 'body', 'engine', 'suspension'];
@@ -526,7 +525,16 @@ export function gestisciAggiornamentoAlettoneDopoModifica(tipoComponente) {
 
 export function toggleRaceEdit() {
     if (gameState.isPitStopActive) return; 
+    
+    // Esegue il toggle della modalità edit
     toggleEditFromModule();
+    
+    // Se la modalità edit è stata appena chiusa/bloccata (quindi isEditingAllowed è diventato false),
+    // inviamo l'intero pacchetto aggiornato al server in un'unica soluzione!
+    if (!gameState.isEditingAllowed) {
+        sincronizzaStatoRemoto();
+    }
+    
     renderBoard();
 }
 
